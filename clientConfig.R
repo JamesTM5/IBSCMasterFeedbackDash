@@ -1,0 +1,31 @@
+#This file contains the school details that need to be manually updated to
+#interpret the .xlsx data output from Polinode and process it for the IBSC
+#Dashboard.
+
+#What is the file that contains the data?
+  #Demo Data
+  # dataFile <- "Time Academy Class 4E Data.xlsx"
+  #dataFile <- "Time Academy Student Survey 4D.xlsx"
+
+dataFile <- "anonExample2.xlsx"
+
+#What does the client call themselves?
+clientName <- "Organisation One"
+
+className <- "Class One"
+
+#what category of respondent is being surveyed?
+participantType <- "Student"
+
+#Which SDV have been supplied for analysis alongside network data?
+#(must be factorial data)
+
+socioDemographicVariables <- c(
+  "Gender",
+  "Home Language",
+  "Student to Teacher Relationship Score",
+  "Wellbeing Score")
+
+#Should participant names be shown?
+anonymous <- FALSE
+
