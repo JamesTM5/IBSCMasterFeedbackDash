@@ -3,9 +3,11 @@
 #nb. To install use the commented code below, but then
 # re-comment it or the dash won't successfully publish to shinyApps.io
 
-# packages = c("igraph", "networkD3", "openxlsx",
+# packages = c("igraph","networkD3", "openxlsx",
 #              "flexdashboard", "DT", "shiny",
-#              "tidyverse", "knitr", "plotly", "humaniformat")
+#              "tidyverse", "knitr", "plotly",
+#              "humaniformat", "UpSetR", "dplyr",
+#              "data.table")
 # # installed_packages <- packages %in% rownames(installed.packages())
 # # if (any(installed_packages == FALSE)) {
 # #   install.packages(packages[!installed_packages])
@@ -24,3 +26,5 @@ library("knitr")
 library("plotly")
 library("humaniformat")
 library("UpSetR")
+library("dplyr")
+library("data.table")
