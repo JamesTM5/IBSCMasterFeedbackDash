@@ -7,7 +7,7 @@
   # dataFile <- "Time Academy Class 4E Data.xlsx"
   #dataFile <- "Time Academy Student Survey 4D.xlsx"
 
-dataFile <- "anonExample2.xlsx"
+dataFile <- "test data/IBSC Student Scots 7TGAR1.xlsx"
 
 #What does the client call themselves?
 clientName <- "Organisation One"
