@@ -20,7 +20,8 @@ resource_files:
 source("packageSetup.R")
 
 #on first pull, move the .xlsx sheets into the directory and run setup.R to
-#generate the .RDS files in the working directory needed by the dash
+#generate the .RDS files in the working directory needed by the dash.  This file
+#need not be deployed to increase speed and safeguard alghorithms.
 
 #Read in all .RDS files in the working directory
 

@@ -17,14 +17,16 @@ className <- "Class One"
 #what category of respondent is being surveyed?
 participantType <- "Student"
 
-#Which SDV have been supplied for analysis alongside network data?
-#(must be factorial data)
+#Which SDV have been supplied for analysis alongside network data? (must be
+#factorial data, in the order it appears in the .xlsx and is case sensitive)
 
 socioDemographicVariables <- c(
-  "Gender",
-  "Home Language",
-  "Student to Teacher Relationship Score",
-  "Wellbeing Score")
+  "co-curricular",
+  "Day/Boarder",
+  "House",
+  "International /Domestic",
+  "TSC siblings",
+  "winter sport")
 
 #Should participant names be shown?
 anonymous <- FALSE
