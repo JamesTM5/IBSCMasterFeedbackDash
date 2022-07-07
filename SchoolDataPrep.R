@@ -1,6 +1,7 @@
 #This script takes data output from Polinode, and processes it for use in the
 #IBSC Class dashboard.  To use, put the .xlsx output from all the surveys for a
 #given school from polinode into a directory, add the path to fileList below and
+#make sure the file name is in the format ".Student <class name>.xlsx".
 #then edit the survey information and the client information in surveyConfig.R
 #and clientConfig.R and source the script. The output will be in the working
 #directory (the .RDS files needed by the dashboard). The .xlsx and this file do
@@ -24,6 +25,10 @@ SSDashAnalysis <- function (file) {
   edges2 <- read.xlsx(file, sheet = 3)
   edges3 <- read.xlsx(file, sheet = 4)
 
+#extract class name from file  
+  className <- substring(file, regexpr("Student", file) + 8)
+  className <- substring(className, 1, nchar(className)-5) #remove ".xlsx"
+  
   #set random seed from config file
   set.seed (seed)
  
