@@ -246,6 +246,41 @@ DashAnalysis <- function (dataFile,
     polarGraphList[[i]] <- generatePolar(data = surveyData[[i]])
   }
   
+  source("generateDegreeHistogram.R")
+  degreeAllHistogramList <- list()
+  degreeInHistogramList <- list()
+  degreeOutHistogramList <- list()
+  for(i in 1:length(totalNetworkInfo)) {
+    degreeAllHistogramList[[i]] <- generateDegreeHistogram(totalNetworkInfo[[i]][[3]])
+    degreeInHistogramList[[i]] <- generateDegreeHistogram(totalNetworkInfo[[i]][[1]])
+    degreeOutHistogramList[[i]] <- generateDegreeHistogram(totalNetworkInfo[[i]][[2]])
+  }
+
+#Extract and format Authority Score
+  ASList <- list()
+  for(i in 1:length(totalNetworkInfo)) {
+    AS <- setDT(as.data.frame(totalNetworkInfo[[i]][[8]]),
+                            keep.rownames = TRUE) []
+    ASFormatted <- AS[[1]]
+    for (j in 1:length(ASFormatted)) {
+      ASFormatted[[j]] <- paste(ASFormatted[[j]], "<br>", sep = " ")
+    }
+    ASList[[i]] <- ASFormatted[1:3]
+  }
+
+#Extract and format Hub Score
+  HSList <- list()
+  for(i in 1:length(totalNetworkInfo)) {  
+    HS <- data.table::setDT(as.data.frame(totalNetworkInfo[[i]][[7]]),
+                            keep.rownames = TRUE) []
+    HSFormatted <- HS[[1]]
+    for (j in 1:length(HSFormatted)) {
+      HSFormatted[[j]] <- paste(HSFormatted[[j]], "<br>", sep = " ")
+    }
+    HSList[[i]] <- HSFormatted[1:3]
+  }
+  
+  
 }
 
   
