@@ -11,12 +11,6 @@ nodeAnswers <- c("Strongly Agree", "Agree", "Slightly Agree", "Slightly Disagree
 edgeAnswers <- c("Strongly Agree", "Agree", "Slightly Agree", "Slightly Disagree", 
                  "Disagree", "Strongly Disagree")
 
-# Where should the system find the responses to the question from participants?
-#(These are the spreadsheet column names - the system requires an exact match)
-  #For Non-Relationship Questions (in the nodes datasheet, excluding
-  #sociodemographics; labelled Q1-* and Q5*)
-responseColumns <- c(11:16, 17:26)
-
 # under what threshold should edge writing be rejected?
 thresholdForEdgeDrawing <- 0.99
 
