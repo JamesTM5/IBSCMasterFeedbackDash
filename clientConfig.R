@@ -14,20 +14,14 @@ clientName <- "Organisation One"
 
 className <- "Class One"
 
-#what category of respondent is being surveyed?
-participantType <- "Student"
-
 #Which SDV have been supplied for analysis alongside network data? (must be
-#factorial data, in the order it appears in the .xlsx and is case sensitive)
+#factorial data, in the order it appears in the .xlsx and is case sensitive.
+#Additionally, it must not contain the character string "numeric".)
 
 socioDemographicVariables <- c(
-  "co-curricular",
-  "Day/Boarder",
-  "House",
-  "International /Domestic",
-  "TSC siblings",
-  "winter sport")
-
-#Should participant names be shown?
-anonymous <- FALSE
-
+                                "co-curricular",
+                                "Day/Boarder",
+                                "House",
+                                "International /Domestic",
+                                "TSC siblings",
+                                "winter sport")

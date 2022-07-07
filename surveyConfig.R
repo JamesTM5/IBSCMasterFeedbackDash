@@ -16,8 +16,6 @@ edgeAnswers <- c("Strongly Agree", "Agree", "Slightly Agree", "Slightly Disagree
   #For Non-Relationship Questions (in the nodes datasheet, excluding
   #sociodemographics; labelled Q1-* and Q5*)
 responseColumns <- c(11:16, 17:26)
-  #For Relationship Questions
-responseColumnSSNQ <- "Network"
 
 # under what threshold should edge writing be rejected?
 thresholdForEdgeDrawing <- 0.99
