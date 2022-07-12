@@ -1,0 +1,14 @@
+name: IBSCTestDash
+title: IBSCTestDash
+username:
+account: relationshipsfoundation
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6623184
+bundleId: 6087615
+url: https://relationshipsfoundation.shinyapps.io/IBSCTestDash/
+when: 1657540223.56174
+lastSyncTime: 1657540223.56174
+asMultiple: FALSE
+asStatic: FALSE
+additionalFiles: Organisation One Scots 7TGAR1 S to S Dash Data.rds

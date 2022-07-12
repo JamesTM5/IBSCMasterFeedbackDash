@@ -13,7 +13,6 @@ resource_files:
 - assets/forcedirected/fd.js
 - assets/forcedirected/repeated-fd.js
 - assets/forcedirected/styles.css
-- /packageSetup.R
 ---
 
 ```{r setup, include=FALSE}
@@ -251,7 +250,7 @@ testData <- jsonlite::read_json("D3JSDataA.json")
 
 source("assets/forcedirected/forcedirected.R")
 forcedirectedOutput("forcedirected1")
-output$forcedirected1 <- renderForcedirected(forcedirected("Hello", testData))
+output$forcedirected1 <- renderForcedirected(forcedirected("Hello", testData$First))
 
 ```
 
@@ -498,8 +497,8 @@ Network Maps
 testData <- jsonlite::read_json("D3JSDataA.json")
 
 source("assets/forcedirected/forcedirected.R")
-forcedirectedOutput("forcedirected1")
-output$forcedirected1 <- renderForcedirected(forcedirected("Hello", testData))
+forcedirectedOutput("forcedirected2")
+output$forcedirected2 <- renderForcedirected(forcedirected("Hello", testData$First))
 
 ```
 
@@ -759,8 +758,8 @@ Network Maps
 testData <- jsonlite::read_json("D3JSDataA.json")
 
 source("assets/forcedirected/forcedirected.R")
-forcedirectedOutput("forcedirected1")
-output$forcedirected1 <- renderForcedirected(forcedirected("Hello", testData))
+forcedirectedOutput("forcedirected3")
+output$forcedirected3 <- renderForcedirected(forcedirected("Hello", testData$First))
 
 ```
 
