@@ -39,31 +39,49 @@ SSDashAnalysis <- function (file) {
   #make the numeric keypair dataframes from which to convert node answers;
   #function in makeResponseNumeric.R
   
+  nodesKeyBelongingness <- keyToNumeric(scoreData = nodes[,responseColumnsBelongingness],
+                                        answers = nodeAnswersBelongingness,
+                                        normalized = FALSE)
   
-  nodesKey <- keyToNumeric(scoreData = nodes[,responseColumns],
-                      answers = nodeAnswers,
-                      normalized = FALSE)
+  nodesKeyStudentTeacher <- keyToNumeric(scoreData = nodes[,responseColumnsStudentTeacher],
+                                         answers = nodeAnswersStudentTeacher,
+                                         normalized = FALSE)
   
   #loop over each relevant column and bind a numeric column to nodes
-  responseColumns <- nodes %>% select(contains(c('Q1-', 'Q5-')))
-  responseColumnNames <- names(responseColumns)
+  
+  responseColumnsBelongingness <- nodes %>% select(contains(c('Q1-')))
+  responseColumnNamesBelongingness <- names(responseColumnsBelongingness)
+  
+  responseColumnsStudentTeacher <- nodes %>% select(contains(c('Q5-')))
+  responseColumnNamesStudentTeacher <- names(responseColumnsStudentTeacher)
+  
   #get column numbers
   
-  Q1responseColumnIndices <- grep("Q1", colnames(nodes))
-  Q5responseColumnIndices <- grep("Q5", colnames(nodes))
-  responseColumnIndices <- c(Q1responseColumnIndices, Q5responseColumnIndices)
+  belongingnessResponseColumnIndices <- grep("Q1", colnames(nodes))
+  studentTeacherResponseColumnIndices <- grep("Q5", colnames(nodes))
   
-
-  for(i in 1:length(nodes[,responseColumnIndices])) {
+  for(i in 1:length(nodes[,belongingnessResponseColumnIndices])) {
     numericReplacementVector <- makeResponseNumeric(
-                                              data = nodes[,responseColumnIndices[i]],
-                                              conversionKey = nodesKey)
+      data = nodes[,belongingnessResponseColumnIndices[i]],
+      conversionKey = nodesKeyBelongingness)
     numericReplacementColumn <- data.frame(numericReplacementVector)
     getNames <- names(nodes)
     names(numericReplacementColumn) <- paste0(
-      getNames[[responseColumnIndices[[i]]]], ".numeric")
-  nodes <- cbind(nodes, numericReplacementColumn)
+      getNames[[belongingnessResponseColumnIndices[[i]]]], ".numeric")
+    nodes <- cbind(nodes, numericReplacementColumn)
+    
+  }
   
+  for(i in 1:length(nodes[,studentTeacherResponseColumnIndices])) {
+    numericReplacementVector <- makeResponseNumeric(
+      data = nodes[,studentTeacherResponseColumnIndices[i]],
+      conversionKey = nodesKeyStudentTeacher)
+    numericReplacementColumn <- data.frame(numericReplacementVector)
+    getNames <- names(nodes)
+    names(numericReplacementColumn) <- paste0(
+      getNames[[studentTeacherResponseColumnIndices[[i]]]], ".numeric")
+    nodes <- cbind(nodes, numericReplacementColumn)
+    
   }
   
   #make the numeric keypair dataframes from which to convert
@@ -236,8 +254,8 @@ SSDashAnalysis <- function (file) {
     edgeDataList[[1]] <- edgeDataSetup(Graph2[[1]])
     edgeDataList[[2]] <- edgeDataSetup(Graph2[[2]])    
     edgeDataList[[3]] <- edgeDataSetup(Graph2[[3]])
-    
-#prepare Dendrograms
+
+# Prepare Dendrograms
     dendrogramList <- list()
     dendrogramList[[1]] <- as.dendrogram(SSNQCommunitiesDataList[[1]])
     dendrogramList[[2]] <- as.dendrogram(SSNQCommunitiesDataList[[2]])
@@ -336,6 +354,30 @@ SSDashAnalysis <- function (file) {
     nodes <- merge(nodes, communityList[[1]])
     nodes <- merge(nodes, communityList[[2]])
     nodes <- merge(nodes, communityList[[3]])
+    
+# Prepare Nodes Dataframe for each D3 Graph
+    #adjust Q1 and Q5 to high/medium/low
+    #sum Q1 and Q5, with high/medium/low
+    
+    
+    D3NodeDataSetup <- function(nodes){
+       D3NodesList <- list()
+       for(i in 1:length(totalNetworkInfo)) {
+        nodesColNamesList <- c("id", socioDemographicVariables, paste(
+          "Communities Relationship Question", i, sep = " "))
+        names(nodes) <- sapply(names(nodes),
+                           function(v) {gsub("\\."," ", as.character(v))})
+        nodesDF <- nodes[,nodesColNamesList]
+#Rename Communities Relationship Question i to community to suit the D3 vis code
+        x <- length(names(nodesDF))
+        names(nodesDF)[x] <- "community"
+        D3NodesList[[i]] <- nodesDF
+      }
+    }
+   
+    D3NodeDataSetup(nodes = nodes)
+   
+#remove numeric response columns from nodes
     nodes <- nodes %>% select(!contains('numeric'))
   
     classDashAnalysisOutput <- list(clientName,

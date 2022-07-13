@@ -5,7 +5,6 @@ output:
     orientation: columns
     social: menu
     vertical_layout: fill
-    css: gaugeAdjustment.css
 runtime: shiny
 resource_files:
 - assets/d3.min.js
@@ -80,7 +79,7 @@ collateData <- function(file) {
 
 prepData <- function(filePair) {
   First <- collateData(filePair)
-  First$edges$score <- as.character(First$edges$score)
+ # First$edges$score <- as.character(First$edges$score)
   #Second <- collateData(filePair[[2]])
   JSONOut <- list(First = First)
 }
@@ -138,6 +137,19 @@ Questionnaires, along with any other information provided to us by you
 and/or `r fileList[[1]]$clientName`.
 
   Our analysis shows this class to be moderately healthy and with a moderate potential for improvement.
+
+
+### Class Communities Dendrogram  {data-height=400} 
+<center>
+```{r}
+
+plot(fileList[[1]]$dendrogramList[[1]], col = "#487AA1", col.main = "#45ADA8", col.lab = "#7C8071", 
+    col.axis = "#F38630", lwd = 3, lty = 3, sub = "", hang = -1, axes = TRUE)
+
+```
+</center>
+
+> The 'tree and leaf' dendrogram shows how the class is split into subgroups, which you can see mirrored in the colour of the dots on the summary graph above.  The higher the number on the vertical axis where the branch splits, the bigger the distance between the group members attached to either side.
   
 Row {data-width=250}
 -----------------------------------------------------------------------
@@ -249,24 +261,15 @@ Network Maps
 testData <- jsonlite::read_json("D3JSDataA.json")
 
 source("assets/forcedirected/forcedirected.R")
-forcedirectedOutput("forcedirected1")
-output$forcedirected1 <- renderForcedirected(forcedirected("Hello", testData$First))
+#forcedirectedOutput("forcedirected1")
+#output$forcedirected1 <- renderForcedirected(forcedirected("Hello", testData$First))
 
+
+repeatedforcedirectedOutput("repeatedforcedirected1")
+output$repeatedforcedirected1 <- renderRepeatedforcedirected(repeatedforcedirected("Hello", testData))
 ```
 
 > The lines on this graph represent the strongest relationships in the class. Each dot is a person, and each line is a strong relationship. The colours indicate cliques, or subgroups in the data which naturally form as people form and maintain social networks. Zoom using the scroll wheel or pinch on a touchscreen device, and drag people around to see who is connected most closely to them. The position on the graph doesn't matter itself, its about the position relative to the other people and how linked in they are with the group as a whole.
-
-### Class Communities Dendrogram  {data-height=400} 
-<center>
-```{r}
-
-plot(fileList[[1]]$dendrogramList[[1]], col = "#487AA1", col.main = "#45ADA8", col.lab = "#7C8071", 
-    col.axis = "#F38630", lwd = 3, lty = 3, sub = "", hang = -1, axes = TRUE)
-
-```
-</center>
-
-> The 'tree and leaf' dendrogram shows how the class is split into subgroups, which you can see mirrored in the colour of the dots on the summary graph above.  The higher the number on the vertical axis where the branch splits, the bigger the distance between the group members attached to either side.
 
 Key Network Information {data-width=250}
 -----------------------------------------------------
@@ -387,6 +390,18 @@ and/or `r fileList[[1]]$clientName`.
 
   Our analysis shows this class to be moderately healthy and with a moderate potential for improvement.
   
+### Class Communities Dendrogram  {data-height=400} 
+<center>
+```{r}
+
+plot(fileList[[1]]$dendrogramList[[2]], col = "#487AA1", col.main = "#45ADA8", col.lab = "#7C8071", 
+    col.axis = "#F38630", lwd = 3, lty = 3, sub = "", hang = -1, axes = TRUE)
+
+```
+</center>
+
+> The 'tree and leaf' dendrogram shows how the class is split into subgroups, which you can see mirrored in the colour of the dots on the summary graph above.  The higher the number on the vertical axis where the branch splits, the bigger the distance between the group members attached to either side.
+  
 Row {data-width=250}
 -----------------------------------------------------------------------
 
@@ -494,27 +509,15 @@ Network Maps
 
 ```{r}
 
-testData <- jsonlite::read_json("D3JSDataA.json")
-
-source("assets/forcedirected/forcedirected.R")
-forcedirectedOutput("forcedirected2")
-output$forcedirected2 <- renderForcedirected(forcedirected("Hello", testData$First))
+# testData <- jsonlite::read_json("D3JSDataA.json")
+# 
+# source("assets/forcedirected/forcedirected.R")
+# forcedirectedOutput("forcedirected2")
+# output$forcedirected2 <- renderForcedirected(forcedirected("Hello", testData$First))
 
 ```
 
 > The lines on this graph represent the strongest relationships in the class. Each dot is a person, and each line is a strong relationship. The colours indicate cliques, or subgroups in the data which naturally form as people form and maintain social networks. Zoom using the scroll wheel or pinch on a touchscreen device, and drag people around to see who is connected most closely to them. The position on the graph doesn't matter itself, its about the position relative to the other people and how linked in they are with the group as a whole.
-
-### Class Communities Dendrogram  {data-height=400} 
-<center>
-```{r}
-
-plot(fileList[[1]]$dendrogramList[[2]], col = "#487AA1", col.main = "#45ADA8", col.lab = "#7C8071", 
-    col.axis = "#F38630", lwd = 3, lty = 3, sub = "", hang = -1, axes = TRUE)
-
-```
-</center>
-
-> The 'tree and leaf' dendrogram shows how the class is split into subgroups, which you can see mirrored in the colour of the dots on the summary graph above.  The higher the number on the vertical axis where the branch splits, the bigger the distance between the group members attached to either side.
 
 Key Network Information {data-width=250}
 -----------------------------------------------------
@@ -648,6 +651,20 @@ and/or `r fileList[[1]]$clientName`.
 
   Our analysis shows this class to be moderately healthy and with a moderate potential for improvement.
   
+  
+### Class Communities Dendrogram  {data-height=400} 
+<center>
+```{r}
+
+plot(fileList[[1]]$dendrogramList[[3]], col = "#487AA1", col.main = "#45ADA8", col.lab = "#7C8071", 
+    col.axis = "#F38630", lwd = 3, lty = 3, sub = "", hang = -1, axes = TRUE)
+
+```
+</center>
+
+> The 'tree and leaf' dendrogram shows how the class is split into subgroups, which you can see mirrored in the colour of the dots on the summary graph above.  The higher the number on the vertical axis where the branch splits, the bigger the distance between the group members attached to either side.
+
+  
 Row {data-width=250}
 -----------------------------------------------------------------------
 
@@ -755,27 +772,16 @@ Network Maps
 
 ```{r}
 
-testData <- jsonlite::read_json("D3JSDataA.json")
-
-source("assets/forcedirected/forcedirected.R")
-forcedirectedOutput("forcedirected3")
-output$forcedirected3 <- renderForcedirected(forcedirected("Hello", testData$First))
+# testData <- jsonlite::read_json("D3JSDataA.json")
+# 
+# source("assets/forcedirected/forcedirected.R")
+# forcedirectedOutput("forcedirected3")
+# output$forcedirected3 <- renderForcedirected(forcedirected("Hello", testData$First))
 
 ```
 
 > The lines on this graph represent the strongest relationships in the class. Each dot is a person, and each line is a strong relationship. The colours indicate cliques, or subgroups in the data which naturally form as people form and maintain social networks. Zoom using the scroll wheel or pinch on a touchscreen device, and drag people around to see who is connected most closely to them. The position on the graph doesn't matter itself, its about the position relative to the other people and how linked in they are with the group as a whole.
 
-### Class Communities Dendrogram  {data-height=400} 
-<center>
-```{r}
-
-plot(fileList[[1]]$dendrogramList[[3]], col = "#487AA1", col.main = "#45ADA8", col.lab = "#7C8071", 
-    col.axis = "#F38630", lwd = 3, lty = 3, sub = "", hang = -1, axes = TRUE)
-
-```
-</center>
-
-> The 'tree and leaf' dendrogram shows how the class is split into subgroups, which you can see mirrored in the colour of the dots on the summary graph above.  The higher the number on the vertical axis where the branch splits, the bigger the distance between the group members attached to either side.
 
 Key Network Information {data-width=250}
 -----------------------------------------------------
