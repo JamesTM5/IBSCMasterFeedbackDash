@@ -361,7 +361,6 @@ SSDashAnalysis <- function (file) {
     
     
     D3NodeDataSetup <- function(nodes){
-       D3NodesList <- list()
        for(i in 1:length(totalNetworkInfo)) {
         nodesColNamesList <- c("id", socioDemographicVariables, paste(
           "Communities Relationship Question", i, sep = " "))
@@ -374,7 +373,7 @@ SSDashAnalysis <- function (file) {
         D3NodesList[[i]] <- nodesDF
       }
     }
-   
+    D3NodesList <- list()
     D3NodeDataSetup(nodes = nodes)
    
 #remove numeric response columns from nodes
