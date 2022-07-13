@@ -400,7 +400,8 @@ SSDashAnalysis <- function (file) {
                                     ASList,
                                     overallHealthList,
                                     overallPfIList,
-                                    overallScoresList)
+                                    overallScoresList,
+                                    D3NodesList)
 
     names(classDashAnalysisOutput) <-  c("clientName",
                                          "className",
@@ -422,7 +423,8 @@ SSDashAnalysis <- function (file) {
                                          "ASList",
                                          "overallHealthList",
                                          "overallPfIList",
-                                         "overallScoresList")
+                                         "overallScoresList",
+                                         "D3NodesList")
     
     filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
     write_rds(classDashAnalysisOutput, as.character(filename))
