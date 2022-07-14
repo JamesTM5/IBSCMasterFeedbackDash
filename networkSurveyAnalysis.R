@@ -20,7 +20,7 @@ surveyDataAnalysis <- function(questionData) {
                                  ... = questionData$Network)
   network <- graph_from_data_frame(graphFromDataset, directed = T)
   
-  degreeIn <- degree(  network, mode = "in", normalized = T)
+  degreeIn <- degree(network, mode = "in", normalized = T)
   degreeIn <- round(degreeIn, digits = 2)
   degreeIn <- sort(degreeIn, decreasing = T)
   degreeInDataFrame <- data.frame(degreeIn, names(degreeIn))

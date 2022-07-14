@@ -7,7 +7,7 @@
 #directory (the .RDS files needed by the dashboard). The .xlsx and this file do
 #not need to be published to shinyApps.io
 
-fileList <- list.files(path = "./test data/", pattern = ".Student.*.xlsx",
+fileList <- list.files(path = "test data/", pattern = ".Student.*.xlsx",
                        full.names=TRUE)
 
 SSDashAnalysis <- function (file) {
@@ -43,9 +43,20 @@ SSDashAnalysis <- function (file) {
                                         answers = nodeAnswersBelongingness,
                                         normalized = FALSE)
   
+ 
+  nodesKeyBelongingnessCategorical <- data.frame(nodeAnswersBelongingness)
+  nodesKeyBelongingnessCategorical$newAnswers <- c("High", "Moderate", "Moderate", "Low")
+  names(nodesKeyBelongingnessCategorical) <- c("answers", "newAnswers")
+  
+  nodesKeyBelongingnessCategorical <- data.frame(c(nodeAnswersBelongingness))
+  
   nodesKeyStudentTeacher <- keyToNumeric(scoreData = nodes[,responseColumnsStudentTeacher],
                                          answers = nodeAnswersStudentTeacher,
                                          normalized = FALSE)
+  
+  nodesKeyStudentTeacherCategorical <- data.frame(nodeAnswersStudentTeacher)
+  nodesKeyStudentTeacherCategorical$newAnswers <- c("High", "High", "Moderate", "Moderate", "Low", "Low")
+  names(nodesKeyStudentTeacherCategorical) <- c("answers", "newAnswers")
   
   #loop over each relevant column and bind a numeric column to nodes
   
@@ -71,7 +82,28 @@ SSDashAnalysis <- function (file) {
     nodes <- cbind(nodes, numericReplacementColumn)
     
   }
-  
+  # 
+  # for(i in 1:length(nodes[,belongingnessResponseColumnIndices])) {
+  #     answerVector <- nodes[,belongingnessResponseColumnIndices[i]]
+  #     newScoreVector <- list()
+  #   for(j in 1:length(answerVector)) {
+  #    
+  #     if(answerVector[j] %in% nodesKeyBelongingnessCategorical$answers) {
+  #       result <- which(nodesKeyBelongingnessCategorical$answers == answerVector[j])
+  #       newScore <- nodesKeyBelongingnessCategorical$newAnswers[result]
+  #       newScoreVector <- append(newScoreVector, newScore)
+  #     } else {
+  #       newScore <- NA
+  #       newScoreVector <- append(newScoreVector, newScore)
+  #     }
+  #   }
+  #   newReplacementColumn <- data.frame(newScoreVector)
+  #   getNames <- names(nodes)
+  #   names(newReplacementColumn) <- paste0(
+  #     getNames[[belongingnessResponseColumnIndices[[i]]]], ".result")
+  #   nodes <- cbind(nodes, newReplacementColumn)
+  # }
+  # 
   for(i in 1:length(nodes[,studentTeacherResponseColumnIndices])) {
     numericReplacementVector <- makeResponseNumeric(
       data = nodes[,studentTeacherResponseColumnIndices[i]],
@@ -112,6 +144,8 @@ SSDashAnalysis <- function (file) {
   
   #List network question data to enable looping over it
     surveyData <- list(edges1, edges2, edges3)
+  #save a list containing the raw data for passing raw to the dash
+    rawEdgesList <- surveyData
     
 #Filter edges of each network question for most positive only    
     surveyDataFiltered <- list()
@@ -257,9 +291,9 @@ SSDashAnalysis <- function (file) {
 
 # Prepare Dendrograms
     dendrogramList <- list()
-    dendrogramList[[1]] <- as.dendrogram(SSNQCommunitiesDataList[[1]])
-    dendrogramList[[2]] <- as.dendrogram(SSNQCommunitiesDataList[[2]])
-    dendrogramList[[3]] <- as.dendrogram(SSNQCommunitiesDataList[[3]])
+    dendrogramList[[1]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[1]])))
+    dendrogramList[[2]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[2]])))
+    dendrogramList[[3]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[3]])))
 
 # Overall Scoring calculation
   source("overallScoring.R")
@@ -359,25 +393,32 @@ SSDashAnalysis <- function (file) {
     #adjust Q1 and Q5 to high/medium/low
     #sum Q1 and Q5, with high/medium/low
     
+
     
-    D3NodeDataSetup <- function(nodes){
-       for(i in 1:length(totalNetworkInfo)) {
-        nodesColNamesList <- c("id", socioDemographicVariables, paste(
-          "Communities Relationship Question", i, sep = " "))
-        names(nodes) <- sapply(names(nodes),
-                           function(v) {gsub("\\."," ", as.character(v))})
-        nodesDF <- nodes[,nodesColNamesList]
+        
+     D3NodesList <- list()
+     for(i in 1:length(totalNetworkInfo)) {
+      nodesColNamesList <- c("id", socioDemographicVariables, paste(
+        "Communities Relationship Question", i, sep = " "), paste(
+          "Degree Relationship Question", i, sep = " "))
+      names(nodes) <- sapply(names(nodes),
+                         function(v) {gsub("\\."," ", as.character(v))})
+      nodesDF <- nodes[,nodesColNamesList]
 #Rename Communities Relationship Question i to community to suit the D3 vis code
-        x <- length(names(nodesDF))
-        names(nodesDF)[x] <- "community"
-        D3NodesList[[i]] <- nodesDF
-      }
-    }
-    D3NodesList <- list()
-    D3NodeDataSetup(nodes = nodes)
+      communityName <- length(names(nodesDF))-1
+      names(nodesDF)[communityName] <- "community"
+#Rename Degree Relationship Question i to community to suit the D3 vis code      
+      degreeName <- length(names(nodesDF))
+      names(nodesDF)[degreeName] <- "Degree"
+      
+      
+      D3NodesList[[i]] <- nodesDF
+     }
    
 #remove numeric response columns from nodes
     nodes <- nodes %>% select(!contains('numeric'))
+    
+
   
     classDashAnalysisOutput <- list(clientName,
                                     className,
@@ -400,7 +441,8 @@ SSDashAnalysis <- function (file) {
                                     overallHealthList,
                                     overallPfIList,
                                     overallScoresList,
-                                    D3NodesList)
+                                    D3NodesList,
+                                    rawEdgesList)
 
     names(classDashAnalysisOutput) <-  c("clientName",
                                          "className",
@@ -423,7 +465,8 @@ SSDashAnalysis <- function (file) {
                                          "overallHealthList",
                                          "overallPfIList",
                                          "overallScoresList",
-                                         "D3NodesList")
+                                         "D3NodesList",
+                                         "rawEdgesList")
     
     filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
     write_rds(classDashAnalysisOutput, as.character(filename))

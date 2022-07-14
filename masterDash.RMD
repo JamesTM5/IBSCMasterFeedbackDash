@@ -98,16 +98,28 @@ for(i in 1:length(fileList)) {
 #source the D3 code to link the R to JS
 source("assets/forcedirected/forcedirected.R")
 
+
 ```
 
 
-Class Relationship Question 1 {data-navmenu="Class Name"}
+Student - Student Interaction Positivity {data-navmenu="Class Name"}
 =======================================================================
   
 Headlines {data-width=200}
 --------------------------------------------------------------------------
 
-### Class Details
+### Question Statement: This person and I have frequent positive interactions either in class or outside class
+
+```{r}
+valueBox(
+  "Positivity",
+  caption = NULL,
+  color = '#186ecc',
+  icon = "fa-comment"
+)
+```
+
+### {-}
 
 ```{r}
 valueBox(
@@ -147,19 +159,35 @@ and/or `r fileList[[1]]$clientName`.
 
   Our analysis shows this class to be moderately healthy and with a moderate potential for improvement.
 
+### Class Predictive Factors
 
-### Class Communities Dendrogram  {data-height=400} 
 <center>
-```{r}
-
-plot(fileList[[1]]$dendrogramList[[1]], col = "#487AA1", col.main = "#45ADA8", col.lab = "#7C8071", 
-    col.axis = "#F38630", lwd = 3, lty = 3, sub = "", hang = -1, axes = TRUE)
-
+```{r, results = 'asis'}
+if (length(fileList[[1]]$homophylyList[[1]][[1]] > 0)) {
+  cat(fileList[[1]]$homophylyList[[1]][[1]])
+} else {
+  cat("None")
+}
 ```
 </center>
 
-> The 'tree and leaf' dendrogram shows how the class is split into subgroups, which you can see mirrored in the colour of the dots on the summary graph above.  The higher the number on the vertical axis where the branch splits, the bigger the distance between the group members attached to either side.
-  
+>These factors statistically significantly influence the nature and function of the class
+
+### Class Non-Predictive Factors
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[1]]$homophylyList[[1]][[2]] > 0)) {
+  cat(fileList[[1]]$homophylyList[[1]][[2]])
+} else {
+  cat("None")
+}
+```
+</center>
+
+>These factors do not statistically significantly influence the nature and
+function of the class
+
 Row {data-width=250}
 -----------------------------------------------------------------------
 
@@ -230,35 +258,17 @@ gauge(reciprocityPercentage, min = 0, max = 100, symbol = '%', gaugeSectors(
 > Both parties agreed on a relationship status
 `r round(reciprocity, digits = 2)*100`% of the time.
 
-### Class Predictive Factors
-
+### Class Communities Dendrogram  {data-height=400} 
 <center>
-```{r, results = 'asis'}
-if (length(fileList[[1]]$homophylyList[[1]][[1]] > 0)) {
-  cat(fileList[[1]]$homophylyList[[1]][[1]])
-} else {
-  cat("None")
-}
+```{r}
+
+fileList[[1]]$dendrogramList[[1]]
+
 ```
 </center>
 
->These factors statistically significantly influence the nature and function of the class
-
-### Class Non-Predictive Factors
-
-<center>
-```{r, results = 'asis'}
-if (length(fileList[[1]]$homophylyList[[1]][[2]] > 0)) {
-  cat(fileList[[1]]$homophylyList[[1]][[2]])
-} else {
-  cat("None")
-}
-```
-</center>
-
->These factors do not statistically significantly influence the nature and
-function of the class
-
+> This shows how the relational landscape divides into subgroups, mirrored in the colour of the dots on the summary graph.  The higher the number on the left, the bigger the distance between the group members attached at the split.
+  
 
 Network Maps 
 ----------------------------------------------------------------
@@ -348,13 +358,25 @@ if(!is.null(fileList[[1]]$isolatesList[[1]])) {
 >These people are not joined to any others in the network by positive
 relationships in at least one of the dimensions they were asked about.
 
-Class Relationship Question 2 {data-navmenu="Class Name"}
+Student - Student Knowing One Another {data-navmenu="Class Name"}
 =======================================================================
   
 Headlines {data-width=200}
 --------------------------------------------------------------------------
 
-### Class Details
+### Question Statement: I am confident that this person and I know each other's skills and interests
+
+```{r}
+valueBox(
+  "Knowing",
+  caption = NULL,
+  color = '#186ecc',
+  icon = "fa-comment"
+)
+```
+
+
+### {-}
 
 ```{r}
 valueBox(
@@ -394,17 +416,34 @@ and/or `r fileList[[1]]$clientName`.
 
   Our analysis shows this class to be moderately healthy and with a moderate potential for improvement.
   
-### Class Communities Dendrogram  {data-height=400} 
+### Class Predictive Factors
+
 <center>
-```{r}
-
-plot(fileList[[1]]$dendrogramList[[2]], col = "#487AA1", col.main = "#45ADA8", col.lab = "#7C8071", 
-    col.axis = "#F38630", lwd = 3, lty = 3, sub = "", hang = -1, axes = TRUE)
-
+```{r, results = 'asis'}
+if (length(fileList[[1]]$homophylyList[[2]][[1]] > 0)) {
+  cat(fileList[[1]]$homophylyList[[2]][[1]])
+} else {
+  cat("None")
+}
 ```
 </center>
 
-> The 'tree and leaf' dendrogram shows how the class is split into subgroups, which you can see mirrored in the colour of the dots on the summary graph above.  The higher the number on the vertical axis where the branch splits, the bigger the distance between the group members attached to either side.
+>These factors statistically significantly influence the nature and function of the class
+
+### Class Non-Predictive Factors
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[1]]$homophylyList[[2]][[2]] > 0)) {
+  cat(fileList[[1]]$homophylyList[[2]][[2]])
+} else {
+  cat("None")
+}
+```
+</center>
+
+>These factors do not statistically significantly influence the nature and
+function of the class
   
 Row {data-width=250}
 -----------------------------------------------------------------------
@@ -476,35 +515,16 @@ gauge(reciprocityPercentage, min = 0, max = 100, symbol = '%', gaugeSectors(
 > Both parties agreed on a relationship status
 `r round(reciprocity, digits = 2)*100`% of the time.
 
-### Class Predictive Factors
-
+### Class Communities Dendrogram  {data-height=400} 
 <center>
-```{r, results = 'asis'}
-if (length(fileList[[1]]$homophylyList[[2]][[1]] > 0)) {
-  cat(fileList[[1]]$homophylyList[[2]][[1]])
-} else {
-  cat("None")
-}
+```{r}
+
+fileList[[1]]$dendrogramList[[2]]
+
 ```
 </center>
 
->These factors statistically significantly influence the nature and function of the class
-
-### Class Non-Predictive Factors
-
-<center>
-```{r, results = 'asis'}
-if (length(fileList[[1]]$homophylyList[[2]][[2]] > 0)) {
-  cat(fileList[[1]]$homophylyList[[2]][[2]])
-} else {
-  cat("None")
-}
-```
-</center>
-
->These factors do not statistically significantly influence the nature and
-function of the class
-
+> This shows how the relational landscape divides into subgroups, mirrored in the colour of the dots on the summary graph.  The higher the number on the left, the bigger the distance between the group members attached at the split.
 
 Network Maps 
 ----------------------------------------------------------------
@@ -596,25 +616,25 @@ if(!is.null(fileList[[1]]$isolatesList[[2]])) {
 relationships in at least one of the dimensions they were asked about.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-Class Relationship Question 3 {data-navmenu="Class Name"}
+Student - Student Value and Respect {data-navmenu="Class Name"}
 =======================================================================
   
 Headlines {data-width=200}
 --------------------------------------------------------------------------
 
-### Class Details
+### Question Statement: I feel that this person values and respects my contributions in class
+
+```{r}
+valueBox(
+  "Valuing",
+  caption = NULL,
+  color = '#186ecc',
+  icon = "fa-comment"
+)
+```
+
+
+### {-}
 
 ```{r}
 valueBox(
@@ -654,24 +674,42 @@ and/or `r fileList[[1]]$clientName`.
 
   Our analysis shows this class to be moderately healthy and with a moderate potential for improvement.
   
-  
-### Class Communities Dendrogram  {data-height=400} 
+
+### Class Predictive Factors
+
 <center>
-```{r}
-
-plot(fileList[[1]]$dendrogramList[[3]], col = "#487AA1", col.main = "#45ADA8", col.lab = "#7C8071", 
-    col.axis = "#F38630", lwd = 3, lty = 3, sub = "", hang = -1, axes = TRUE)
-
+```{r, results = 'asis'}
+if (length(fileList[[1]]$homophylyList[[3]][[1]] > 0)) {
+  cat(fileList[[1]]$homophylyList[[3]][[1]])
+} else {
+  cat("None")
+}
 ```
 </center>
 
-> The 'tree and leaf' dendrogram shows how the class is split into subgroups, which you can see mirrored in the colour of the dots on the summary graph above.  The higher the number on the vertical axis where the branch splits, the bigger the distance between the group members attached to either side.
+>These factors statistically significantly influence the nature and function of the class
+
+### Class Non-Predictive Factors
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[1]]$homophylyList[[3]][[2]] > 0)) {
+  cat(fileList[[1]]$homophylyList[[3]][[2]])
+} else {
+  cat("None")
+}
+```
+</center>
+
+>These factors do not statistically significantly influence the nature and
+function of the class
+  
 
   
 Row {data-width=250}
 -----------------------------------------------------------------------
 
-### Class Diameter
+### Class Diameter {data-height=150} 
 
 ```{r}
 diameter <- fileList[[1]]$totalNetworkInfo[[3]][[4]]
@@ -708,7 +746,7 @@ if (graphConnected(fileList[[1]]$SSNQGraph[[3]]) == F) {
 > The most distant people are `r round(diameter, digits=0)` relationships away
 from each other. <span style="color: red;">`r SSNQConnectedWarning`</span> 
 
-### Percentage of Positive Relationships
+### Percentage of Positive Relationships {data-height=150} 
 
 ```{r}
 edgeDensity <- fileList[[1]]$totalNetworkInfo[[3]][[5]]
@@ -723,7 +761,7 @@ gauge(edgeDensityPercentage, min = 0, max = 100, symbol = '%', gaugeSectors(
 > `r round(edgeDensity, digits = 2)*100`% of all possible relationships are
 strongly positive.
   
-### Class Reciprocity
+### Class Reciprocity {data-height=150} 
   
 ```{r}
 reciprocity <- fileList[[1]]$totalNetworkInfo[[3]][[6]]
@@ -738,34 +776,16 @@ gauge(reciprocityPercentage, min = 0, max = 100, symbol = '%', gaugeSectors(
 > Both parties agreed on a relationship status
 `r round(reciprocity, digits = 2)*100`% of the time.
 
-### Class Predictive Factors
-
+### Class Communities Dendrogram  {data-height=550} 
 <center>
-```{r, results = 'asis'}
-if (length(fileList[[1]]$homophylyList[[3]][[1]] > 0)) {
-  cat(fileList[[1]]$homophylyList[[3]][[1]])
-} else {
-  cat("None")
-}
+```{r}
+
+fileList[[1]]$dendrogramList[[3]]
+
 ```
 </center>
 
->These factors statistically significantly influence the nature and function of the class
-
-### Class Non-Predictive Factors
-
-<center>
-```{r, results = 'asis'}
-if (length(fileList[[1]]$homophylyList[[3]][[2]] > 0)) {
-  cat(fileList[[1]]$homophylyList[[3]][[2]])
-} else {
-  cat("None")
-}
-```
-</center>
-
->These factors do not statistically significantly influence the nature and
-function of the class
+> This shows how the relational landscape divides into subgroups, mirrored in the colour of the dots on the summary graph.  The higher the number on the left, the bigger the distance between the group members attached at the split.
 
 
 Network Maps 
@@ -860,13 +880,13 @@ relationships in at least one of the dimensions they were asked about.
 
 
 
-Individual Score Profiles {data-navmenu="Class Name"}
+Student - Student Individual Score Profiles {data-navmenu="Class Name"}
 =======================================================================
 
 Individual Score Profiles {data-width=900 .tabset}
 -----------------------------------------------------------------------
 
-### Individual Score Profiles
+### Interaction Positivity
 
 ```{r}
 renderPlotly ({
@@ -876,10 +896,35 @@ renderPlotly ({
 
 > Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
 
-Degree{.tabset}
+
+### Knowing One Another
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$polarGraphList[[2]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+
+
+### Student Value and Respect
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$polarGraphList[[3]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+
+
+Degree {.tabset}
 -----------------------------------------------------------------------
 
-### Degree All Score
+### Interaction Positivity
+
+#### 'Interaction Positivity' Degree All Scores
 
 ```{r}
 renderPlotly ({
@@ -889,7 +934,7 @@ renderPlotly ({
 
 > The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
 
-### Degree In Score
+#### 'Interaction Positivity' Degree In Scores
 
 ```{r}
 renderPlotly ({
@@ -900,7 +945,7 @@ renderPlotly ({
 > A higher 'Degree in' score indicates that more people in the class come
 to this person for information
 
-### Degree Out Score
+#### 'Interaction Positivity' Degree Out Scores
 
 ```{r}
 renderPlotly({
@@ -910,6 +955,71 @@ renderPlotly({
 
 > A higher 'Degree out' score indicates that the person is well connected within the class.
 
+### Knowing One Another
+
+#### 'Knowing One Another' Degree All Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeAllHistogramList[[2]]
+})
+```
+
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
+
+#### 'Knowing One Another' Degree In Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeInHistogramList[[2]]
+})
+```
+
+> A higher 'Degree in' score indicates that more people in the class come
+to this person for information
+
+#### 'Knowing One Another' Degree Out Scores
+
+```{r}
+renderPlotly({
+  fileList[[1]]$degreeOutHistogramList[[2]]
+})
+```
+
+> A higher 'Degree out' score indicates that the person is well connected within the class.
+
+### Student Value and Respect
+
+#### 'Value and Respect' Degree All Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeAllHistogramList[[3]]
+})
+```
+
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
+
+#### 'Value and Respect' Degree In Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeInHistogramList[[3]]
+})
+```
+
+> A higher 'Degree in' score indicates that more people in the class come
+to this person for information
+
+#### 'Value and Respect' Degree Out Scores
+
+```{r}
+renderPlotly({
+  fileList[[1]]$degreeOutHistogramList[[3]]
+})
+```
+
+> A higher 'Degree out' score indicates that the person is well connected within the class
 
 Raw Data {data-navmenu="Class Name"}
 =======================================================================
@@ -917,7 +1027,29 @@ Raw Data {data-navmenu="Class Name"}
 Below is the raw data from which the Relationships Foundation have derived their
 analysis. These data are not anonymised and should be treated sensitively.
 
+Student-Student {.tabset}
+-----------------------------------------------------------------------
+
+### Student Characteristic Information
 
 ```{r}
 create_dt(fileList[[1]]$nodes)
+```
+
+### Student - Student Interaction Positivity
+
+```{r}
+create_dt(fileList[[1]]$rawEdgesList[[1]])
+```
+
+### Student - Student Knowing One Another
+
+```{r}
+create_dt(fileList[[1]]$rawEdgesList[[2]])
+```
+
+### Student - Student Value and Respect
+
+```{r}
+create_dt(fileList[[1]]$rawEdgesList[[3]])
 ```
