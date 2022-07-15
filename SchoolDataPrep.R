@@ -254,17 +254,7 @@ SSDashAnalysis <- function (file) {
       surveyDataAnalysis(questionData = surveyDataFiltered[[i]])
     }   
 
-#perform homophylytic analysis
-    source("calculateHomophyly.R")
-    homophylyList <- list()
-    for(i in 1:length(surveyDataFiltered)) {
-      homophylyList[[length(homophylyList)+1]] <- calculateHomophyly(
-                                    homophylyEdgeList = surveyDataFiltered[[i]],
-                                    socioDemographicVariable =
-                                    socioDemographicVariables,
-                                    nodes = nodes)
-      
-    }
+
   
 #Insert HTML into a list to display it properly in-dash
     formatDataForDisplay <- function(Data) {
@@ -274,20 +264,6 @@ SSDashAnalysis <- function (file) {
       formattedValue[length(formattedValue)] <- ogValue
       return(formattedValue)
     }
-
-#format homophylyList for display in-dash
-  for(i in 1:length(homophylyList)) {   
-    predictiveSDVSSNQ <- levels(as.factor(unlist(homophylyList[[i]][[1]])))
-    nonPredictiveSDVSSNQ <- levels(as.factor(unlist(homophylyList[[i]][[2]])))
-    if(length(predictiveSDVSSNQ > 0)) {
-      homophylyList[[i]][[1]] <-
-        formatDataForDisplay(predictiveSDVSSNQ)
-    }
-    if(length(nonPredictiveSDVSSNQ > 0)) {
-      homophylyList[[i]][[2]] <-
-        formatDataForDisplay(nonPredictiveSDVSSNQ)
-    }
-  }
     
 #find isolates
   isolatesList <- list()
@@ -597,6 +573,35 @@ SSDashAnalysis <- function (file) {
       
       D3NodesList[[i]] <- nodesDF
      }
+     
+   #perform homophylytic analysis
+   source("calculateHomophyly.R")
+   testingVariables <- c(socioDemographicVariables,
+                         "Belongingness Score",
+                         "Student - Teacher Relationship Score")
+   homophylyList <- list()
+   for(i in 1:length(surveyDataFiltered)) {
+     homophylyList[[length(homophylyList)+1]] <- calculateHomophyly(
+       homophylyEdgeList = surveyDataFiltered[[i]],
+       testingVariables =
+         testingVariables,
+       nodes = nodes)
+     
+   }
+
+   #format homophylyList for display in-dash
+   for(i in 1:length(homophylyList)) {   
+     predictiveSDVSSNQ <- levels(as.factor(unlist(homophylyList[[i]][[1]])))
+     nonPredictiveSDVSSNQ <- levels(as.factor(unlist(homophylyList[[i]][[2]])))
+     if(length(predictiveSDVSSNQ > 0)) {
+       homophylyList[[i]][[1]] <-
+         formatDataForDisplay(predictiveSDVSSNQ)
+     }
+     if(length(nonPredictiveSDVSSNQ > 0)) {
+       homophylyList[[i]][[2]] <-
+         formatDataForDisplay(nonPredictiveSDVSSNQ)
+     }
+   }
    
 #remove numeric response columns from nodes
     nodes <- nodes %>% select(!contains('numeric'))

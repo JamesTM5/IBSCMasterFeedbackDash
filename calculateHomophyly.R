@@ -1,8 +1,8 @@
-calculateHomophyly <- function (homophylyEdgeList, socioDemographicVariables, nodes) {
+calculateHomophyly <- function (homophylyEdgeList, testingVariables, nodes) {
  
-  subsetting <- c("Name", socioDemographicVariables)
-  subsetting <- str_replace_all(subsetting, " ", ".")
-  names(nodes) <- str_replace_all(names(nodes), " ", ".")
+  subsetting <- c("id", testingVariables)
+  # subsetting <- str_replace_all(subsetting, ".", " ")
+  # names(nodes) <- str_replace_all(names(nodes), " ", ".")
   homophylyLookup <- nodes[,subsetting]
 
     #testing
@@ -14,7 +14,7 @@ calculateHomophyly <- function (homophylyEdgeList, socioDemographicVariables, no
                                             vertices = homophylyLookup)
   
   assort <- list()
-  homophylySDV <- str_replace_all(socioDemographicVariables, " ", ".")
+  homophylySDV <- str_replace_all(testingVariables, " ", ".")
   
   assort <- list()
   for(i in 1:length(vertex.attributes(homophylyNetwork))) {
@@ -34,7 +34,8 @@ calculateHomophyly <- function (homophylyEdgeList, socioDemographicVariables, no
      if (is.nan(assort[[i]])) {
        nonPredictiveChoices[i] <- paste0(names(homophylyLookup[i]))
      } else if (is.na(assort[[i]])) {
-       nonPredictiveChoices[i] <- paste0(names(homophylyLookup[i]))       
+       nonPredictiveChoices[i] <- paste0(names(homophylyLookup[i])) 
+     } else if (assort[[i]] == "id") {
      } else if (assort[[i]] > 0.2) {
        predictiveChoices[i] <- paste0(names(homophylyLookup[i]), " (high)")
      } else if (assort[[i]] > 0.1) {
