@@ -39,9 +39,14 @@ SSDashAnalysis <- function (file) {
   #make the numeric keypair dataframes from which to convert node answers;
   #function in makeResponseNumeric.R
   
-  nodesKeyBelongingness <- keyToNumeric(scoreData = nodes[,responseColumnsBelongingness],
+  nodesKeyBelongingnessPositive <- keyToNumeric(scoreData = nodes[,responseColumnsBelongingness],
                                         answers = nodeAnswersBelongingness,
                                         normalized = FALSE)
+  
+  nodesKeyBelongingnessNegative <- nodesKeyBelongingnessPositive
+  for (i in 1:length(nodesKeyBelongingnessNegative$newAnswers)) {
+    nodesKeyBelongingnessNegative$newAnswers[i] <- 3 - nodesKeyBelongingnessNegative$newAnswers[i]
+  } 
   
  
   nodesKeyBelongingnessCategorical <- data.frame(nodeAnswersBelongingness)
@@ -55,17 +60,8 @@ SSDashAnalysis <- function (file) {
   nodesKeyStudentTeacherCategorical$newAnswers <- c("High", "High", "Moderate", "Moderate", "Low", "Low")
   names(nodesKeyStudentTeacherCategorical) <- c("answers", "newAnswers")
   
-  #loop over each relevant column and bind a numeric column to nodes
-  
-  responseColumnsBelongingness <- nodes %>% select(contains(c('Q1-')))
-  responseColumnNamesBelongingness <- names(responseColumnsBelongingness)
-  
-  responseColumnsStudentTeacher <- nodes %>% select(contains(c('Q5-')))
-  responseColumnNamesStudentTeacher <- names(responseColumnsStudentTeacher)
-  
+  #loop over each relevant column for additional measures such as belongingness and student-teacher questions and bind a numeric column to nodes
   #get column numbers
-  studentTeacherResponseColumnIndices <- grep("Q5", colnames(nodes))
-  
   studentTeacherRegExQuestionText <- c(
     "I\\.can\\.talk\\.to\\.or\\.contact\\.my\\.",
     "It\\.is\\.worth\\.building\\.a\\.good\\.relationship\\.with\\.my\\.",
@@ -83,33 +79,62 @@ SSDashAnalysis <- function (file) {
     warning("more student - teacher questions have been matched than there should be.  Consider checking the studentTeacherRegExQuestionText for unwanted matches")
   }
   
-  belongingnessRegExQuestionText <- c("I\\.feel\\.awkward\\.and\\.out\\.of\\.place",
-                                      "I\\.feel\\.like\\.an\\.outsider",
-                                      "I\\.feel\\.like\\.I\\.belong\\.at",
-                                      "I\\.feel\\.lonely\\.at",
-                                      "I\\.make\\.friends\\.easily\\.at",
-                                      "\\.seem\\.to\\.like\\.me"
-                                      )
-  belongingnessResponseColumnIndices <- vector()
-  for(i in 1:length(belongingnessRegExQuestionText)) {
-     belongingnessResponseColumnIndices[[length(belongingnessResponseColumnIndices)+1]] <- grep(belongingnessRegExQuestionText[i], colnames(nodes))
+  belongingnessRegExQuestionTextPositive <- c(
+    "I\\.feel\\.like\\.I\\.belong\\.at",
+    "I\\.make\\.friends\\.easily\\.at",
+    "\\.seem\\.to\\.like\\.me"
+  )
+  
+  belongingnessRegExQuestionTextNegative <- c(
+    "I\\.feel\\.awkward\\.and\\.out\\.of\\.place",
+    "I\\.feel\\.like\\.an\\.outsider",
+    "I\\.feel\\.lonely\\.at"
+  )
+  
+  belongingnessResponseColumnIndicesPositive <- vector()
+  for(i in 1:length(belongingnessRegExQuestionTextPositive)) {
+    belongingnessResponseColumnIndicesPositive[[length(belongingnessResponseColumnIndicesPositive)+1]] <- grep(belongingnessRegExQuestionTextPositive[i], colnames(nodes))
   }
-  if(length(belongingnessResponseColumnIndices)>6) {
-    warning("more belongingness questions have been matched than there should be.  Consider checking the belongingnessRegExQuestionText for unwanted matches")
+  if(length(belongingnessResponseColumnIndicesPositive)>3) {
+    warning("more belongingness questions have been matched than there should be.  Consider checking the belongingnessRegExQuestionTextPositive for unwanted matches")
   }
-
-#make numeric columns for belongingness (0-3)
-  for(i in 1:length(nodes[,belongingnessResponseColumnIndices])) {
-    numericReplacementVector <- makeResponseNumeric(
-      data = nodes[,belongingnessResponseColumnIndices[i]],
-      conversionKey = nodesKeyBelongingness)
-    numericReplacementColumn <- data.frame(numericReplacementVector)
+  
+  belongingnessResponseColumnIndicesNegative <- vector()
+  for(i in 1:length(belongingnessRegExQuestionTextNegative)) {
+    belongingnessResponseColumnIndicesNegative[[length(belongingnessResponseColumnIndicesNegative)+1]] <- grep(belongingnessRegExQuestionTextNegative[i], colnames(nodes))
+  }
+  if(length(belongingnessResponseColumnIndicesNegative)>3) {
+    warning("more belongingness questions have been matched than there should be.  Consider checking the belongingnessRegExQuestionTextNegative for unwanted matches")
+  }
+  
+  #make numeric columns for belongingness positive questions (0-3)
+  for(i in 1:length(nodes[,belongingnessResponseColumnIndicesPositive])) {
+    numericReplacementVectorPositive <- makeResponseNumeric(
+      data = nodes[,belongingnessResponseColumnIndicesPositive[i]],
+      conversionKey = nodesKeyBelongingnessPositive)
+    numericReplacementColumnPositive <- data.frame(numericReplacementVectorPositive)
     getNames <- names(nodes)
-    names(numericReplacementColumn) <- paste0(
-      getNames[[belongingnessResponseColumnIndices[[i]]]], ".numeric")
-    nodes <- cbind(nodes, numericReplacementColumn)
-    
+    names(numericReplacementColumnPositive) <- paste0(
+      getNames[[belongingnessResponseColumnIndicesPositive[[i]]]], ".numeric")
+    nodes <- cbind(nodes, numericReplacementColumnPositive)
   }
+  
+  #make numeric columns for belongingness negative questions (3-0)
+  for(i in 1:length(nodes[,belongingnessResponseColumnIndicesNegative])) {
+    numericReplacementVectorNegative <- makeResponseNumeric(
+      data = nodes[,belongingnessResponseColumnIndicesNegative[i]],
+      conversionKey = nodesKeyBelongingnessNegative)
+    numericReplacementColumnNegative <- data.frame(numericReplacementVectorNegative)
+    getNames <- names(nodes)
+    names(numericReplacementColumnNegative) <- paste0(
+      getNames[[belongingnessResponseColumnIndicesNegative[[i]]]], ".numeric")
+    nodes <- cbind(nodes, numericReplacementColumnNegative)
+  }
+  
+  belongingnessResponseColumnIndices <- c(
+    belongingnessResponseColumnIndicesPositive,
+    belongingnessResponseColumnIndicesNegative)
+  belongingnessResponseColumnIndices <- sort(belongingnessResponseColumnIndices)
 
 #make stratified columns for belongingness (low, medium, high)  
   modifiedNodes <- nodes[,belongingnessResponseColumnIndices]
@@ -119,22 +144,22 @@ SSDashAnalysis <- function (file) {
   
   modifiedNodes <- modifiedNodes %>%
     left_join(nodesKeyBelongingnessCategorical, by = c("a" = "nodeAnswersBelongingness"))
-  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[1], "stratified", sep = ".")
+  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[1], "(stratified)", sep = ".")
   modifiedNodes <- modifiedNodes %>%
     left_join(nodesKeyBelongingnessCategorical, by = c("b" = "nodeAnswersBelongingness"))
-  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[2], "stratified", sep = ".")
+  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[2], "(stratified)", sep = ".")
   modifiedNodes <- modifiedNodes %>%
     left_join(nodesKeyBelongingnessCategorical, by = c("c" = "nodeAnswersBelongingness"))
-  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[3], "stratified", sep = ".")
+  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[3], "(stratified)", sep = ".")
   modifiedNodes <- modifiedNodes %>%
     left_join(nodesKeyBelongingnessCategorical, by = c("d" = "nodeAnswersBelongingness"))
-  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[4], "stratified", sep = ".")
+  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[4], "(stratified)", sep = ".")
   modifiedNodes <- modifiedNodes %>%
     left_join(nodesKeyBelongingnessCategorical, by = c("e" = "nodeAnswersBelongingness"))
-  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[5], "stratified", sep = ".")
+  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[5], "(stratified)", sep = ".")
   modifiedNodes <- modifiedNodes %>%
     left_join(nodesKeyBelongingnessCategorical, by = c("f" = "nodeAnswersBelongingness"))
-  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[6], "stratified", sep = ".")
+  names(modifiedNodes)[names(modifiedNodes) == 'newAnswers'] <-  paste(originalNames[6], "(stratified)", sep = ".")
   modifiedNodes <- modifiedNodes[,7:ncol(modifiedNodes)]
   nodes <- cbind(nodes, modifiedNodes)
 
@@ -159,26 +184,26 @@ SSDashAnalysis <- function (file) {
   
   modifiedNodesST <- modifiedNodesST %>%
     left_join(nodesKeyStudentTeacherCategorical, by = c("a" = "answers"))
-  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[1], "stratified", sep = ".")
+  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[1], "(stratified)", sep = ".")
  
   modifiedNodesST <- modifiedNodesST %>%
     left_join(nodesKeyStudentTeacherCategorical, by = c("b" = "answers"))
-  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[2], "stratified", sep = ".")
+  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[2], "(stratified)", sep = ".")
   modifiedNodesST <- modifiedNodesST %>%
     left_join(nodesKeyStudentTeacherCategorical, by = c("c" = "answers"))
-  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[3], "stratified", sep = ".")
+  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[3], "(stratified)", sep = ".")
   modifiedNodesST <- modifiedNodesST %>%
     left_join(nodesKeyStudentTeacherCategorical, by = c("d" = "answers"))
-  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[4], "stratified", sep = ".")
+  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[4], "(stratified)", sep = ".")
   modifiedNodesST <- modifiedNodesST %>%
     left_join(nodesKeyStudentTeacherCategorical, by = c("e" = "answers"))
-  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[5], "stratified", sep = ".")
+  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[5], "(stratified)", sep = ".")
   modifiedNodesST <- modifiedNodesST %>%
     left_join(nodesKeyStudentTeacherCategorical, by = c("f" = "answers"))
-  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[6], "stratified", sep = ".")
+  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[6], "(stratified)", sep = ".")
   modifiedNodesST <- modifiedNodesST %>%
     left_join(nodesKeyStudentTeacherCategorical, by = c("g" = "answers"))
-  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[7], "stratified", sep = ".")
+  names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[7], "(stratified)", sep = ".")
   modifiedNodesST <- modifiedNodesST[,8:ncol(modifiedNodesST)]
   nodes <- cbind(nodes, modifiedNodesST)
   
@@ -456,19 +481,107 @@ SSDashAnalysis <- function (file) {
     nodes <- merge(nodes, communityList[[3]])
     
 # Prepare Nodes Dataframe for each D3 Graph
-    #adjust Q1 and Q5 to high/medium/low
     #sum Q1 and Q5, with high/medium/low
     
-
+    # Process student - teacher numeric data by finding the relevant numeric columns in nodes
+    studentTeacherRegExQuestionTextNumeric <- c(
+      "I\\.can\\.talk\\.to\\.or\\.contact\\.my\\..*numeric$",
+      "It\\.is\\.worth\\.building\\.a\\.good\\.relationship\\.with\\.my\\..*numeric$",
+      "\\.and\\.I\\.have\\.shared\\.goals\\.for\\.my\\.progress\\.and\\.development.*numeric$",
+      "cares\\.about\\.me.*numeric$",
+      "has\\.a\\.good\\.understanding\\.of\\.my\\.skills\\.and\\.interests.*numeric$",
+      "inspires\\.and\\.motivates\\.me.*numeric$",
+      "recognises\\.and\\.rewards\\.my\\.efforts.*numeric$"
+    )
+    studentTeacherResponseColumnIndicesNumeric <- vector()
+    for(i in 1:length(studentTeacherRegExQuestionTextNumeric)) {
+      studentTeacherResponseColumnIndicesNumeric[[length(studentTeacherResponseColumnIndicesNumeric)+1]] <- grep(studentTeacherRegExQuestionTextNumeric[i], colnames(nodes))
+    }
+    if(length(studentTeacherResponseColumnIndicesNumeric)>7) {
+      warning("more student - teacher question numeric columns have been matched than there should be.  Consider checking the studentTeacherRegExQuestionTextNumeric for unwanted matches")
+    }
     
-        
+    #add a 'studentTeacherSumNumeric' column to nodes
+    stNumeric <- nodes[,studentTeacherResponseColumnIndicesNumeric]
+    nodes$StudentTeacherSumNumeric <- rowSums(stNumeric)
+
+    #add a 'student - teacher score' column to nodes containing stratified data
+    #current stratification thresholds 25% - 50% - 25%
+    # 0-35 total
+    # 0-9 low
+    # 10-25 moderate
+    # 26-35 high
+  stStratified <- vector()
+  for(i in 1:length(nodes$StudentTeacherSumNumeric)) {
+    if(nodes$StudentTeacherSumNumeric[i] >25) {
+      stStratified[i] <- "High"
+    } else if (nodes$StudentTeacherSumNumeric[i] >9) {
+      stStratified[i] <- "Moderate"
+    } else {
+      stStratified[i] <- "Low"
+    }
+  }
+  nodes$`Student - Teacher Relationship Score` <- stStratified
+
+# Process belongingness numeric data by finding the relevant numeric columns in nodes
+  belongingnessRegExQuestionTextNumeric <- c(
+    "I\\.feel\\.like\\.I\\.belong\\.at.*numeric$",
+    "I\\.make\\.friends\\.easily\\.at.*numeric$",
+    "\\.seem\\.to\\.like\\.me.*numeric$",
+    "I\\.feel\\.awkward\\.and\\.out\\.of\\.place.*numeric$",
+    "I\\.feel\\.like\\.an\\.outsider.*numeric$",
+    "I\\.feel\\.lonely\\.at.*numeric$"
+  )
+  
+  belongingnessResponseColumnIndicesNumeric <- vector()
+  for(i in 1:length(belongingnessRegExQuestionTextNumeric)) {
+    belongingnessResponseColumnIndicesNumeric[[length(belongingnessResponseColumnIndicesNumeric)+1]] <- grep(belongingnessRegExQuestionTextNumeric[i], colnames(nodes))
+  }  
+    
+  if(length(belongingnessResponseColumnIndicesNumeric)>6) {
+    warning("more belongingness question numeric columns have been matched than there should be.  Consider checking the belongingnessRegExQuestionTextNumeric for unwanted matches")
+  }
+  
+  #add a 'belongingnessSumNumeric' column to nodes
+  belongingnessNumeric <- nodes[,belongingnessResponseColumnIndicesNumeric]
+  nodes$belongingnessSumNumeric <- rowSums(belongingnessNumeric)
+  
+  #add a 'Belongingness Score' column to nodes containing stratified data
+  #current stratification thresholds 25% - 50% - 25%
+  # 0-18 total
+  # 0-5 low
+  # 6-12 moderate
+  # 13-18 high
+  belongingnessStratified <- vector()
+  for(i in 1:length(nodes$belongingnessSumNumeric)) {
+    if(is.na(nodes$belongingnessSumNumeric[i])) {
+      belongingnessStratified[i] <- "Not Reported"    
+    } else if(nodes$belongingnessSumNumeric[i] > 12) {
+      belongingnessStratified[i] <- "High"
+    } else if (nodes$belongingnessSumNumeric[i] > 5) {
+      belongingnessStratified[i] <- "Moderate"
+    } else if (nodes$belongingnessSumNumeric[i] >= 0) {
+      belongingnessStratified[i] <- "Low"
+    } else {
+      belongingnessStratified[i] <- "Not Reported"
+    }
+  }
+  nodes$`Belongingness Score` <- belongingnessStratified
+
+     stratifiedData <- grep("\\(stratified\\)$", colnames(nodes))
+     stratifiedDataNames <- names(nodes[stratifiedData])
+     stratifiedDataNames <- sapply(stratifiedDataNames,
+                                   function(v) {gsub("\\."," ", as.character(v))})
      D3NodesList <- list()
      for(i in 1:length(totalNetworkInfo)) {
-      nodesColNamesList <- c("id", socioDemographicVariables, paste(
+      nodesColNamesList <- c("id", socioDemographicVariables, "Student - Teacher Relationship Score", "Belongingness Score", stratifiedDataNames, paste(
         "Communities Relationship Question", i, sep = " "), paste(
           "Degree Relationship Question", i, sep = " "))
       names(nodes) <- sapply(names(nodes),
-                         function(v) {gsub("\\."," ", as.character(v))})
+                             function(v) {gsub("\\."," ", as.character(v))})
+      names(nodesColNamesList) <- sapply(names(nodesColNamesList),
+                                         function(v) {gsub("\\."," ", as.character(v))})
+      
       nodesDF <- nodes[,nodesColNamesList]
 #Rename Communities Relationship Question i to community to suit the D3 vis code
       communityName <- length(names(nodesDF))-1
@@ -477,15 +590,20 @@ SSDashAnalysis <- function (file) {
       degreeName <- length(names(nodesDF))
       names(nodesDF)[degreeName] <- "Degree"
       
+      names(nodes) <- sapply(names(nodes),
+                             function(v) {gsub("\\."," ", as.character(v))})
+      names(nodesColNamesList) <- sapply(names(nodesColNamesList),
+                                         function(v) {gsub("\\."," ", as.character(v))})
       
       D3NodesList[[i]] <- nodesDF
      }
    
 #remove numeric response columns from nodes
     nodes <- nodes %>% select(!contains('numeric'))
-    
-
+#remove stratified response columns from nodes
+    nodes <- nodes %>% select(!contains('(stratified)'))    
   
+#Assemble output object
     classDashAnalysisOutput <- list(clientName,
                                     className,
                                     seed,
@@ -533,14 +651,16 @@ SSDashAnalysis <- function (file) {
                                          "overallScoresList",
                                          "D3NodesList",
                                          "rawEdgesList")
-    
+#Write output object to disk as a .rds    
     filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
     write_rds(classDashAnalysisOutput, as.character(filename))
   
 }
 
 
-for(i in 1:length(fileList)) {
-  SSDashAnalysis(file = fileList[[i]])
-}
+# for(m in 1:length(fileList)) {
+#   SSDashAnalysis(file = fileList[[m]])
+# }
+
+SSDashAnalysis(file = fileList[[1]])
   
