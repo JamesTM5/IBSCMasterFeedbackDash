@@ -7,9 +7,9 @@ calculateHomophyly <- function (homophylyEdgeList, testingVariables, nodes) {
   deleteVector <- vector()
   homophylyWarningSingleLevel <- F
   homophylyWarningMultiLevel <- F
-  for (i in 2:length(subsetting)) {
+  for (i in 1:length(subsetting)) {
     if(subsetting[i] %in% names(nodes)) {
-      if(length(levels(as.factor(nodes[,subsetting[i]]))) == 1) {
+      if(length(levels(as.factor(nodes[,subsetting[i]]))) <= 1) {
         deleteVector[length(deleteVector)+1] <- i
         homophylyWarningSingleLevel <- T
       } else if (length(levels(as.factor(nodes[,subsetting[i]]))) == nrow(nodes)) {
@@ -22,13 +22,15 @@ calculateHomophyly <- function (homophylyEdgeList, testingVariables, nodes) {
   indeterminateChoices <- subsetting[c(deleteVector)]
   subsetting <- subsetting[-c(deleteVector)]
   
-  homophylyLookup <- nodes[,subsetting]
+  homophylyLookup <- nodes[,c("id", subsetting)]
   
   homophylyNetwork <- graph_from_data_frame(homophylyEdgeList,
                                             directed = TRUE,
                                             vertices = homophylyLookup)
   
   assort <- list()
+  
+  
   homophylySDV <- str_replace_all(testingVariables, " ", ".")
   
   assort <- list()
@@ -69,6 +71,12 @@ calculateHomophyly <- function (homophylyEdgeList, testingVariables, nodes) {
    
    predictiveChoices <- unlist(predictiveChoices)
    predictiveChoices <- str_replace_all(predictiveChoices, "\\.", " ")
+   
+   predictiveChoices <- predictiveChoices[predictiveChoices != "id"]
+   predictiveChoices <- predictiveChoices[predictiveChoices != "id (high)"]
+   predictiveChoices <- predictiveChoices[predictiveChoices != "id (moderate)"]
+   nonPredictiveChoices <- nonPredictiveChoices[nonPredictiveChoices != "id"]
+   indeterminateChoices <- indeterminateChoices[indeterminateChoices != "id"]
    
  homophylyOutput <- list(predictiveChoices,
                          nonPredictiveChoices,

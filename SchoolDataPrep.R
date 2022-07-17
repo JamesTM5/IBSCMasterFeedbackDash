@@ -592,6 +592,7 @@ SSDashAnalysis <- function (file) {
    for(i in 1:length(homophylyList)) {   
      predictiveSDVSSNQ <- levels(as.factor(unlist(homophylyList[[i]][[1]])))
      nonPredictiveSDVSSNQ <- levels(as.factor(unlist(homophylyList[[i]][[2]])))
+     indeterminateSDV <- levels(as.factor(unlist(homophylyList[[i]][[3]])))
      if(length(predictiveSDVSSNQ > 0)) {
        homophylyList[[i]][[1]] <-
          formatDataForDisplay(predictiveSDVSSNQ)
@@ -600,7 +601,30 @@ SSDashAnalysis <- function (file) {
        homophylyList[[i]][[2]] <-
          formatDataForDisplay(nonPredictiveSDVSSNQ)
      }
+     if(length(indeterminateSDV > 0)) {
+       homophylyList[[i]][[3]] <-
+         formatDataForDisplay(indeterminateSDV)
+     }
    }
+   
+   #collate belongingness data frame
+  belongingnessDF <- nodes[,c("id", socioDemographicVariables, "Student - Teacher Relationship Score")]
+  names(belongingnessNumeric) <- c("I feel like I belong at school",
+                                   "I make friends easily at school",
+                                   "Other students seem to like me",
+                                   "I feel awkward and out of place in my school",
+                                   "I feel like an outsider (or left out of things) at school",
+                                   "I feel lonely at school")
+  belongingnessDF <- cbind(belongingnessDF, belongingnessNumeric)
+  belongingnessDF <- cbind(belongingnessDF, nodes$belongingnessSumNumeric)
+  names(modifiedNodesST) <- c("I can talk to or contact my teacher when I need to",
+                              "It is worth building.a.good.relationship.with.my.teacher.because.I.may.be.in.a.class.or.activity.with.them.in.the.future",
+                              "My.teacher.and.I.have.shared.goals.for.my.progress.and.development",
+                              "My.teacher.cares.about.me",
+                              "My.teacher.has.a.good.understanding.of.my.skills.and.interests",
+                              "My.teacher.inspires.and.motivates.me",
+                              "My.teacher.recognises.and.rewards.my.efforts")
+  #filter rows for NA in nodes$belongingnessSumNumeric?
    
 #remove numeric response columns from nodes
     nodes <- nodes %>% select(!contains('numeric'))
@@ -630,7 +654,8 @@ SSDashAnalysis <- function (file) {
                                     overallPfIList,
                                     overallScoresList,
                                     D3NodesList,
-                                    rawEdgesList)
+                                    rawEdgesList,
+                                    belongingnessDF)
 
     names(classDashAnalysisOutput) <-  c("clientName",
                                          "className",
@@ -654,7 +679,8 @@ SSDashAnalysis <- function (file) {
                                          "overallPfIList",
                                          "overallScoresList",
                                          "D3NodesList",
-                                         "rawEdgesList")
+                                         "rawEdgesList",
+                                         "belongingnessDF")
 #Write output object to disk as a .rds    
     filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
     write_rds(classDashAnalysisOutput, as.character(filename))

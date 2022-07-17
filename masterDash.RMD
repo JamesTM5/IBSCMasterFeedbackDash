@@ -444,6 +444,21 @@ if (length(fileList[[1]]$homophylyList[[2]][[1]] > 0)) {
 
 >These factors statistically significantly influence the nature and function of the class
 
+
+### Class Indeterminate Factors
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[1]]$homophylyList[[2]][[3]] > 0)) {
+  cat(fileList[[1]]$homophylyList[[2]][[3]])
+} else {
+  cat("None")
+}
+```
+</center>
+
+>These factors could not be shown to influence the nature and function of the class at a peer-to-peer level due to limitations in the data collected
+
 ### Class Non-Predictive Factors
 
 <center>
@@ -702,6 +717,20 @@ if (length(fileList[[1]]$homophylyList[[3]][[1]] > 0)) {
 </center>
 
 >These factors statistically significantly influence the nature and function of the class
+
+### Class Indeterminate Factors
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[1]]$homophylyList[[3]][[3]] > 0)) {
+  cat(fileList[[1]]$homophylyList[[3]][[3]])
+} else {
+  cat("None")
+}
+```
+</center>
+
+>These factors could not be shown to influence the nature and function of the class at a peer-to-peer level due to limitations in the data collected
 
 ### Class Non-Predictive Factors
 
