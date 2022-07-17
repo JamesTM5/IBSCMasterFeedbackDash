@@ -173,6 +173,20 @@ if (length(fileList[[1]]$homophylyList[[1]][[1]] > 0)) {
 
 >These factors statistically significantly influence the nature and function of the class
 
+### Class Indeterminate Factors
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[1]]$homophylyList[[1]][[3]] > 0)) {
+  cat(fileList[[1]]$homophylyList[[1]][[3]])
+} else {
+  cat("None")
+}
+```
+</center>
+
+>These factors could not be shown to influence the nature and function of the class at a peer-to-peer level due to limitations in the data collected
+
 ### Class Non-Predictive Factors
 
 <center>

@@ -583,8 +583,7 @@ SSDashAnalysis <- function (file) {
    for(i in 1:length(surveyDataFiltered)) {
      homophylyList[[length(homophylyList)+1]] <- calculateHomophyly(
        homophylyEdgeList = surveyDataFiltered[[i]],
-       testingVariables =
-         testingVariables,
+       testingVariables = testingVariables,
        nodes = nodes)
      
    }
