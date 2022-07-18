@@ -15,6 +15,9 @@ nodeAnswersStudentTeacher <- c("Strongly Agree", "Agree", "Slightly Agree",
 #anywhere in the list without disrupting analysis)
 nodeAnswersBelongingness <- c("Strongly Agree", "Agree", "Disagree",
                                "Strongly Disagree")
+
+#What are the titles of the network questions asked of the students about one another?
+RQTitles <- c("Positivity", "Knowing", "Value & Respect")
 #What are the possible answers to the network question?
 #any number of responses or values accepted, in descending order of positivity
 #(a string containing "don't know" is treated exceptionally and may appear

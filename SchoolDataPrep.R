@@ -427,15 +427,18 @@ SSDashAnalysis <- function (file) {
     names(nodes)[1] <- "id"
     nodes <- nodes[order(nodes$id),]
     for(i in 1:length(totalNetworkInfo)) {
-       names(totalNetworkInfo[[i]][[3]])[names(totalNetworkInfo[[i]][[3]])
+      for(j in 1:3) {
+       names(totalNetworkInfo[[i]][[j]])[names(totalNetworkInfo[[i]][[j]])
                                          == "People"] <- "id"
-       names(totalNetworkInfo[[i]][[3]])[names(totalNetworkInfo[[i]][[3]])
+       names(totalNetworkInfo[[i]][[j]])[names(totalNetworkInfo[[i]][[j]])
                                          == "Degree"] <- 
-         paste("Degree Relationship Question", i, sep = " ")
+         paste("Degree Relationship Question", i, j, sep = " ") 
+      }
     }
-    nodes <- merge(nodes, totalNetworkInfo[[1]][[3]])
-    nodes <- merge(nodes, totalNetworkInfo[[2]][[3]])
-    nodes <- merge(nodes, totalNetworkInfo[[3]][[3]])
+    
+    for(i in 1:length(totalNetworkInfo)) {
+       nodes <- merge(nodes, totalNetworkInfo[[i]][[3]])
+    }
     
 #add community data to nodes for output to .RDS
     communityList <- list()
@@ -552,7 +555,7 @@ SSDashAnalysis <- function (file) {
      for(i in 1:length(totalNetworkInfo)) {
       nodesColNamesList <- c("id", socioDemographicVariables, "Student - Teacher Relationship Score", "Belongingness Score", stratifiedDataNames, paste(
         "Communities Relationship Question", i, sep = " "), paste(
-          "Degree Relationship Question", i, sep = " "))
+          "Degree Relationship Question", i, "3", sep = " "))
       names(nodes) <- sapply(names(nodes),
                              function(v) {gsub("\\."," ", as.character(v))})
       names(nodesColNamesList) <- sapply(names(nodesColNamesList),
@@ -607,8 +610,19 @@ SSDashAnalysis <- function (file) {
      }
    }
    
-   #collate belongingness data frame
-  belongingnessDF <- nodes[,c("id", socioDemographicVariables, "Student - Teacher Relationship Score")]
+  #collate belongingness data frame
+   socioDemographicVariables <- sapply(socioDemographicVariables,
+                                      function(v) {gsub("\\."," ", as.character(v))})
+   belongingnessDF <- nodes[,c("id",
+                               socioDemographicVariables,
+                               "Communities Relationship Question 1",
+                               "Communities Relationship Question 2",
+                               "Communities Relationship Question 3",
+                               "Student - Teacher Relationship Score",
+                               "Belongingness Score")]
+   names(belongingnessDF)[names(belongingnessDF) == "Belongingness Score"] <- "Belongingness Stratified" 
+   
+  
   names(belongingnessNumeric) <- c("I feel like I belong at school",
                                    "I make friends easily at school",
                                    "Other students seem to like me",
@@ -617,13 +631,40 @@ SSDashAnalysis <- function (file) {
                                    "I feel lonely at school")
   belongingnessDF <- cbind(belongingnessDF, belongingnessNumeric)
   belongingnessDF <- cbind(belongingnessDF, nodes$belongingnessSumNumeric)
+  names(belongingnessDF)[names(belongingnessDF) == "nodes$belongingnessSumNumeric"] <- "Belongingness Sum"
+  #add student teacher measure to belongingnessDF
   names(modifiedNodesST) <- c("I can talk to or contact my teacher when I need to",
-                              "It is worth building.a.good.relationship.with.my.teacher.because.I.may.be.in.a.class.or.activity.with.them.in.the.future",
-                              "My.teacher.and.I.have.shared.goals.for.my.progress.and.development",
-                              "My.teacher.cares.about.me",
-                              "My.teacher.has.a.good.understanding.of.my.skills.and.interests",
-                              "My.teacher.inspires.and.motivates.me",
-                              "My.teacher.recognises.and.rewards.my.efforts")
+                              "It is worth building a good relationship with my teacher because I may be in a class or activity with them in the future",
+                              "My teacher and I have shared goals for my progress and development",
+                              "My teacher cares about me",
+                              "My teacher has a good understanding of my skills and interests",
+                              "My teacher inspires and motivates me",
+                              "My teacher recognises and rewards my efforts")
+  belongingnessDF <- cbind(belongingnessDF, modifiedNodesST)
+
+  #Add peer to peer network characteristics to belongingnessDF
+  degreeList <- list()
+  for(i in 1:length(totalNetworkInfo)) {
+  networkInfo <- merge(totalNetworkInfo[[i]][[1]],
+                           totalNetworkInfo[[i]][[2]],
+                           by.x = "id", by.y = "id")
+  networkInfo <- merge(networkInfo,
+                           totalNetworkInfo[[i]][[3]],
+                           by.x = "id", by.y = "id")
+  names(networkInfo) <- c("id",
+                              paste("Degree In S-S", RQTitles[i], sep = " "),
+                              paste("Degree Out S-S", RQTitles[i], sep = " "),
+                              paste("Degree All S-S", RQTitles[i], sep = " "))
+  degreeList[[i]] <- networkInfo
+  }
+  
+  for (i in 1:length(degreeList)) {
+    belongingnessDF <- merge(belongingnessDF, degreeList[[i]],
+                             by.x = "id", by.y = "id")
+  }
+  
+ 
+  
   #filter rows for NA in nodes$belongingnessSumNumeric?
    
 #remove numeric response columns from nodes
