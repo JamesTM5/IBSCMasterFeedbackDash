@@ -15,6 +15,7 @@ resource_files:
 ---
 
 ```{r setup, include=FALSE}
+source("clientConfig.R")
 #on first pull, install any uninstalled packages in packageSetup.R
 source("packageSetup.R")
 
@@ -99,6 +100,185 @@ for(i in 1:length(fileList)) {
 source("assets/forcedirected/forcedirected.R")
 
 
+
+
+
+
+
+
+#set up Belongingness Dashboard
+dataFileBelongingness <- fileList[[1]]$belongingnessDF
+unprocessedBelongingnessData <- dataFileBelongingness
+WBNumeric <- dataFileBelongingness
+GBChoices <- as.list(names(WBNumeric))
+  names(GBChoices) <- paste(names(WBNumeric), " (", map(WBNumeric,~length(unique(.x))), ")") 
+belongingnessFontSize <- "9pt"
+metricChoices <- names(select_if(WBNumeric, is.numeric))
+GBChoices <- GBChoices [!GBChoices %in% metricChoices]
+
+#significance testing for belongingness dashboard
+#A function to find significant differences between factors in the belongingness survey
+
+belongingnessSignificanceTesting <- function (data){
+
+#prep data for analysis
+  prunedDataSDV <- data %>% discard(is.numeric)
+  prunedDataExperimental <- data %>% keep(is.numeric)
+  #make sure each column of prunedDataSDV is class(factor)
+  for(i in 1:ncol(prunedDataSDV)) {
+    prunedDataSDV[,i] <- as.factor(prunedDataSDV[,i])
+  }
+  #remove "id" from the first column
+  prunedDataSDV <- prunedDataSDV[,-1]
+  #remove belongingness Stratified
+  prunedDataSDV <- subset(prunedDataSDV, select = -`Belongingness Stratified`)
+
+#initiate some lists
+  significance <- list()
+  significantPredictors <- list()
+  interactionEffects <- list()
+  predictors <- list()
+  
+  
+#Choose the right comparison of means test
+  #compare each subset of each sdv with every single experimental variable
+  for (i in 1:ncol(prunedDataSDV)){
+    for (j in 1:ncol(prunedDataExperimental)) {
+  #if predictor categorical
+      if (class(prunedDataSDV[[i]]) == "factor") {
+          x <- prunedDataExperimental[[j]]
+          y <- as.numeric(as.factor(as.character(prunedDataSDV[[i]])))
+          #t-test
+          if(length(levels(prunedDataSDV[[i]])) <= 2) {
+            tt <- t.test(x ~ y)
+            result <- tt$p.value
+          #ANOVA
+          } else if (length(levels(prunedDataSDV[[i]])) >2) {
+            anova <- aov(x ~ y)
+            #TODO: check for balance with replications function
+            result <- summary(anova)[[1]][["Pr(>F)"]][[1]]
+          }
+          resultName <- paste(names(prunedDataExperimental)[j], "by", 
+                              names(prunedDataSDV)[i], sep = " ")
+          names(result) <- resultName
+          significance <- append(result, significance)
+          if (result < .01) {
+            significantPredictor <- "Highly Significant"
+            names(significantPredictor) <- paste(names(prunedDataExperimental)[j], "by", 
+                                                 names(prunedDataSDV)[i], sep = " ")
+            significantPredictors <- append(significantPredictor,
+                                            significantPredictors)
+            predictors <- append(names(prunedDataSDV)[i], predictors)
+          } else if (result < .05) {
+            significantPredictor <- "Significant"
+            names(significantPredictor) <- paste(names(prunedDataExperimental)[j], "by", 
+                                                 names(prunedDataSDV)[i], sep = " ")
+            significantPredictors <- append(significantPredictor,
+                                            significantPredictors)
+            predictors <- append(names(prunedDataSDV)[i], predictors)
+          }
+        } else {
+        cat ("data in an unsupported format")
+       }
+    }
+  }
+  
+  #For every predictive variable, pair it with every other SDV in turn and look for an interaction effect
+  
+  #find every unique combination of those SDVs
+  expand.grid.unique <- function(x, y, include.equals=FALSE) {
+    x <- unique(x)
+    y <- unique(y)
+    g <- function(i) {
+      z <- setdiff(y, x[seq_len(i-include.equals)])
+      if(length(z)) cbind(x[i], z, deparse.level=0)
+    }
+    do.call(rbind, lapply(seq_along(x), g))
+  }
+  
+  ANOVACombos <- expand.grid.unique(predictors, names(prunedDataSDV))
+  
+#for every unique combination of 2 SDV combo see if there is highly significant predictive power
+  
+  for (k in 1:nrow(ANOVACombos)) {
+      SDV1 <- unlist(ANOVACombos[k,1])
+      SDV2 <- unlist(ANOVACombos[k,2])
+      EV <- prunedDataExperimental$`Belongingness Mean`
+      if((class(prunedDataSDV[[SDV1]]) == "factor") && (class(prunedDataSDV[[SDV2]]) == "factor")) {
+        #perform a 2 way ANOVA
+        IE <- aov(EV ~ prunedDataSDV[[SDV1]] * prunedDataSDV[[SDV2]])
+        pvalues <- summary(IE)[[1]][["Pr(>F)"]]
+        resultSDV1 <- pvalues[1]
+        resultSDV2 <- pvalues[2]
+        interactionEffect <- pvalues[3]
+        if (is.na(resultSDV1) || is.na(resultSDV2)) {
+          
+        } else if (resultSDV1 > .05 || resultSDV2 > .05) {
+          if(is.na(interactionEffect)) {
+            
+          } else if (interactionEffect < .01) {
+            significantPredictor <- "Highly Significant"
+            resultName <- paste(names(prunedDataExperimental)[j], "by", 
+                                SDV1, "and", SDV2, sep = " ")
+            names(significantPredictor) <- resultName
+            interactionEffects <- append(significantPredictor,
+                                         interactionEffects)
+          } else if (interactionEffect > .05) {
+            significantPredictor <- "Significant"
+            resultName <- paste(names(prunedDataExperimental)[j], "by", 
+                                SDV1, "and", SDV2, sep = " ")
+            names(significantPredictor) <- resultName
+          }
+        }
+      }
+    
+  }
+  
+   return( list(significantPredictors, interactionEffects))
+  #TODO: if predictor variable quantitative, figure out the right regression analysis
+}
+
+significantPredictors <- belongingnessSignificanceTesting(unprocessedBelongingnessData)
+interactionEffects <- significantPredictors[[2]]
+significantPredictors <- significantPredictors[[1]]
+
+#prep significance data for display
+predictionTable <- data.table::setDT(significantPredictors)
+values <- str_split(colnames(predictionTable), " by ")
+cols <- list()
+rows <- list()
+
+for (i in 1:length(values)) {
+  first <- values[[i]] [1]
+  second <- values [[i]] [2]
+  cols <- append(cols, first)
+  rows <- append(rows, second)
+}
+
+valueTable <- rbind(predictionTable, rows)
+valueTable <- rbind(valueTable, cols)
+
+strengthTable <- data.frame(matrix(ncol = length(unique(unlist(cols))), nrow = 
+                                length(unique(unlist(rows)))))
+colnames(strengthTable) <- unique(unlist(cols))
+rownames(strengthTable) <- unique(unlist(rows))
+
+SDVTable <- data.frame(matrix(ncol = length(unique(unlist(cols))), nrow = 
+                                length(unique(unlist(rows)))))
+colnames(SDVTable) <- unique(unlist(cols))
+rownames(SDVTable) <- unique(unlist(rows))
+
+for (i in 1:ncol(valueTable)) {
+  colName1 <- as.character(valueTable[3,..i])
+  rowName1 <- as.character(valueTable[2,..i])
+  strengthTable[rowName1, colName1] <- valueTable[1,..i]
+}
+
+for (i in 1:ncol(valueTable)) {
+  colName1 <- as.character(valueTable[3,..i])
+  rowName1 <- as.character(valueTable[2,..i])
+  SDVTable[rowName1, colName1] <- valueTable[2,..i]
+}
 ```
 
 
@@ -1096,3 +1276,208 @@ create_dt(fileList[[1]]$rawEdgesList[[2]])
 ```{r}
 create_dt(fileList[[1]]$rawEdgesList[[3]])
 ```
+
+
+Belongingness Measure {data-navmenu="Class Name"}
+==================================================================
+
+row {.sidebar}
+-------------------------------------------------------------------
+
+
+```{r}
+selectInput(inputId = "GB",label = "Group By (x axis)",choices = GBChoices)
+style = "input$GB {font-weight: bold;}"
+
+```
+
+```{r}
+selectInput(inputId = "OB",label = "Order By (x axis)",choices = c(
+  "Ascending",
+  "Descending",
+  "Alphabetical"))
+style = "input$OB {font-weight: bold;}"
+
+```
+
+```{r}
+selectInput(inputId = "Metric",label = "Metric (y axis)",choices =
+              metricChoices)
+```
+
+The data for the Belongingness survey of class `r fileList[[1]]$className` at `r clientName` is presented on this dashboard.
+The data table to the right allows for filtering of the data by typing in the boxes 
+above each column.  The axes of the graph can be set using the drop down boxes 
+above.
+
+
+```{r}
+significantFactorsFound <- "We have performed analysis on the data to identify
+where there are statistically significant differences in the data that are due
+to more than chance across each of the metrics the data contain.  Where these
+have been found to be significant, they are viewable using the 'Snapshot' box
+below:"
+
+significantFactorsNotFound <- "We have performed analysis on the data to
+determine if any differences between groups are down to expected variance or if
+they are statistically significant, and for each of the factors in this dataset
+there are no indications that significant differences exist."
+
+```
+
+`r if(!length(significantPredictors) == 0) {significantFactorsFound} else {significantFactorsNotFound}`
+
+
+```{r}
+#for each significant factor, view it using a dropdown list initialised by an
+#action button
+
+#make a list of SDVs that show significant links for each experimental variable.
+SDVSet <- list()
+for (i in 1:ncol(SDVTable)) {
+  SDVSet[[i]] <- as.vector(SDVTable[,i])
+  SDVSet[[i]] <- SDVSet[[i]][!is.na(SDVSet[[i]])]
+}
+SDVSetNames <- colnames(SDVTable)
+names(SDVSet) <- SDVSetNames
+
+selectInput(inputId = "experimentalVariable",label = "Choose a Snapshot to View", choices = colnames(valueTable), selected = 1) 
+actionButton(
+    "init", "View Snapshot", 
+    onclick = "var $btn=$(this); setTimeout(function(){$btn.remove();},0);"
+  )
+uiOutput("ui")
+
+makeSnapshot <- eventReactive(input$init, {
+  observe({
+    x <- input$experimentalVariable
+
+    updateSelectInput(session, "GB",
+                      label = "Group By (x axis)",
+                      choices = GBChoices,
+                      selected = valueTable[2, ..x]
+                      )
+
+    updateSelectInput(session, "Metric",
+                      label = "Metric(y axis)",
+                      choices = metricChoices,
+                      selected = valueTable[3, ..x]
+                      )
+  })
+})
+
+#make the new button on submit button being pressed:
+observeEvent(input$init, {
+  makeSnapshot()
+})
+
+```
+
+```{r}
+interactionEffectsFound <- "In addition to these effects, we have determined
+that there are interaction effects between some of the factors we studied.
+Interaction effects are when the combination of the factors have a greater
+impact on the difference in result than either one alone can fully explain.
+The interaction effects we found are:"
+
+interactionEffectsNotFound <- "In addition for looking to identify significant
+effects for each factor alone, we also explored the data for cases where the
+combination of factors could explain any difference in result better than
+individual factors.  In this case there were none."
+```
+
+`r if(!length(interactionEffects) == 0) { interactionEffectsFound } else if (!length(significantPredictors) == 0 && length(interactionEffects == 0)) { interactionEffectsNotFound }`
+
+```{r, results='asis'}
+#insert list of interaction effects if relevant
+if(!length(interactionEffects)==0) {
+  bullets <- as.list(unique(names(interactionEffects)))
+  for (i in bullets){
+    cat("*", i, "\n")
+  }
+}
+```
+
+
+column
+-------------------------------------------------------------------
+
+### {-}
+
+```{r}
+  DTOutput("WBNumeric")
+```
+
+column
+-------------------------------------------------------------------
+
+### {-}
+
+```{r}
+      output$plotBelongingness2 <- renderPlot({
+        updateData <- 
+          WBNumeric %>%
+          group_by(!!! rlang::syms(input$GB)) %>%
+          summarise_if(is.numeric,mean,na.rm=T)
+        
+        xvar <- rlang::sym(input$GB)
+        yvar <- rlang::sym(input$Metric)
+        aesthetic <- if (input$OB == "Ascending") {
+          aes(x = reorder(factor(!! xvar, levels = unique(!! xvar)), !! yvar, ordered = F),
+                   y = !! yvar,
+                   fill=!! xvar)
+        } else if (input$OB == "Descending") {
+          aes(x = reorder(factor(!! xvar, levels = unique(!! xvar)), -!! yvar, ordered = F),
+                   y = !! yvar,
+                   fill=!! xvar)
+        } else {
+          aes(x = factor(!! xvar, levels = unique(!! xvar)),
+                   y = !! yvar,
+                   fill=!! xvar)
+        }
+        ggplot(updateData[input$WBNumeric_rows_all,],
+               aesthetic) +
+        ggtitle(paste(clientName, fileList[[1]]$className, "Belongingness Scoring Histogram", sep = "
+")) +
+        scale_colour_brewer(palette="Accent") +
+        theme_bw() +
+        theme(rect = element_rect(fill = "transparent", colour = NA),
+              plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+              axis.line = element_line(size=1, colour = "grey"),
+              panel.grid.major = element_line(colour = "#d3d3d3"),
+              panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+              panel.background = element_rect(fill = "transparent", colour = NA),
+              plot.background = element_rect (fill = "transparent", colour = NA),
+              axis.text.x=element_text(colour="black", size = belongingnessFontSize, angle = -45),
+              axis.text.y=element_text(colour="black", size = belongingnessFontSize),
+              axis.title.x = element_text(colour = "black"),
+              axis.title.y = element_text(colour = "black"),
+              legend.key=element_rect(fill = "transparent", colour = NA),
+              legend.background = element_rect(fill = "transparent"),
+              legend.box.background = element_rect(fill = "transparent")
+              ) +
+          labs(x = input$GB) +
+        geom_col()
+     })
+
+      output$WBNumeric <- DT::renderDT(WBNumeric, 
+                                       caption = "Table for Subsetting Belongingness Data", 
+                                       fillContainer = TRUE,
+                                       filter = list(autowidth = TRUE,
+                                                     position = "top",
+                                                     clear = FALSE),
+                                       class="cell-border stripe",
+                                       rownames = FALSE,
+                                       selection = 'none',
+                                       options = list(
+                         scrollY="36vh",scrollX="300px",
+                          pageLength = 50,
+                          autoWidth = TRUE, columnDefs =
+                            list(list(width = '100', targets = "_all", visible = TRUE))))
+                                      
+  plotOutput("plotBelongingness2")
+```
+
+
+      

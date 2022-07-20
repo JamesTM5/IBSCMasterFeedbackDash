@@ -521,25 +521,29 @@ SSDashAnalysis <- function (file) {
     warning("more belongingness question numeric columns have been matched than there should be.  Consider checking the belongingnessRegExQuestionTextNumeric for unwanted matches")
   }
   
-  #add a 'belongingnessSumNumeric' column to nodes
+  #add a 'belongingnessMeanNumeric' column to nodes
   belongingnessNumeric <- nodes[,belongingnessResponseColumnIndicesNumeric]
-  nodes$belongingnessSumNumeric <- rowSums(belongingnessNumeric)
+  nodes$belongingnessMeanNumeric <- rowMeans(belongingnessNumeric)
+  for (i in 1:length(nodes$belongingnessMeanNumeric)) {
+    nodes$belongingnessMeanNumeric[[i]] <- round(nodes$belongingnessMeanNumeric[[i]], 2)
+  } 
   
   #add a 'Belongingness Score' column to nodes containing stratified data
   #current stratification thresholds 25% - 50% - 25%
-  # 0-18 total
-  # 0-5 low
-  # 6-12 moderate
-  # 13-18 high
+  #0-3 x6
+  #0-0.8333333 Low (0-1)
+  #1-2 Moderate (1-2)
+  #2.166667-3 High (2-3)
+  
   belongingnessStratified <- vector()
-  for(i in 1:length(nodes$belongingnessSumNumeric)) {
-    if(is.na(nodes$belongingnessSumNumeric[i])) {
+  for(i in 1:length(nodes$belongingnessMeanNumeric)) {
+    if(is.na(nodes$belongingnessMeanNumeric[i])) {
       belongingnessStratified[i] <- "Not Reported"    
-    } else if(nodes$belongingnessSumNumeric[i] > 12) {
+    } else if(nodes$belongingnessMeanNumeric[i] > 2) {
       belongingnessStratified[i] <- "High"
-    } else if (nodes$belongingnessSumNumeric[i] > 5) {
+    } else if (nodes$belongingnessMeanNumeric[i] > 1) {
       belongingnessStratified[i] <- "Moderate"
-    } else if (nodes$belongingnessSumNumeric[i] >= 0) {
+    } else if (nodes$belongingnessMeanNumeric[i] >= 0) {
       belongingnessStratified[i] <- "Low"
     } else {
       belongingnessStratified[i] <- "Not Reported"
@@ -611,35 +615,48 @@ SSDashAnalysis <- function (file) {
    }
    
   #collate belongingness data frame
-   socioDemographicVariables <- sapply(socioDemographicVariables,
+  socioDemographicVariables <- sapply(socioDemographicVariables,
                                       function(v) {gsub("\\."," ", as.character(v))})
-   belongingnessDF <- nodes[,c("id",
-                               socioDemographicVariables,
+  
+  deleteVector <- vector()
+  for (i in 1:length(socioDemographicVariables)) {
+    if(socioDemographicVariables[i] %in% names(nodes)) {
+      if(length(levels(as.factor(nodes[,socioDemographicVariables[i]]))) <= 1) {
+        deleteVector[length(deleteVector)+1] <- i
+      } else if (length(levels(as.factor(nodes[,socioDemographicVariables[i]]))) == nrow(nodes)) {
+        deleteVector[length(deleteVector)+1] <- i
+      }
+    }
+  }
+  
+  indeterminateChoicesBelongingness <- socioDemographicVariables[c(deleteVector)]
+  socioDemographicVariablesBelongingness <- socioDemographicVariables[-c(deleteVector)]
+  
+  belongingnessDF <- nodes[,c("id",
+                               socioDemographicVariablesBelongingness,
                                "Communities Relationship Question 1",
                                "Communities Relationship Question 2",
                                "Communities Relationship Question 3",
                                "Student - Teacher Relationship Score",
                                "Belongingness Score")]
-   names(belongingnessDF)[names(belongingnessDF) == "Belongingness Score"] <- "Belongingness Stratified" 
-   
-  
-  names(belongingnessNumeric) <- c("I feel like I belong at school",
-                                   "I make friends easily at school",
-                                   "Other students seem to like me",
-                                   "I feel awkward and out of place in my school",
-                                   "I feel like an outsider (or left out of things) at school",
-                                   "I feel lonely at school")
+  names(belongingnessDF)[names(belongingnessDF) == "Belongingness Score"] <- "Belongingness Stratified" 
+  names(belongingnessNumeric) <- c("I feel like I belong",
+                                   "I make friends easily",
+                                   "Other students like me",
+                                   "I feel awkward",
+                                   "I feel like an outsider",
+                                   "I feel lonely")
   belongingnessDF <- cbind(belongingnessDF, belongingnessNumeric)
-  belongingnessDF <- cbind(belongingnessDF, nodes$belongingnessSumNumeric)
-  names(belongingnessDF)[names(belongingnessDF) == "nodes$belongingnessSumNumeric"] <- "Belongingness Sum"
+  belongingnessDF <- cbind(belongingnessDF, nodes$belongingnessMeanNumeric)
+  names(belongingnessDF)[names(belongingnessDF) == "nodes$belongingnessMeanNumeric"] <- "Belongingness Mean"
   #add student teacher measure to belongingnessDF
-  names(modifiedNodesST) <- c("I can talk to or contact my teacher when I need to",
-                              "It is worth building a good relationship with my teacher because I may be in a class or activity with them in the future",
-                              "My teacher and I have shared goals for my progress and development",
-                              "My teacher cares about me",
-                              "My teacher has a good understanding of my skills and interests",
-                              "My teacher inspires and motivates me",
-                              "My teacher recognises and rewards my efforts")
+  names(modifiedNodesST) <- c("Teacher Contact S-T",
+                              "Relationship Building S-T",
+                              "Shared Goals S-T",
+                              "Care S-T",
+                              "Understanding S-T",
+                              "Inspiration S-T",
+                              "Recognition S-T")
   belongingnessDF <- cbind(belongingnessDF, modifiedNodesST)
 
   #Add peer to peer network characteristics to belongingnessDF
@@ -663,9 +680,11 @@ SSDashAnalysis <- function (file) {
                              by.x = "id", by.y = "id")
   }
   
- 
-  
-  #filter rows for NA in nodes$belongingnessSumNumeric?
+  degreeIndices <- ncol(belongingnessDF) -9
+for (i in degreeIndices:ncol(belongingnessDF)) {
+  belongingnessDF[,i] <-as.character(belongingnessDF[,i])
+}
+  #filter rows for NA in nodes$belongingnessMeanNumeric?
    
 #remove numeric response columns from nodes
     nodes <- nodes %>% select(!contains('numeric'))
