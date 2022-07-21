@@ -99,13 +99,6 @@ for(i in 1:length(fileList)) {
 #source the D3 code to link the R to JS
 source("assets/forcedirected/forcedirected.R")
 
-
-
-
-
-
-
-
 #set up Belongingness Dashboard
 dataFileBelongingness <- fileList[[1]]$belongingnessDF
 unprocessedBelongingnessData <- dataFileBelongingness
@@ -1290,7 +1283,7 @@ highBelongingnessNumber <- table(unprocessedBelongingnessData$`Belongingness Str
 causeForConcernRowIndex <- which(unprocessedBelongingnessData$`Belongingness Stratified` == "Low")
 causeForConcernNames <- vector()
 for (i in 1:length(causeForConcernRowIndex)) {
-  causeForConcernNames[i] <- unprocessedBelongingnessData[i,"id"]
+  causeForConcernNames[i] <- unprocessedBelongingnessData[causeForConcernRowIndex[i],"id"]
 }
 
 if(lowBelongingnessNumber == 1) {
@@ -1322,7 +1315,7 @@ The data for the Belongingness survey of class `r fileList[[1]]$className` at `r
 This class contains `r highBelongingnessText` with high belongingness scores and `r lowBelongingnessText` with low ones.
 `r belongingnessNumberCommentary`
 
-#### Class Members with Low Belongingness Scores:
+#### Class Members with Notably Low Belongingness:
 
 ```{r results='asis'}
 if(!length(causeForConcernNames)==0) {
@@ -1523,9 +1516,9 @@ column
                                        selection = 'none',
                                        options = list(
                          scrollY="36vh",scrollX="300px",
-                          pageLength = 50,
-                          autoWidth = TRUE, columnDefs =
-                            list(list(width = '100', targets = "_all", visible = TRUE))))
+                         pageLength = 50,
+                         autoWidth = TRUE, columnDefs =
+                         list(list(width = '100', targets = "_all", visible = TRUE))))
                                       
   plotOutput("plotBelongingness2")
 ```
