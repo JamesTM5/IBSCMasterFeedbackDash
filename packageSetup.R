@@ -7,11 +7,11 @@
 #              "flexdashboard", "DT", "shiny",
 #              "tidyverse", "knitr", "plotly",
 #              "humaniformat", "UpSetR", "dplyr",
-#              "data.table")
-# # installed_packages <- packages %in% rownames(installed.packages())
-# # if (any(installed_packages == FALSE)) {
-# #   install.packages(packages[!installed_packages])
-# # }
+#              "data.table", "ggplot2", "ggdendro")
+#  installed_packages <- packages %in% rownames(installed.packages())
+#  if (any(installed_packages == FALSE)) {
+#    install.packages(packages[!installed_packages])
+#  }
 # invisible(lapply(packages, library, character.only = TRUE))
 
 #call required libraries

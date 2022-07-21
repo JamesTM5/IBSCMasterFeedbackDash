@@ -55,9 +55,9 @@ class RepeatedForceDirected {
             },
             "Score":(on)=>{ 
                 if(on){
-                    this.fd.styleFunctions.edge_width = (d)=>parseFloat(d.score)*10;
+                    this.fd.styleFunctions.edge_width = (d)=>parseFloat(d.score)*3;
                 }else{ 
-                    this.fd.styleFunctions.edge_width = (d)=>3.0;
+                    this.fd.styleFunctions.edge_width = (d)=>2.0;
                 }
                 this.fd.redrawGraph();
             }

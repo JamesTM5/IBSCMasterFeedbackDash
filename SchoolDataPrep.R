@@ -334,6 +334,7 @@ SSDashAnalysis <- function (file) {
         for (j in 1:nrow(x)) {
           if (identical(x[j,1:2], a[k,1:2])) {
             x[j,4] <- TRUE
+            x[j,3] <- x[j,3]+1
           }
         }
       }
@@ -355,7 +356,12 @@ SSDashAnalysis <- function (file) {
     edgeDataList[[1]] <- edgeDataSetup(Graph2[[1]])
     edgeDataList[[2]] <- edgeDataSetup(Graph2[[2]])    
     edgeDataList[[3]] <- edgeDataSetup(Graph2[[3]])
+    #TODO: maybe reset score column in each to all 1's
 
+#Build an overall edgelist for a summary data frame.
+    overallEdgeList <- do.call("rbind", Graph2)
+    overallSSEdgeList <- edgeDataSetup(overallEdgeList)
+    
 # Prepare Dendrograms
     dendrogramList <- list()
     dendrogramList[[1]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[1]])))
@@ -702,6 +708,7 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                     SSNQCommunitiesDataList,
                                     SSNQNetworkD3,
                                     edgeDataList,
+                                    overallSSEdgeList,
                                     nodes,
                                     dendrogramList,
                                     polarGraphList,
@@ -727,6 +734,7 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                          "SSNQCommunitiesDataList",
                                          "SSNQNetworkD3",
                                          "edgeDataList",
+                                         "overallSSEdgeList",
                                          "nodes",
                                          "dendrogramList",
                                          "polarGraphList",
