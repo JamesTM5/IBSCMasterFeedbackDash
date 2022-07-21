@@ -1274,7 +1274,7 @@ create_dt(fileList[[1]]$rawEdgesList[[3]])
 Belongingness Measure {data-navmenu="Class Name"}
 ==================================================================
 
-row {.sidebar}
+row {.sidebar data-width=400}
 -------------------------------------------------------------------
 
 ```{r}
@@ -1315,17 +1315,37 @@ The data for the Belongingness survey of class `r fileList[[1]]$className` at `r
 This class contains `r highBelongingnessText` with high belongingness scores and `r lowBelongingnessText` with low ones.
 `r belongingnessNumberCommentary`
 
-#### Class Members with Notably Low Belongingness:
 
-```{r results='asis'}
-if(!length(causeForConcernNames)==0) {
-  for (i in causeForConcernNames){
-    cat("*", i, "\n")
-  }
-} else {
-  cat("None")
+```{css echo=FALSE}
+.custom-inline {
+  color: red;
 }
 ```
+
+
+#### Class Members with Notably Low Belongingness:
+
+<span class='custom-inline'>
+
+```{r results='asis'}
+bulletList <- list()
+
+
+if(!length(causeForConcernNames)==0) {
+  for (i in causeForConcernNames){
+    bulletList[i] <- paste0(i, "\n")
+  }
+} else {
+  bulletList[i] <- "none"
+}
+
+sprintf("<span class='custom-inline'>%s</span>", bulletList)
+```
+
+</span>
+
+
+<span style="color: black;"> 
 
 The data table to the right allows for filtering of the data by typing in the boxes 
 above each column.  The axes of the graph can be set using the drop down boxes 
@@ -1442,6 +1462,7 @@ if(!length(interactionEffects)==0) {
 }
 ```
 
+</span>
 
 column
 -------------------------------------------------------------------
