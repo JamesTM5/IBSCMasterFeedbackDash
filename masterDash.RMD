@@ -1284,31 +1284,82 @@ Belongingness Measure {data-navmenu="Class Name"}
 row {.sidebar}
 -------------------------------------------------------------------
 
-
 ```{r}
-selectInput(inputId = "GB",label = "Group By (x axis)",choices = GBChoices)
-style = "input$GB {font-weight: bold;}"
+lowBelongingnessNumber <- table(unprocessedBelongingnessData$`Belongingness Stratified`)[["Low"]]
+highBelongingnessNumber <- table(unprocessedBelongingnessData$`Belongingness Stratified`)[["High"]]
+causeForConcernRowIndex <- which(unprocessedBelongingnessData$`Belongingness Stratified` == "Low")
+causeForConcernNames <- vector()
+for (i in 1:length(causeForConcernRowIndex)) {
+  causeForConcernNames[i] <- unprocessedBelongingnessData[i,"id"]
+}
 
+if(lowBelongingnessNumber == 1) {
+  lowBelongingnessText <- paste(lowBelongingnessNumber, "member", sep = " ")
+} else {
+  lowBelongingnessText <- paste(lowBelongingnessNumber, "members", sep = " ")  
+}
+
+if(highBelongingnessNumber == 1) {
+  highBelongingnessText <- paste(highBelongingnessNumber, "member", sep = " ")
+} else {
+  highBelongingnessText <- paste(highBelongingnessNumber, "members", sep = " ")  
+}
+
+
+if(highBelongingnessNumber > (lowBelongingnessNumber*2)) {
+  belongingnessNumberCommentary <- "This meets or exceeds the international average result for a group of learners"
+} else if (highBelongingnessNumber > lowBelongingnessNumber) {
+  belongingnessNumberCommentary <- "This is not cause for concern per se, but is a little lower than the international average result for a group of learners"
+} else if (highBelongingnessNumber < lowBelongingnessNumber) {
+  belongingnessNumberCommentary <- "This is significantly lower than the international average result for a group of learners and may well represent a reasonable cause for concern"
+} else {
+  belongingnessNumberCommentary <- ""
+}
 ```
 
-```{r}
-selectInput(inputId = "OB",label = "Order By (x axis)",choices = c(
-  "Ascending",
-  "Descending",
-  "Alphabetical"))
-style = "input$OB {font-weight: bold;}"
+The data for the Belongingness survey of class `r fileList[[1]]$className` at `r clientName` is presented on this dashboard page.
 
+This class contains `r highBelongingnessText` with high belongingness scores and `r lowBelongingnessText` with low ones.
+`r belongingnessNumberCommentary`
+
+#### Class Members with Low Belongingness Scores:
+
+```{r results='asis'}
+if(!length(causeForConcernNames)==0) {
+  for (i in causeForConcernNames){
+    cat("*", i, "\n")
+  }
+} else {
+  cat("None")
+}
 ```
 
-```{r}
-selectInput(inputId = "Metric",label = "Metric (y axis)",choices =
-              metricChoices)
-```
-
-The data for the Belongingness survey of class `r fileList[[1]]$className` at `r clientName` is presented on this dashboard.
 The data table to the right allows for filtering of the data by typing in the boxes 
 above each column.  The axes of the graph can be set using the drop down boxes 
-above.
+below.
+
+```{r}
+selectInput(inputId = "GB",
+            label = "Group By (x axis)",
+            choices = GBChoices,
+            selected = "id")
+```
+
+```{r}
+selectInput(inputId = "OB",
+            label = "Order By (x axis)",
+            choices = c("Ascending",
+                        "Descending",
+                        "Alphabetical"),
+            selected = "Alphabetical")
+```
+
+```{r}
+selectInput(inputId = "Metric",
+            label = "Metric (y axis)",
+            choices = metricChoices,
+            selected = "Belongingness Mean")
+```
 
 
 ```{r}
