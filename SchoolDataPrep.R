@@ -20,6 +20,7 @@ SSDashAnalysis <- function (file) {
   source("clientConfig.R")
   
 #import student data
+file <- dataFile
   nodes <- read.xlsx(file, sheet = 1)
   edges1 <- read.xlsx(file, sheet = 2)
   edges2 <- read.xlsx(file, sheet = 3)
@@ -244,73 +245,11 @@ SSDashAnalysis <- function (file) {
       surveyDataFiltered[[i]] <- dplyr::filter(surveyData[[i]], 
                                                surveyData[[i]]$Network > 
                                                thresholdForEdgeDrawing)
-  }
-
-#perform summative network analysis on each relationship question
-    source("networkSurveyAnalysis.R")
-    totalNetworkInfo <- list()
-    for(i in 1:length(surveyDataFiltered)) {
-    totalNetworkInfo[[length(totalNetworkInfo)+1]] <-
-      surveyDataAnalysis(questionData = surveyDataFiltered[[i]])
-    }   
-
-
-  
-#Insert HTML into a list to display it properly in-dash
-    formatDataForDisplay <- function(Data) {
-      Data <- na.omit(Data)
-      ogValue <- Data[length(Data)]
-      formattedValue <- paste(Data, "<br>", sep=" ")
-      formattedValue[length(formattedValue)] <- ogValue
-      return(formattedValue)
     }
-    
-#find isolates
-  isolatesList <- list()
-  for(i in 1:length(totalNetworkInfo)) {
-    isolatesList[[i]] <- nodes$Name [!(nodes$Name %in%
-                                         totalNetworkInfo[[i]][[3]][["People"]])]
-    isolatesList[[i]][isolatesList[[i]] == ""] <- NA
-  }
-#format isolates list for display in dash, or display 'None'
-  for(i in 1:length(isolatesList)) {
-    if(length(isolatesList[[i]])>0) {
-      isolatesList[[i]] <- formatDataForDisplay(isolatesList[[i]])
-    } else {
-      isolatesList[[i]] <- "None"
-    }
-  }
 
-#Prepare data for D3.JS forceDirected
-  SSNQGraphList <- list()
-  SSNQCommunitiesDataList <- list()
-  SSNQMembersList <- list()
-  Graph2 <- list()
-  for (i in 1:length(surveyDataFiltered)) {
-    SSNQGraphFromDataset <- data.frame(
-      surveyDataFiltered[[i]]$Source,
-      surveyDataFiltered[[i]]$Target,
-      ... = surveyDataFiltered[[i]]$Network)
-    #Make an igraph object for each question for the D3 R port.
-    Graph2[[i]] <- SSNQGraphFromDataset
-    SSNQGraphList[[i]] <- graph_from_data_frame(SSNQGraphFromDataset,
-                                                directed = T)
-    # Perform Communities Analysis for each igraph object
-    SSNQCommunitiesDataList[[i]] <- cluster_walktrap(SSNQGraphList[[i]])
-    
-    SSNQMembersList[[i]] <- membership(SSNQCommunitiesDataList[[i]])
-  }
-
-    #Convert igraph to D3
-  SSNQNetworkD3 <- list()
-  for(i in 1:length(SSNQGraphList)) {
-    SSNQNetworkD3[[i]] <- igraph_to_networkD3(SSNQGraphList[[i]],
-                                              group = SSNQMembersList[[i]])
-  }
-    
-    #Set up the edge data for porting to D3.JS
+    #Function to set up the edge data for porting to D3.JS
     edgeDataSetup <- function(SSNQGraph) {
-    #Find every co-occuring join and assign each 2, while the others are assigned 1
+      #Find every co-occuring join and assign each 2, while the others are assigned 1
       x <- SSNQGraph
       colnamesx <- colnames(x)
       for(l in 1:length(colnamesx)) {
@@ -351,23 +290,161 @@ SSDashAnalysis <- function (file) {
       return(x)
     }
     
+  
+    
+    #calculate reciprocity on the whole dataset to later slot into totalNetworkInfo list]
+
+    reciprocityFullEdgeList <- function(edgeList) {
+      rec <- edgeList 
+      rec$Network <- as.character(rec$Network)
+      recLevels <- levels(as.factor(rec$Network))
+      recList <- list()
+      nList <- list()
+      for(i in 1:length(recLevels)) {
+        filteredRec <- filter(rec, Network == recLevels[i])
+        nList[[i]] <- nrow(filteredRec)
+        if(nList[[i]]>0){
+          r <- graph_from_data_frame(filteredRec, directed = T)
+          recList[[i]] <- reciprocity(r)
+        }
+      }
+      #combine all the values in recList into a single reciprocity score
+      recDF <- data.frame(unlist(recList), unlist(nList))
+      normalizedRec <- list()
+      for(i in 1:nrow(recDF)){
+        normalizedRec[i] <- as.numeric(recDF[i,1])*as.numeric(recDF[i,2])
+      }
+      overallReciprocity <-sum(unlist(normalizedRec))/sum(unlist(nList))
+      
+    }
+    
+    questionReciprocityList <- list()
+    for(i in 1:length(rawEdgesList)) {
+      questionReciprocityList[i] <- reciprocityFullEdgeList(rawEdgesList[[i]])
+    }
+    
+    overallReciprocity <- mean(unlist(questionReciprocityList))
+    questionReciprocityListComplete <- unlist(append(questionReciprocityList, overallReciprocity))
+
+    #Build an overall edgelist for a class summary page.
+    #build from unfiltered data
+    overallEdgeList <- list()
+    for(i in 1:length(rawEdgesList)){
+      overallEdgeList[[i]] <- rawEdgesList[[i]][c("Source", "Target", "Network")]
+    }
+    
+    overallEdgesList <- do.call("rbind", overallEdgeList)
+    overallEdgesList$Score <- rep(1, nrow(overallEdgesList))
+    #filter entries under a given score threshold 0.5 
+    overallEdgesList <- filter(overallEdgesList, Network > 0.5)
+    # Reorder values in first 2 cols and cbind with df[,3]
+    m <- cbind(t(apply(overallEdgesList[1:2], 1, sort)), overallEdgesList[,3])
+    # Sum third column grouped by first and second column
+    overallSSEdgesDF <- aggregate(as.numeric(m[,3]), by = list(m[,1],m[,2]),FUN=sum)
+    #set mutual if score is higher than 3
+    overallSSEdgesDF <- edgeDataSetup(overallSSEdgesDF)
+    
+    for(i in 1:nrow(overallSSEdgesDF)) {
+      if(overallSSEdgesDF[i,"score"]>3){
+        overallSSEdgesDF[i,"mutual"]<- 2
+      }
+      overallSSEdgesDF[i,"mutual"]
+    }
+    #filter all edges that lack reciprocity
+    overallSSEdgesDF <- filter(overallSSEdgesDF, mutual == 2)
+    
+    #Generate summative statistics about the overall network map
+    source("networkSurveyAnalysis.R")
+    overallSSEdgesDF2 <- overallSSEdgesDF
+    names(overallSSEdgesDF2) <- c("Source", "Target", "Mutual", "Network")
+    
+    overallNetworkInfo <- surveyDataAnalysis(questionData = overallSSEdgesDF2)
+    #TODO: fix broken reciprocity score to factor in all of the edges drawn or undrawn
+
+
+#perform summative network analysis on each relationship question
+    totalNetworkInfo <- list()
+    for(i in 1:length(surveyDataFiltered)) {
+    totalNetworkInfo[[length(totalNetworkInfo)+1]] <-
+      surveyDataAnalysis(questionData = surveyDataFiltered[[i]])
+    }
+
+    #Combine question and overall NetworkInfo lists
+    totalNetworkInfo[[length(totalNetworkInfo)+1]] <- overallNetworkInfo
+
+    for (i in 1:length(totalNetworkInfo)){
+      totalNetworkInfo[[i]][[6]] <- questionReciprocityListComplete[i]
+    }
+        
+#Insert HTML into a list to display it properly in-dash
+    formatDataForDisplay <- function(Data) {
+      Data <- na.omit(Data)
+      ogValue <- Data[length(Data)]
+      formattedValue <- paste(Data, "<br>", sep=" ")
+      formattedValue[length(formattedValue)] <- ogValue
+      return(formattedValue)
+    }
+    
+#find isolates
+  isolatesList <- list()
+  for(i in 1:length(totalNetworkInfo)) {
+    isolatesList[[i]] <- nodes$Name [!(nodes$Name %in%
+                                         totalNetworkInfo[[i]][[3]][["People"]])]
+    isolatesList[[i]][isolatesList[[i]] == ""] <- NA
+  }
+#format isolates list for display in dash, or display 'None'
+  for(i in 1:length(isolatesList)) {
+    if(length(isolatesList[[i]])>0) {
+      isolatesList[[i]] <- formatDataForDisplay(isolatesList[[i]])
+    } else {
+      isolatesList[[i]] <- "None"
+    }
+  }
+
+#Prepare data for D3.JS forceDirected
+  surveyDataFiltered[[length(surveyDataFiltered)+1]] <- overallSSEdgesDF2
+  SSNQGraphList <- list()
+  SSNQCommunitiesDataList <- list()
+  SSNQMembersList <- list()
+  Graph2 <- list()
+  for (i in 1:length(surveyDataFiltered)) {
+    SSNQGraphFromDataset <- data.frame(
+      surveyDataFiltered[[i]]$Source,
+      surveyDataFiltered[[i]]$Target,
+      ... = surveyDataFiltered[[i]]$Network)
+    #Make an igraph object for each question for the D3 R port.
+    Graph2[[i]] <- SSNQGraphFromDataset
+    SSNQGraphList[[i]] <- graph_from_data_frame(SSNQGraphFromDataset,
+                                                directed = T)
+    # Perform Communities Analysis for each igraph object
+    SSNQCommunitiesDataList[[i]] <- cluster_walktrap(SSNQGraphList[[i]])
+    
+    SSNQMembersList[[i]] <- membership(SSNQCommunitiesDataList[[i]])
+  }
+
+    #Convert igraph to D3
+  SSNQNetworkD3 <- list()
+  for(i in 1:length(SSNQGraphList)) {
+    SSNQNetworkD3[[i]] <- igraph_to_networkD3(SSNQGraphList[[i]],
+                                              group = SSNQMembersList[[i]])
+  }
+    
+
     edgeDataList <- list()
     thing <- SSNQGraphList[[1]]
     edgeDataList[[1]] <- edgeDataSetup(Graph2[[1]])
     edgeDataList[[2]] <- edgeDataSetup(Graph2[[2]])    
     edgeDataList[[3]] <- edgeDataSetup(Graph2[[3]])
+    edgeDataList[[4]] <- overallSSEdgesDF2
     #TODO: maybe reset score column in each to all 1's
-
-#Build an overall edgelist for a summary data frame.
-    overallEdgeList <- do.call("rbind", Graph2)
-    overallSSEdgeList <- edgeDataSetup(overallEdgeList)
     
 # Prepare Dendrograms
     dendrogramList <- list()
     dendrogramList[[1]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[1]])))
     dendrogramList[[2]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[2]])))
     dendrogramList[[3]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[3]])))
-
+    dendrogramList[[4]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[4]])))
+    
 # Overall Scoring calculation
   source("overallScoring.R")
   overallScoresList <- list()
@@ -386,10 +463,12 @@ SSDashAnalysis <- function (file) {
   }
 
 #Generate the polar graphs for individual pages
+  overallSSEdgesDF2 <- as.data.frame(overallSSEdgesDF2)
+  polarList <- c(surveyData, list(overallSSEdgesDF2))
   source("generatePolar.R")
   polarGraphList <- list()
-  for(i in 1:length(surveyData)) {
-    polarGraphList[[i]] <- generatePolar(data = surveyData[[i]])
+  for(i in 1:length(polarList)) {
+    polarGraphList[[i]] <- generatePolar(data = polarList[[i]])
   }
   
   source("generateDegreeHistogram.R")
@@ -433,7 +512,7 @@ SSDashAnalysis <- function (file) {
     names(nodes)[1] <- "id"
     nodes <- nodes[order(nodes$id),]
     for(i in 1:length(totalNetworkInfo)) {
-      for(j in 1:3) {
+      for(j in 1:4) {
        names(totalNetworkInfo[[i]][[j]])[names(totalNetworkInfo[[i]][[j]])
                                          == "People"] <- "id"
        names(totalNetworkInfo[[i]][[j]])[names(totalNetworkInfo[[i]][[j]])
@@ -464,6 +543,8 @@ SSDashAnalysis <- function (file) {
     nodes <- merge(nodes, communityList[[1]])
     nodes <- merge(nodes, communityList[[2]])
     nodes <- merge(nodes, communityList[[3]])
+    nodes <- merge(nodes, communityList[[4]]) #overall data
+    
     
 # Prepare Nodes Dataframe for each D3 Graph
     #sum Q1 and Q5, with high/medium/low
@@ -690,8 +771,7 @@ SSDashAnalysis <- function (file) {
 for (i in degreeIndices:ncol(belongingnessDF)) {
   belongingnessDF[,i] <-as.character(belongingnessDF[,i])
 }
-  #filter rows for NA in nodes$belongingnessMeanNumeric?
-   
+
 #remove numeric response columns from nodes
     nodes <- nodes %>% select(!contains('numeric'))
 #remove stratified response columns from nodes
@@ -708,7 +788,7 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                     SSNQCommunitiesDataList,
                                     SSNQNetworkD3,
                                     edgeDataList,
-                                    overallSSEdgeList,
+                                    overallSSEdgesDF,
                                     nodes,
                                     dendrogramList,
                                     polarGraphList,
@@ -734,7 +814,7 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                          "SSNQCommunitiesDataList",
                                          "SSNQNetworkD3",
                                          "edgeDataList",
-                                         "overallSSEdgeList",
+                                         "overallSSEdgesDF",
                                          "nodes",
                                          "dendrogramList",
                                          "polarGraphList",
