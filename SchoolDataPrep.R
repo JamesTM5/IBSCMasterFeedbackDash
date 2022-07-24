@@ -772,6 +772,9 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
   belongingnessDF[,i] <-as.character(belongingnessDF[,i])
 }
 
+#gather data for school summary page raincloud plots of extra measures (belongingness/S-T etc.)
+  nodesRainCloud <- nodes
+  
 #remove numeric response columns from nodes
     nodes <- nodes %>% select(!contains('numeric'))
 #remove stratified response columns from nodes
@@ -802,7 +805,8 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                     overallScoresList,
                                     D3NodesList,
                                     rawEdgesList,
-                                    belongingnessDF)
+                                    belongingnessDF,
+                                    nodesRainCloud)
 
     names(classDashAnalysisOutput) <-  c("clientName",
                                          "className",
@@ -828,7 +832,8 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                          "overallScoresList",
                                          "D3NodesList",
                                          "rawEdgesList",
-                                         "belongingnessDF")
+                                         "belongingnessDF",
+                                         "nodesRainCloud")
 #Write output object to disk as a .rds    
     filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
     write_rds(classDashAnalysisOutput, as.character(filename))
