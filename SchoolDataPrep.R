@@ -25,6 +25,20 @@ file <- dataFile
   edges1 <- read.xlsx(file, sheet = 2)
   edges2 <- read.xlsx(file, sheet = 3)
   edges3 <- read.xlsx(file, sheet = 4)
+  
+  TS <- read.xlsx(dataFileTS, sheet = 1) #Teacher info/answers
+  TSRQ1 <- read.xlsx(dataFileTS, sheet = 2) #Q9
+  TSRQ2 <- read.xlsx(dataFileTS, sheet = 3) #Q10
+  TSRQ3 <- read.xlsx(dataFileTS, sheet = 4) #Q10
+  TSRQ4 <- read.xlsx(dataFileTS, sheet = 5) #Q10
+  TSRQ5 <- read.xlsx(dataFileTS, sheet = 6) #Q10
+  TSRQ6 <- read.xlsx(dataFileTS, sheet = 7) #Q10
+
+  path <- readxl_example("datasets.xlsx")
+  path %>% 
+    excel_sheets() %>% 
+    set_names() %>% 
+    map(read_excel, path = path)  
 
 #extract class name from file  
   className <- substring(file, regexpr("Student", file) + 8)

@@ -2119,7 +2119,7 @@ selectInput(
   inputId = "rainCloudY",
   label = "Group Selection",
   choices = rainCloudYChoices,
-  multiple = F,
+  multiple = F
 )
 
 ```
@@ -2139,4 +2139,93 @@ ggplot(updateRainCloudData, aes(!!rainCloudXVar, !!rainCloudYVar, fill = !!rainC
   ggdist::stat_dots(side = "left", dotsize = .1, justification = 1.05, binwidth = .25)
 })
 
+```
+
+Patchwork Test
+------------------------
+```{r}
+#install.packages("patchwork")
+library(patchwork)
+networkHealth <- reactive ({
+  ggplot(summaryDataFrame, aes(x=Score, y=Health)) +
+    scale_x_discrete() +
+    scale_y_continuous(labels=scaleFUN, limits=c(40,150)) +
+    geom_rect(data = summaryDataFrame, aes(),
+              xmin = -Inf,
+              xmax = Inf,
+              ymin = 0,
+              ymax = 60,
+              fill = "Red",
+              alpha = 0.1) +
+    geom_rect(data = summaryDataFrame, aes(),
+              xmin = -Inf,
+              xmax = Inf,
+              ymin = 61,
+              ymax = 100,
+              fill = "Orange",
+              alpha = 0.1) +
+    geom_rect(data = summaryDataFrame, aes(),
+              xmin = -Inf,
+              xmax = Inf,
+              ymin = 101,
+              ymax = 150,
+              fill = "Green",
+              alpha = 0.1) +
+    geom_boxplot(width = 0.25, fill="grey", color="darkslategrey", size = 1) +
+    geom_dotplot(binaxis='y', stackdir='center', dotsize=60, binwidth = 1/30) +
+    geom_point(
+      data=subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set),
+      aes(x=Score, y=Health), 
+      size=5, color=
+        subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set)$color,
+      alpha = 0.7) +
+    labs(x="", y="") +
+    theme(axis.title.x=element_blank(),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          plot.title = element_text(hjust = 0.5))
+})
+### Potential for Improvement
+
+PfIPlot <- reactive ({
+  ggplot(summaryDataFrame, aes(x=Score, y=PfI)) +
+    scale_x_discrete() +
+    scale_y_continuous(labels=scaleFUN, limits= c(40, 150)) +
+    geom_rect(data = summaryDataFrame, aes(),
+              xmin = -Inf,
+              xmax = Inf,
+              ymin = 0,
+              ymax = 60,
+              fill = "Red",
+              alpha = 0.1) +
+    geom_rect(data = summaryDataFrame, aes(),
+              xmin = -Inf,
+              xmax = Inf,
+              ymin = 61,
+              ymax = 100,
+              fill = "Orange",
+              alpha = 0.1) +
+    geom_rect(data = summaryDataFrame, aes(),
+              xmin = -Inf,
+              xmax = Inf,
+              ymin = 100,
+              ymax = 150,
+              fill = "Green",
+              alpha = 0.1) +
+    geom_boxplot(width = 0.25, fill="grey", color="darkslategrey", size = 1) +
+    geom_dotplot(binaxis='y', stackdir='center', dotsize=60, binwidth = 1/30) +
+    geom_point(
+      data=subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set),
+      aes(x=Score, y=PfI), 
+      size=5, color=
+        subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set)$color,
+      alpha = 0.7) +
+    labs(x="", y="") +
+    theme(axis.title.x=element_blank(),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          plot.title = element_text(hjust = 0.5))
+})
+
+renderPlot({networkHealth + PfIPlot})
 ```
