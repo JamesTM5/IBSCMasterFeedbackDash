@@ -3,7 +3,7 @@
 #nb. To install use the commented code below, but then
 # re-comment it or the dash won't successfully publish to shinyApps.io
 
-# packages = c("igraph","networkD3", "openxlsx",
+# packages = c("igraph","networkD3", "readxl",
 #              "flexdashboard", "DT", "shiny",
 #              "tidyverse", "knitr", "plotly",
 #              "humaniformat", "UpSetR", "dplyr",
@@ -17,7 +17,7 @@
 #call required libraries
 library("igraph")
 library("networkD3")
-library("openxlsx")
+library("readxl")
 library("flexdashboard")
 library("DT")
 library("shiny")

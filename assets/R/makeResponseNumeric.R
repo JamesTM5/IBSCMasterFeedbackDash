@@ -28,12 +28,12 @@ keyToNumeric <- function(scoreData,
  
 }
 
-makeResponseNumeric <- function(data,
+makeResponseNumeric <- function(dataN,
                                 conversionKey) {
   numericScoreVector <- vector("numeric")
-  for(i in 1:length(data)) {
-    if(data[i] %in% conversionKey$answers) {
-      result <- which(conversionKey$answers == data[i])
+  for(i in 1:length(dataN)) {
+    if(dataN[i] %in% conversionKey$answers) {
+      result <- which(conversionKey$answers == dataN[i])
       numericScore <- conversionKey$newAnswers[result]
       numericScoreVector <- append(numericScoreVector, numericScore)
     } else {

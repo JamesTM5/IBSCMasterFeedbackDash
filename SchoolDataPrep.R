@@ -7,43 +7,34 @@
 #directory (the .RDS files needed by the dashboard). The .xlsx and this file do
 #not need to be published to shinyApps.io
 
-fileList <- list.files(path = "test data/", pattern = ".Student.*.xlsx",
-                       full.names=TRUE)
 
-SSDashAnalysis <- function (file) {
+SSDashAnalysis <- function (schoolDataInput, listNumberStudent) {
   
-#Call Libraries
-  source("packageSetup.R")
+  #listNumberStudent <- 8
   
 #Pull in config info
   source("surveyConfig.R")
   source("clientConfig.R")
   
-#import student data
-file <- dataFile
-  nodes <- read.xlsx(file, sheet = 1)
-  edges1 <- read.xlsx(file, sheet = 2)
-  edges2 <- read.xlsx(file, sheet = 3)
-  edges3 <- read.xlsx(file, sheet = 4)
+  #import student responses for a given class as nodes, edges1...edgesn and assign data to
+  #appropriate variables
+  organiseClassData <- function(...) {
+    dfNameVecS <- vector()
+      dfNameVecS[[1]] <- "nodes"
+      for(j in 2:length(schoolDataList$studentResponses[[listNumberStudent]])) {
+        dfNameVecS[j] <- paste("edges", j-1, sep = "")
+      }
+      for(j in 1:length(dfNameVecS)) {
+        do.call("<<-",list(dfNameVecS[j],schoolDataList$studentResponses[[listNumberStudent]][[j]]))
+      }
+    }
+  organiseClassData(schoolDataList, listNumberStudent)
   
-  TS <- read.xlsx(dataFileTS, sheet = 1) #Teacher info/answers
-  TSRQ1 <- read.xlsx(dataFileTS, sheet = 2) #Q9
-  TSRQ2 <- read.xlsx(dataFileTS, sheet = 3) #Q10
-  TSRQ3 <- read.xlsx(dataFileTS, sheet = 4) #Q10
-  TSRQ4 <- read.xlsx(dataFileTS, sheet = 5) #Q10
-  TSRQ5 <- read.xlsx(dataFileTS, sheet = 6) #Q10
-  TSRQ6 <- read.xlsx(dataFileTS, sheet = 7) #Q10
-
-  path <- readxl_example("datasets.xlsx")
-  path %>% 
-    excel_sheets() %>% 
-    set_names() %>% 
-    map(read_excel, path = path)  
-
+  
 #extract class name from file  
-  className <- substring(file, regexpr("Student", file) + 8)
+  className <- substring(names(schoolDataInput$studentResponses)[[listNumberStudent]], regexpr("Student", names(schoolDataInput$studentResponses)[[listNumberStudent]]) + 8)
   className <- substring(className, 1, nchar(className)-5) #remove ".xlsx"
-  
+
   #set random seed from config file
   set.seed (seed)
  
@@ -78,13 +69,13 @@ file <- dataFile
   #loop over each relevant column for additional measures such as belongingness and student-teacher questions and bind a numeric column to nodes
   #get column numbers
   studentTeacherRegExQuestionText <- c(
-    "I\\.can\\.talk\\.to\\.or\\.contact\\.my\\.",
-    "It\\.is\\.worth\\.building\\.a\\.good\\.relationship\\.with\\.my\\.",
-    "\\.and\\.I\\.have\\.shared\\.goals\\.for\\.my\\.progress\\.and\\.development",
-    "cares\\.about\\.me",
-    "has\\.a\\.good\\.understanding\\.of\\.my\\.skills\\.and\\.interests",
-    "inspires\\.and\\.motivates\\.me",
-    "recognises\\.and\\.rewards\\.my\\.efforts"
+    "I can talk to or contact my",
+    "It is worth building a good relationship with my ",
+    " and I have shared goals for my progress and development",
+    "cares about me",
+    "has a good understanding of my skills and interests",
+    "inspires and motivates me",
+    "recognises and rewards my efforts"
   )
   studentTeacherResponseColumnIndices <- vector()
   for(i in 1:length(studentTeacherRegExQuestionText)) {
@@ -93,17 +84,20 @@ file <- dataFile
   if(length(studentTeacherResponseColumnIndices)>7) {
     warning("more student - teacher questions have been matched than there should be.  Consider checking the studentTeacherRegExQuestionText for unwanted matches")
   }
+  if(length(studentTeacherResponseColumnIndices)<7) {
+    warning("fewer student - teacher questions have been matched than there should be.  Consider checking the data frame colnames() for altered wording or misspelling")
+  }
   
   belongingnessRegExQuestionTextPositive <- c(
-    "I\\.feel\\.like\\.I\\.belong\\.at",
-    "I\\.make\\.friends\\.easily\\.at",
-    "\\.seem\\.to\\.like\\.me"
+    "I feel like I belong at",
+    "I make friends easily at",
+    " seem to like me"
   )
   
   belongingnessRegExQuestionTextNegative <- c(
-    "I\\.feel\\.awkward\\.and\\.out\\.of\\.place",
-    "I\\.feel\\.like\\.an\\.outsider",
-    "I\\.feel\\.lonely\\.at"
+    "I feel awkward and out of place",
+    "I feel like an outsider",
+    "I feel lonely at"
   )
   
   belongingnessResponseColumnIndicesPositive <- vector()
@@ -304,10 +298,7 @@ file <- dataFile
       return(x)
     }
     
-  
-    
     #calculate reciprocity on the whole dataset to later slot into totalNetworkInfo list]
-
     reciprocityFullEdgeList <- function(edgeList) {
       rec <- edgeList 
       rec$Network <- as.character(rec$Network)
@@ -454,10 +445,13 @@ file <- dataFile
     
 # Prepare Dendrograms
     dendrogramList <- list()
-    dendrogramList[[1]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[1]])))
-    dendrogramList[[2]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[2]])))
-    dendrogramList[[3]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[3]])))
-    dendrogramList[[4]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[4]])))
+    for (i in 1:length(SSNQCommunitiesDataList)){
+      if(length(membership(SSNQCommunitiesDataList[[i]]))>1){
+        dendrogramList[[i]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[i]])))
+      } else {
+        dendrogramList[[i]] <- ggplotly(NULL)
+      }
+    }
     
 # Overall Scoring calculation
   source("overallScoring.R")
@@ -542,22 +536,22 @@ file <- dataFile
 #add community data to nodes for output to .RDS
     communityList <- list()
     for(i in 1:length(totalNetworkInfo)) {
-      community <- t(as.data.frame(as.list(SSNQMembersList[[i]])))
+      community <- t(as.data.frame(as.list(SSNQMembersList[[i]]), check.names = FALSE))
       community <- as.data.frame(community)
       community$id <- rownames(community)
       rownames(community) <- NULL
       community$V1 <- sapply(community$V1, function(i) letters[i])
       names(community)[names(community)=="V1"] <- paste(
         "Communities Relationship Question", i, sep = " ")
-      community$id <- sapply(community$id,
-                             function(v) {gsub("\\."," ", as.character(v))})
+  #    community$id <- sapply(community$id,
+  #                           function(v) {gsub("\\."," ", as.character(v))})
       rownames(community) <- community$id
       communityList[[i]] <- community
     }
-    nodes <- merge(nodes, communityList[[1]])
-    nodes <- merge(nodes, communityList[[2]])
-    nodes <- merge(nodes, communityList[[3]])
-    nodes <- merge(nodes, communityList[[4]]) #overall data
+    nodes <- merge(nodes, communityList[[1]], all = T)
+    nodes <- merge(nodes, communityList[[2]], all = T)
+    nodes <- merge(nodes, communityList[[3]], all = T)
+    nodes <- merge(nodes, communityList[[4]], all = T) #overall data
     
     
 # Prepare Nodes Dataframe for each D3 Graph
@@ -565,13 +559,13 @@ file <- dataFile
     
     # Process student - teacher numeric data by finding the relevant numeric columns in nodes
     studentTeacherRegExQuestionTextNumeric <- c(
-      "I\\.can\\.talk\\.to\\.or\\.contact\\.my\\..*numeric$",
-      "It\\.is\\.worth\\.building\\.a\\.good\\.relationship\\.with\\.my\\..*numeric$",
-      "\\.and\\.I\\.have\\.shared\\.goals\\.for\\.my\\.progress\\.and\\.development.*numeric$",
-      "cares\\.about\\.me.*numeric$",
-      "has\\.a\\.good\\.understanding\\.of\\.my\\.skills\\.and\\.interests.*numeric$",
-      "inspires\\.and\\.motivates\\.me.*numeric$",
-      "recognises\\.and\\.rewards\\.my\\.efforts.*numeric$"
+      "I can talk to or contact my .*numeric$",
+      "It is worth building a good relationship with my .*numeric$",
+      " and I have shared goals for my progress and development.*numeric$",
+      "cares about me.*numeric$",
+      "has a good understanding of my skills and interests.*numeric$",
+      "inspires and motivates me.*numeric$",
+      "recognises and rewards my efforts.*numeric$"
     )
     studentTeacherResponseColumnIndicesNumeric <- vector()
     for(i in 1:length(studentTeacherRegExQuestionTextNumeric)) {
@@ -593,7 +587,9 @@ file <- dataFile
     # 26-35 high
   stStratified <- vector()
   for(i in 1:length(nodes$StudentTeacherSumNumeric)) {
-    if(nodes$StudentTeacherSumNumeric[i] >25) {
+    if(is.na(nodes$StudentTeacherSumNumeric[i])){
+      stStratified[i] <- "Not Reported"
+    } else if(nodes$StudentTeacherSumNumeric[i] >25) {
       stStratified[i] <- "High"
     } else if (nodes$StudentTeacherSumNumeric[i] >9) {
       stStratified[i] <- "Moderate"
@@ -605,12 +601,12 @@ file <- dataFile
 
 # Process belongingness numeric data by finding the relevant numeric columns in nodes
   belongingnessRegExQuestionTextNumeric <- c(
-    "I\\.feel\\.like\\.I\\.belong\\.at.*numeric$",
-    "I\\.make\\.friends\\.easily\\.at.*numeric$",
-    "\\.seem\\.to\\.like\\.me.*numeric$",
-    "I\\.feel\\.awkward\\.and\\.out\\.of\\.place.*numeric$",
-    "I\\.feel\\.like\\.an\\.outsider.*numeric$",
-    "I\\.feel\\.lonely\\.at.*numeric$"
+    "I feel like I belong at.*numeric$",
+    "I make friends easily at.*numeric$",
+    " seem to like me.*numeric$",
+    "I feel awkward and out of place.*numeric$",
+    "I feel like an outsider.*numeric$",
+    "I feel lonely at.*numeric$"
   )
   
   belongingnessResponseColumnIndicesNumeric <- vector()
@@ -758,6 +754,9 @@ file <- dataFile
                               "Understanding S-T",
                               "Inspiration S-T",
                               "Recognition S-T")
+  if(!nrow(modifiedNodesST) == nrow(belongingnessDF)) {
+    modifiedNodesST<- modifiedNodesST %>% filter(if_any(everything(), ~ !is.na(.)))
+  }
   belongingnessDF <- cbind(belongingnessDF, modifiedNodesST)
 
   #Add peer to peer network characteristics to belongingnessDF
@@ -854,10 +853,4 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
   
 }
 
-
-# for(m in 1:length(fileList)) {
-#   SSDashAnalysis(file = fileList[[m]])
-# }
-
-SSDashAnalysis(file = fileList[[1]])
   
