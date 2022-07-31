@@ -1,4 +1,4 @@
-overallScoring <- function (totalNetworkInfo, SSNQGraph, SSNQMembers) {
+overallScoring <- function (networkInfo, SSNQGraph, SSNQMembers) {
   
   #convenience function to find out if a graph is fragmented.
   graphConnected <- function(graph) {
@@ -16,15 +16,15 @@ overallScoring <- function (totalNetworkInfo, SSNQGraph, SSNQMembers) {
   if(graphConnected(SSNQGraph) == FALSE){
     score[1] <- score[1] - 10
   } else {
-    if (totalNetworkInfo[[4]] <= 3) {
+    if (networkInfo[[4]] <= 3) {
       score[1] <- score[1] + 10
-    } else if (totalNetworkInfo[[4]] == 4) {
+    } else if (networkInfo[[4]] == 4) {
       score[1] <- score[1] + 3
-    } else if (totalNetworkInfo[[4]] == 5) {
+    } else if (networkInfo[[4]] == 5) {
       score[1] <- score[1] + 1
-    } else if (totalNetworkInfo[[4]] == 6) {
+    } else if (networkInfo[[4]] == 6) {
       score[1] <- score[1] - 1
-    } else if (totalNetworkInfo[[4]] >= 7) {
+    } else if (networkInfo[[4]] >= 7) {
       score <- score -3
     } else {
       warning("diameter of graph 
@@ -33,22 +33,25 @@ overallScoring <- function (totalNetworkInfo, SSNQGraph, SSNQMembers) {
   }
   
   #Density Scoring modifiers
-  if (totalNetworkInfo[[5]] >= 0.6) {
+  if (is.nan(networkInfo[[5]])) {
+    score[1] <- score[1] - 15
+    score[2] <- score[2] + 5
+  } else if (networkInfo[[5]] >= 0.6) {
     score[1] <- score[1] + 10
     score[2] <- score[2] - 5
-  } else if (totalNetworkInfo[[5]] >= 0.5) {
+  } else if (networkInfo[[5]] >= 0.5) {
     score[1] <- score[1] + 5
     score[2] <- score[2] - 2.5
-  } else if (totalNetworkInfo[[5]] >= 0.3) {
+  } else if (networkInfo[[5]] >= 0.3) {
     score[1] <- score[1] + 3
     score[2] <- score[2] - 1
-  } else if (totalNetworkInfo[[5]] >= 0.2) {
+  } else if (networkInfo[[5]] >= 0.2) {
     score[1] <- score[1] - 3
     score[2] <- score[2] + 1
-  } else if (totalNetworkInfo[[5]] >= 0.1) {
+  } else if (networkInfo[[5]] >= 0.1) {
     score[1] <- score[1] - 5
     score[2] <- score[2] + 3
-  } else if (totalNetworkInfo[[5]] < 0.1) {
+  } else if (networkInfo[[5]] < 0.1) {
     score[1] <- score[1] - 10
     score[2] <- score[2] + 5
   } else {
@@ -57,19 +60,22 @@ overallScoring <- function (totalNetworkInfo, SSNQGraph, SSNQMembers) {
   }
   
   #Reciprocity scoring modifiers
-  if(totalNetworkInfo[[6]] > 0.6) {
+  if (is.nan(networkInfo[[6]])) {
+    score[1] <- score[1] - 15
+    score[2] <- score[2] - 15
+  } else if(networkInfo[[6]] > 0.6) {
     score[1] <- score[1] + 10
     score[2] <- score[2] + 10
-  } else if (totalNetworkInfo[[6]] >= 0.5) {
+  } else if (networkInfo[[6]] >= 0.5) {
     score[1] <- score[1] + 5
     score[2] <- score[2] + 5
-  } else if (totalNetworkInfo[[6]] >= 0.45) {
+  } else if (networkInfo[[6]] >= 0.45) {
     score[1] <- score[1] + 0
     score[2] <- score[2] + 0    
-  } else if (totalNetworkInfo[[6]] >= 0.4) {
+  } else if (networkInfo[[6]] >= 0.4) {
     score[1] <- score[1] - 5
     score[2] <- score[2] - 5
-  } else if (totalNetworkInfo[[6]] < 0.4) {
+  } else if (networkInfo[[6]] < 0.4) {
     score[1] <- score[1] - 10
     score[2] <- score[2] - 10
   } else {
@@ -78,9 +84,9 @@ overallScoring <- function (totalNetworkInfo, SSNQGraph, SSNQMembers) {
   }
   
 #Isolate scoring modifiers (-5% for each isolate)
-  if(length(totalNetworkInfo) == 11) {
-    if (length(totalNetworkInfo[[11]]) > 0) {
-     for (i in 1:length(totalNetworkInfo[[10]])) {
+  if(length(networkInfo) == 11) {
+    if (length(networkInfo[[11]]) > 0) {
+     for (i in 1:length(networkInfo[[10]])) {
         score[1] <- score[1] - (score[1]/20)
       }
     }

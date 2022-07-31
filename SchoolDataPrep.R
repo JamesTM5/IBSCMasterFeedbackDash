@@ -10,7 +10,8 @@
 
 SSDashAnalysis <- function (schoolDataInput, listNumberStudent) {
   
-  #listNumberStudent <- 8
+  # listNumberStudent <- 1
+  # schoolDataInput <- schoolDataList$studentResponses
   
 #Pull in config info
   source("surveyConfig.R")
@@ -32,7 +33,7 @@ SSDashAnalysis <- function (schoolDataInput, listNumberStudent) {
   
   
 #extract class name from file  
-  className <- substring(names(schoolDataInput$studentResponses)[[listNumberStudent]], regexpr("Student", names(schoolDataInput$studentResponses)[[listNumberStudent]]) + 8)
+  className <- substring(names(schoolDataInput)[[listNumberStudent]], regexpr("Student", names(schoolDataInput)[[listNumberStudent]]) + 8)
   className <- substring(className, 1, nchar(className)-5) #remove ".xlsx"
 
   #set random seed from config file
@@ -381,7 +382,7 @@ SSDashAnalysis <- function (schoolDataInput, listNumberStudent) {
       totalNetworkInfo[[i]][[6]] <- questionReciprocityListComplete[i]
     }
         
-#Insert HTML into a list to display it properly in-dash
+    #Insert HTML into a list to display it properly in-dash
     formatDataForDisplay <- function(Data) {
       Data <- na.omit(Data)
       ogValue <- Data[length(Data)]
@@ -520,7 +521,7 @@ SSDashAnalysis <- function (schoolDataInput, listNumberStudent) {
     names(nodes)[1] <- "id"
     nodes <- nodes[order(nodes$id),]
     for(i in 1:length(totalNetworkInfo)) {
-      for(j in 1:4) {
+      for(j in 1:3) {
        names(totalNetworkInfo[[i]][[j]])[names(totalNetworkInfo[[i]][[j]])
                                          == "People"] <- "id"
        names(totalNetworkInfo[[i]][[j]])[names(totalNetworkInfo[[i]][[j]])
@@ -530,7 +531,7 @@ SSDashAnalysis <- function (schoolDataInput, listNumberStudent) {
     }
     
     for(i in 1:length(totalNetworkInfo)) {
-       nodes <- merge(nodes, totalNetworkInfo[[i]][[3]])
+       nodes <- merge(nodes, totalNetworkInfo[[i]][[3]], all = T)
     }
     
 #add community data to nodes for output to .RDS

@@ -42,7 +42,6 @@ source("schoolDataPrep.r")
 
 for(z in 1:length(schoolDataList$studentResponses)) {
   SSDashAnalysis (schoolDataList$studentResponses, listNumberStudent = z)
-  print("foo")
-  print(z)
+  print(paste("Number", z, "Generated", sep = " "))
 }
 
