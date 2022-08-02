@@ -1,0 +1,15 @@
+---
+title: "titleOfDashboard"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    social: menu
+    vertical_layout: fill
+runtime: shiny
+resource_files:
+- assets/d3.min.js
+- assets/forcedirected/binding.js
+- assets/forcedirected/fd.js
+- assets/forcedirected/repeated-fd.js
+- assets/forcedirected/styles.css
+---
