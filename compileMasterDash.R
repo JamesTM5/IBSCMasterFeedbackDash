@@ -50,9 +50,38 @@ compileMasterDash <- function(templateDirectoryName,
     warning("number of relationship questions not consistent across all datasets")
   }
   numRQ <- numRQ[1]
+  #factor in presence of overview page
+  if(numRQ == 1) {
+    numRQ <- 1
+  } else {
+    numRQ <- numRQ - 1
+  }
   
 #Check for additional measures questions
   #if nodes contains the right columns, belongingness = present
+  belongingnessText <- c(
+    "I feel like I belong at",
+    "I make friends easily at",
+    " seem to like me",
+    "I feel awkward and out of place",
+    "I feel like an outsider",
+    "I feel lonely at"
+  )
+  belongingnessIndices <- vector()
+  for(i in 1:length(belongingnessText)){
+    belongingnessIndices[[length(belongingnessIndices)+1]] <- grep(belongingnessText[i], colnames(fileList[[1]]$nodes))
+  }  
+  if(length(belongingnessIndices)>6) {
+    warning("more belongingness question columns have been matched than there should be.")
+    belongingnessPresent <- TRUE
+  } else if (length(belongingnessIndices) == 6) {
+    belongingnessPresent <- TRUE
+  } else if (length(belongingnessIndices) > 0) {
+    warning("fewer belongingness question columns have been matched than there should be.  Check the belongingness pages for errors")
+    belongingnessPresent <- TRUE
+  } else {
+    belongingnessPresent <- FALSE
+  }
 
 #Template Modification  
 #add a YAML header suitable for the dashboard
@@ -65,7 +94,7 @@ compileMasterDash <- function(templateDirectoryName,
   setupSetupChunk <- function (setupChunkTemplate = templateList$setupChunk.txt) {
     setupChunkTemplate
   }
-
+#pull together packages to properly call them in the setup chunk
   addPackages <- function (packages = packagesUsed) {
     #make a string of package names
     packages <- unlist(unique(packages))
@@ -76,10 +105,36 @@ compileMasterDash <- function(templateDirectoryName,
 
   dash <- list()
   packagesUsed <- list()
-  
+
+#build dash page list  
   dash[[1]] <- setupYaml(title = "IBSC Dash")
   dash[[2]] <- setupSetupChunk()
-  #other additions go here
+#add school-wide pages if needed
+  # if(length(fileList) >= 2) {
+  #   dash[[length(dash)+1]] <- setupSchoolOverviewPage(fileList)
+  #    if(belongingnessPresent == TRUE) {
+  #       dash[[length(dash)+1]] <- setupOverallBelongingnessPage(fileList)
+  #   }
+  # }
+#add class pages for each class
+  # for(i in 1:length(fileList)) {
+  #   if(numRQ == 1) {
+  #     dash[[length(dash)+1]] <- setupRQPageSingle(fileList[[i]])
+  #     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
+  #   } else if(numRQ >= 2) {
+  #     dash[[length(dash)+1]] <- setupRQClassOverviewPage(fileList[[i]])
+  #     for (j in 1:numRQ) {
+  #       dash[[length(dash)+j]] <- setupRQPage(fileList[[i]])
+  #     }
+  #     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
+  #   }
+  #   if(belongingnessPresent == TRUE) {
+  #     dash[[length(dash)+1]] <- setupBelongingnessPage(fileList[[i]])
+  #   }
+  # }
+  # dash[[length(dash)+1]] <- setupRawData(fileList)
+  
+#insert package list into setup chunk to call relevant libraries
   dash[[2]] <- addPackages()
 
 #Output Code
