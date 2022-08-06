@@ -12,6 +12,11 @@ compileMasterDash <- function(templateDirectoryName,
                               outputDirectory,
                               outputFilename,
                               runForChecking = TRUE) {
+  
+  packages = c("rmarkdown", "tidyverse")
+  
+  invisible(lapply(packages, library, character.only = TRUE))
+  
 #Input Code
   #read in all template text files
   files = list.files(path = paste(".", templateDirectoryName, sep = "/"), pattern = '.txt$')
@@ -31,8 +36,10 @@ compileMasterDash <- function(templateDirectoryName,
     dir.create(path = paste(outputDirectory, "data", sep = "/"))
   }
   ogDataFolder <- paste(getwd(), dataDirectoryName, sep = "/")
-  listOfFiles <- list.files(ogDataFolder, pattern = '^.*rds$')
-  file.copy(file.path(ogDataFolder,listOfFiles), paste(outputDirectory, "data", sep = "/"))
+  listOfFilesRDS <- list.files(ogDataFolder, pattern = '^.*rds$')
+  file.copy(file.path(ogDataFolder,listOfFilesRDS), paste(outputDirectory, "data", sep = "/"))
+  listOfFilesJSON <- list.files(ogDataFolder, pattern = '^.*json$')
+  file.copy(file.path(ogDataFolder,listOfFilesJSON), paste(outputDirectory, "data", sep = "/"))
 
   #copy assets folder and all contents to output directory  
   if(!dir.exists(path = paste(outputDirectory, "assets", sep = "/"))){
@@ -50,15 +57,17 @@ compileMasterDash <- function(templateDirectoryName,
   for(i in 1:length(fileList)){
     numRQ[i] <- length(fileList[[1]]$totalNetworkInfo)
   }
-  if(var(numRQ) > 0) {
-    warning("number of relationship questions not consistent across all datasets")
-  }
-  numRQ <- numRQ[1]
-  #factor in presence of overview page
-  if(numRQ == 1) {
-    numRQ <- 1
-  } else {
-    numRQ <- numRQ - 1
+  if(length(numRQ) >= 2) {  
+    if(var(numRQ) > 0) {
+      warning("number of relationship questions not consistent across all datasets")
+    }
+    numRQ <- numRQ[1]
+    #factor in presence of overview page
+    if(numRQ == 1) {
+      numRQ <- 1
+    } else {
+      numRQ <- numRQ - 1
+    }
   }
   
 #Check for additional measures questions
@@ -103,22 +112,57 @@ compileMasterDash <- function(templateDirectoryName,
   setupRQPageSingle <- function(template = templateList$RQPageSingle.txt,
                                 fileListNumber = 1,
                                 RQText = "How closely do you relate to this person?",
-                                RQSummary = "Relatedness"){
-    #add material to setup chunk if it isnt already there
-      #D3 stuff
+                                RQSummary = "Relatedness",
+                                ...){
+
     className <- fileList[[fileListNumber]]$className
-    template <- str_replace_all(template, classNamePlaceholderhonrwufzql, className)
-    template <- str_replace_all(template, fileListNumberPlaceholderrmwkpgtffs, fileListNumber)
-    template <- str_replace_all(template, RQTextPlaceholdersqqpizconj, RQText)
-    template <- str_replace_all(template, RQSummaryPlaceholderxbvmgayrkd, RQSummary)
+    template <- str_replace_all(template, "classNamePlaceholderhonrwufzql", className)
+    template <- str_replace_all(template, "fileListNumberPlaceholderrmwkpgtffs", as.character(fileListNumber))
+    template <- str_replace_all(template, "RQTextPlaceholdersqqpizconj", RQText)
+    template <- str_replace_all(template, "RQSummaryPlaceholderxbvmgayrkd", RQSummary)
+    dash[[length(dash)+1]] <- template
   }
+  
+  setupRQPageMultiple <- function(template = templateList$RQPageMulti.txt,
+                                  fileListNumber = 1,
+                                  questionNumber = 1,
+                                  RQTextList = c("Relationships Question 1",
+                                                 "Relationships Question 2",
+                                                 "Relationships Question 3",
+                                                 "Relationships Question 4"
+                                                 ),
+                                  RQSummaryList = c("RQ1",
+                                                    "RQ2",
+                                                    "RQ3",
+                                                    "RQ4"
+                                                    ),
+                                  ...){
+
+    className <- fileList[[fileListNumber]]$className
+    template <- str_replace_all(template, "classNamePlaceholderhonrwufzql", className)
+    template <- str_replace_all(template, "fileListNumberPlaceholderrmwkpgtffs", as.character(fileListNumber))
+    template <- str_replace_all(template, "RQTextPlaceholdersqqpizconj", RQTextList[[j]])
+    template <- str_replace_all(template, "RQSummaryPlaceholderxbvmgayrkd", RQSummaryList[[j]])
+    template <- str_replace_all(template, "RQNumberPlaceholderjkkfdufsse", as.character(questionNumber))
+    dash[[length(dash)+1]] <- template
+  }
+
+  addToSetupChunk <- function (textToAdd, setupChunk = dash[[2]]) {
+    placeholder <- "'dupnlmffjcatgle'"
+    setupChunk <- str_replace_all(setupChunk,
+                                  placeholder,
+                                  paste(textToAdd,
+                                        placeholder,
+                                        sep = "\n"))
+  }
+
 #pull together packages to properly call them in the setup chunk
-  addPackages <- function (packages = packagesUsed) {
+  addPackages <- function (setupChunk = dash[[2]], packages = packagesUsed) {
     #make a string of package names
     packages <- unlist(unique(packages))
     packages <- lapply(packages, function(x){paste0("'", x, "'")})
     packages <- paste(packages, sep = '', collapse = ", ")
-    dash[[2]] <- sub("packageListPlaceholder", packages, dash[[2]])
+    setupChunk <- str_replace_all(setupChunk, "packageListPlaceholder", packages)
   }
 
   dash <- list()
@@ -135,25 +179,30 @@ compileMasterDash <- function(templateDirectoryName,
   #   }
   # }
 #add class pages for each class
-  # for(i in 1:length(fileList)) {
-  #   if(numRQ == 1) {
-  #     dash[[length(dash)+1]] <- setupRQPageSingle(fileList[[i]])
+   for(i in 1:length(fileList)) {
+    if(numRQ == 1) {
+       dash[[length(dash)+1]] <- setupRQPageSingle(fileListNumber = i)
+       dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
   #     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
-  #   } else if(numRQ >= 2) {
+     } else if(numRQ >= 2) {
   #     dash[[length(dash)+1]] <- setupRQClassOverviewPage(fileList[[i]])
-  #     for (j in 1:numRQ) {
-  #       dash[[length(dash)+j]] <- setupRQPage(fileList[[i]])
-  #     }
+       for (j in 1:numRQ) {
+         dash[[length(dash)+j]] <- setupRQPageMultiple(fileListNumber = i, questionNumber = j)
+       }
+       dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
   #     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
   #   }
   #   if(belongingnessPresent == TRUE) {
   #     dash[[length(dash)+1]] <- setupBelongingnessPage(fileList[[i]])
-  #   }
-  # }
+    }
+   }
   # dash[[length(dash)+1]] <- setupRawData(fileList)
   
+  #delete setup key string to keep output code clean
+  
 #insert package list into setup chunk to call relevant libraries
-  dash[[2]] <- addPackages()
+  packagesUsed <- append(packagesUsed, c("rmarkdown", "jsonlite", "rmarkdown", "tidyverse"))
+  dash[[2]] <- addPackages(setupChunk = dash[[2]], packages = packagesUsed)
 
 #Output Code
   #define where the .RMD file will be located when it is generated

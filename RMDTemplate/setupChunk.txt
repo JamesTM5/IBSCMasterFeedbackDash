@@ -23,6 +23,6 @@ for(i in 1:length(file.sources)){
 #set an arbitary seed
 set.seed (fileList[[1]]$seed)
 
-#add a key by which additional setup info should be added to the setup chunk
-setupAddonKey <- "dupnlmffjcatgle"
+
+'dupnlmffjcatgle'
 ```
