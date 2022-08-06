@@ -34,6 +34,10 @@ compileMasterDash <- function(templateDirectoryName,
   listOfFiles <- list.files(ogDataFolder, pattern = '^.*rds$')
   file.copy(file.path(ogDataFolder,listOfFiles), paste(outputDirectory, "data", sep = "/"))
 
+  #copy assets folder and all contents to output directory  
+  if(!dir.exists(path = paste(outputDirectory, "assets", sep = "/"))){
+    file.copy("./assets",outputDirectory,recursive=TRUE)
+  }
 #read in data to figure out page/section requirements for the dash. 
   fileList <- list()
   for (i in 1:length(listOfFiles)) {
@@ -93,6 +97,20 @@ compileMasterDash <- function(templateDirectoryName,
 #add a setup code chunk to call libraries, read in .RDS data and set.seed()
   setupSetupChunk <- function (setupChunkTemplate = templateList$setupChunk.txt) {
     setupChunkTemplate
+  }
+  
+#add a page for a single RQ with no expectation of a class overview.
+  setupRQPageSingle <- function(template = templateList$RQPageSingle.txt,
+                                fileListNumber = 1,
+                                RQText = "How closely do you relate to this person?",
+                                RQSummary = "Relatedness"){
+    #add material to setup chunk if it isnt already there
+      #D3 stuff
+    className <- fileList[[fileListNumber]]$className
+    template <- str_replace_all(template, classNamePlaceholderhonrwufzql, className)
+    template <- str_replace_all(template, fileListNumberPlaceholderrmwkpgtffs, fileListNumber)
+    template <- str_replace_all(template, RQTextPlaceholdersqqpizconj, RQText)
+    template <- str_replace_all(template, RQSummaryPlaceholderxbvmgayrkd, RQSummary)
   }
 #pull together packages to properly call them in the setup chunk
   addPackages <- function (packages = packagesUsed) {

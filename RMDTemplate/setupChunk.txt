@@ -13,6 +13,13 @@ for (i in 1:length(files)) {
   fileList[[name]] <- file
 }
 
+#source all .R scripts in ./assets/R/
+file.sources = list.files(path = "./assets/R/", pattern="*.R$")
+file.sources <- sapply(file.sources,function(x){paste("./assets/R/", x, sep = "")})
+for(i in 1:length(file.sources)){
+  source(file.sources[[i]])
+}
+
 #set an arbitary seed
 set.seed (fileList[[1]]$seed)
 
