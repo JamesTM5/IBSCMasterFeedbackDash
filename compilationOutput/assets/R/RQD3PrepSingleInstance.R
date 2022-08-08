@@ -15,7 +15,7 @@ d3RQPrepSingleInstance <- function (fileList) {
   for(i in 1:length(fileList)) {
     #run d3 prep for all relationship questions in each class
     for (j in 1:length(fileList[[i]]$D3NodesList)) {
-      fileName <- paste("D3JSData",j, i, ".json", sep = "")
+      fileName <- paste("D3JSData",i, j, ".json", sep = "")
       D3JSData <- prepDataSingleInstance(fileSet = fileList[[i]], index = j)
       D3JSData <- jsonlite::toJSON(D3JSData)
       write(D3JSData, fileName)

@@ -47,9 +47,9 @@ compileMasterDash <- function(templateDirectoryName,
   }
 #read in data to figure out page/section requirements for the dash. 
   fileList <- list()
-  for (i in 1:length(listOfFiles)) {
-    file <- readRDS(paste(ogDataFolder, listOfFiles[i], sep = "/"))
-    name <- as.character(listOfFiles[i])
+  for (i in 1:length(listOfFilesRDS)) {
+    file <- readRDS(paste(ogDataFolder, listOfFilesRDS[i], sep = "/"))
+    name <- as.character(listOfFilesRDS[i])
     fileList[[name]] <- file
   }
 #count number of RQs
@@ -124,8 +124,8 @@ compileMasterDash <- function(templateDirectoryName,
   }
   
   setupRQPageMultiple <- function(template = templateList$RQPageMulti.txt,
-                                  fileListNumber = 1,
-                                  questionNumber = 1,
+                                  fileListNumber,
+                                  questionNumber,
                                   RQTextList = c("Relationships Question 1",
                                                  "Relationships Question 2",
                                                  "Relationships Question 3",
@@ -141,8 +141,8 @@ compileMasterDash <- function(templateDirectoryName,
     className <- fileList[[fileListNumber]]$className
     template <- str_replace_all(template, "classNamePlaceholderhonrwufzql", className)
     template <- str_replace_all(template, "fileListNumberPlaceholderrmwkpgtffs", as.character(fileListNumber))
-    template <- str_replace_all(template, "RQTextPlaceholdersqqpizconj", RQTextList[[j]])
-    template <- str_replace_all(template, "RQSummaryPlaceholderxbvmgayrkd", RQSummaryList[[j]])
+    template <- str_replace_all(template, "RQTextPlaceholdersqqpizconj", RQTextList[[questionNumber]])
+    template <- str_replace_all(template, "RQSummaryPlaceholderxbvmgayrkd", RQSummaryList[[questionNumber]])
     template <- str_replace_all(template, "RQNumberPlaceholderjkkfdufsse", as.character(questionNumber))
     dash[[length(dash)+1]] <- template
   }
@@ -179,6 +179,7 @@ compileMasterDash <- function(templateDirectoryName,
   #   }
   # }
 #add class pages for each class
+
    for(i in 1:length(fileList)) {
     if(numRQ == 1) {
        dash[[length(dash)+1]] <- setupRQPageSingle(fileListNumber = i)
@@ -186,7 +187,7 @@ compileMasterDash <- function(templateDirectoryName,
   #     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
      } else if(numRQ >= 2) {
   #     dash[[length(dash)+1]] <- setupRQClassOverviewPage(fileList[[i]])
-       for (j in 1:numRQ) {
+       for (j in 1:(numRQ-1)) {
          dash[[length(dash)+j]] <- setupRQPageMultiple(fileListNumber = i, questionNumber = j)
        }
        dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
@@ -201,7 +202,7 @@ compileMasterDash <- function(templateDirectoryName,
   #delete setup key string to keep output code clean
   
 #insert package list into setup chunk to call relevant libraries
-  packagesUsed <- append(packagesUsed, c("rmarkdown", "jsonlite", "rmarkdown", "tidyverse"))
+  packagesUsed <- append(packagesUsed, c("rmarkdown", "jsonlite", "tidyverse", "flexdashboard"))
   dash[[2]] <- addPackages(setupChunk = dash[[2]], packages = packagesUsed)
 
 #Output Code

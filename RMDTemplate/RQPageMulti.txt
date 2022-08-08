@@ -1,4 +1,4 @@
-classNamePlaceholderhonrwufzql RQSummaryPlaceholderxbvmgayrkd Relationship Question
+classNamePlaceholderhonrwufzql RQSummaryPlaceholderxbvmgayrkd Relationship Question {data-navmenu="classNamePlaceholderhonrwufzql"}
 =======================================================================
   
 Headlines {data-width=200}
@@ -29,6 +29,10 @@ valueBox(
 ### Network Health
 
 ```{r}
+
+
+
+
 valueBox(
   fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth[[RQNumberPlaceholderjkkfdufsse]][[1]],
   color = fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth[[RQNumberPlaceholderjkkfdufsse]][[2]],
@@ -102,6 +106,7 @@ Row {data-width=250}
 ### Class Diameter
 
 ```{r}
+
 diameter <- fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[RQNumberPlaceholderjkkfdufsse]][[4]][[1]]
 nodes <- length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[RQNumberPlaceholderjkkfdufsse]][[10]])
 
@@ -183,11 +188,10 @@ Network Maps
 ### Summary graph {.no-padding data-height=700} 
 
 ```{r}
+JSDatafileListNumberPlaceholderrmwkpgtffsRQNumberPlaceholderjkkfdufsse <- jsonlite::read_json("D3JSDatafileListNumberPlaceholderrmwkpgtffsRQNumberPlaceholderjkkfdufsse.json")
 
-JSData1 <- jsonlite::read_json("D3JSData11.json")
-
-repeatedforcedirectedOutput("repeatedforcedirected1")
-output$repeatedforcedirected1 <- renderRepeatedforcedirected(repeatedforcedirected("Hello", JSData1))
+repeatedforcedirectedOutput("repeatedforcedirectedfileListNumberPlaceholderrmwkpgtffsRQNumberPlaceholderjkkfdufsse")
+output$repeatedforcedirectedfileListNumberPlaceholderrmwkpgtffsRQNumberPlaceholderjkkfdufsse <- renderRepeatedforcedirected(repeatedforcedirected("Hello", JSDatafileListNumberPlaceholderrmwkpgtffsRQNumberPlaceholderjkkfdufsse))
 ```
 
 > The lines on this graph represent the strongest relationships in the class. Each dot is a person, and each line is a strong relationship. The colours indicate cliques, or subgroups in the data which naturally form as people form and maintain social networks. Zoom using the scroll wheel or pinch on a touchscreen device, and drag people around to see who is connected most closely to them. The position on the graph doesn't matter itself, its about the position relative to the other people and how linked in they are with the group as a whole.
