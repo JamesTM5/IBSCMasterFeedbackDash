@@ -1,0 +1,141 @@
+
+Student - Student Individual Score Profiles {data-navmenu="Class Name"}
+=======================================================================
+
+Individual Score Profiles {data-width=900 .tabset}
+-----------------------------------------------------------------------
+
+### Interaction Positivity
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$polarGraphList[[1]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+
+
+### Knowing One Another
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$polarGraphList[[2]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+
+
+### Student Value and Respect
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$polarGraphList[[3]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+
+
+Degree {.tabset}
+-----------------------------------------------------------------------
+
+### Interaction Positivity
+
+#### 'Interaction Positivity' Degree All Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeAllHistogramList[[1]]
+})
+```
+
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
+
+#### 'Interaction Positivity' Degree In Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeInHistogramList[[1]]
+})
+```
+
+> A higher 'Degree in' score indicates that more people in the class come
+to this person for information
+
+#### 'Interaction Positivity' Degree Out Scores
+
+```{r}
+renderPlotly({
+  fileList[[1]]$degreeOutHistogramList[[1]]
+})
+```
+
+> A higher 'Degree out' score indicates that the person is well connected within the class.
+
+### Knowing One Another
+
+#### 'Knowing One Another' Degree All Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeAllHistogramList[[2]]
+})
+```
+
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
+
+#### 'Knowing One Another' Degree In Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeInHistogramList[[2]]
+})
+```
+
+> A higher 'Degree in' score indicates that more people in the class come
+to this person for information
+
+#### 'Knowing One Another' Degree Out Scores
+
+```{r}
+renderPlotly({
+  fileList[[1]]$degreeOutHistogramList[[2]]
+})
+```
+
+> A higher 'Degree out' score indicates that the person is well connected within the class.
+
+### Student Value and Respect
+
+#### 'Value and Respect' Degree All Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeAllHistogramList[[3]]
+})
+```
+
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
+
+#### 'Value and Respect' Degree In Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeInHistogramList[[3]]
+})
+```
+
+> A higher 'Degree in' score indicates that more people in the class come
+to this person for information
+
+#### 'Value and Respect' Degree Out Scores
+
+```{r}
+renderPlotly({
+  fileList[[1]]$degreeOutHistogramList[[3]]
+})
+```
+
+> A higher 'Degree out' score indicates that the person is well connected within the class

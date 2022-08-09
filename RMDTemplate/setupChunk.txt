@@ -20,6 +20,9 @@ for(i in 1:length(file.sources)){
   source(file.sources[[i]])
 }
 
+#source forceDirected.R
+source("./assets/forcedirected/forcedirected.R")
+
 #set an arbitary seed
 set.seed (fileList[[1]]$seed)
 

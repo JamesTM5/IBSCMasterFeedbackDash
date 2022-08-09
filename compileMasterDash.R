@@ -1,11 +1,11 @@
 #Function for compiling a .RMD document from a series of templates, substituting variable names appropriately
 
 #For Testing Purposes
-# templateDirectoryName = 'RMDTemplate'
-# dataDirectoryName = 'test data'
-# outputFilename = 'masterDashCompiled'
-# outputDirectory = 'compilationOutput'
-# runForChecking = TRUE
+templateDirectoryName = 'RMDTemplate'
+dataDirectoryName = 'test data'
+outputFilename = 'masterDashCompiled'
+outputDirectory = 'compilationOutput'
+runForChecking = TRUE
 
 compileMasterDash <- function(templateDirectoryName,
                               dataDirectoryName,
@@ -146,6 +146,16 @@ compileMasterDash <- function(templateDirectoryName,
     template <- str_replace_all(template, "RQNumberPlaceholderjkkfdufsse", as.character(questionNumber))
     dash[[length(dash)+1]] <- template
   }
+  
+  setupRQClassSummary <- function(template = templateList$RQPageSummary.txt,
+                                  fileListNumber,
+                                  ...){
+    
+    className <- fileList[[fileListNumber]]$className
+    template <- str_replace_all(template, "classNamePlaceholderhonrwufzql", className)
+    template <- str_replace_all(template, "fileListNumberPlaceholderrmwkpgtffs", as.character(fileListNumber))
+    dash[[length(dash)+1]] <- template
+  }
 
   addToSetupChunk <- function (textToAdd, setupChunk = dash[[2]]) {
     placeholder <- "'dupnlmffjcatgle'"
@@ -186,8 +196,9 @@ compileMasterDash <- function(templateDirectoryName,
        dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
   #     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
      } else if(numRQ >= 2) {
-  #     dash[[length(dash)+1]] <- setupRQClassOverviewPage(fileList[[i]])
-       for (j in 1:(numRQ-1)) {
+       dash[[length(dash)+1]] <- setupRQClassSummary(fileListNumber = i)
+       dash[[2]] <- addToSetupChunk(textToAdd = "d3ClassOverviewPrepSingleInstance\\(fileList\\=fileList\\)")
+       for (j in 1:(numRQ)) {
          dash[[length(dash)+j]] <- setupRQPageMultiple(fileListNumber = i, questionNumber = j)
        }
        dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
