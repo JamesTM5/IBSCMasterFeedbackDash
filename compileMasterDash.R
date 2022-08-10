@@ -107,7 +107,13 @@ compileMasterDash <- function(templateDirectoryName,
   setupSetupChunk <- function (setupChunkTemplate = templateList$setupChunk.txt) {
     setupChunkTemplate
   }
+
+#add a school wide page summary page
+  setupSchoolOverviewPage <- function (schoolOverviewTemplate = templateList$RQSchoolWideSummaryPage.txt) {
+    schoolOverviewTemplate
+  }
   
+    
 #add a page for a single RQ with no expectation of a class overview.
   setupRQPageSingle <- function(template = templateList$RQPageSingle.txt,
                                 fileListNumber = 1,
@@ -157,6 +163,64 @@ compileMasterDash <- function(templateDirectoryName,
     dash[[length(dash)+1]] <- template
   }
 
+  setupRQIndividualScores <- function(header = templateList$RQIndividualDataPageHeader.txt,
+                                      polarGraphChunk = templateList$RQIndividualPolarGraph.txt,
+                                      columnHeader = templateList$RQIndividualDataPageColumnHeader.txt,
+                                      degreeGraphChunk = templateList$RQIndividualDegreeGraphs.txt,
+                                  fileListNumber,
+                                  RQIndTextList = c("Relationships Question 1",
+                                                 "Relationships Question 2",
+                                                 "Relationships Question 3",
+                                                 "Relationships Question 4"
+                                  ),
+                                  RQIndSummaryList = c("RQ1",
+                                                    "RQ2",
+                                                    "RQ3",
+                                                    "RQ4"
+                                  ),
+                                  numRQ,
+                                  ...){
+    
+    className <- fileList[[fileListNumber]]$className
+    
+    individualPage <- list()
+    
+    header <- str_replace_all(header,"classNamePlaceholderhonrwufzql",
+                              as.character(className))
+    individualPage[[1]] <- header
+    for(j in 1:length(numRQ)) {
+      modifiedPolarGraphChunk <- polarGraphChunk
+      modifiedPolarGraphChunk <- str_replace_all(modifiedPolarGraphChunk,
+                                                 "RQSummaryPlaceholderxbvmgayrkd",
+                                                 RQIndSummaryList[[j]])
+      modifiedPolarGraphChunk <- str_replace_all(modifiedPolarGraphChunk,
+                                                 "fileListNumberPlaceholderrmwkpgtffs",
+                                                 as.character(fileListNumber))
+      modifiedPolarGraphChunk <- str_replace_all(modifiedPolarGraphChunk,
+                                                 "graphListNumberPlaceholdervifktlvodm",
+                                                 as.character(j))
+      individualPage[[length(individualPage)+1]] <- modifiedPolarGraphChunk
+    }
+    individualPage[[length(individualPage)+1]] <- columnHeader
+
+    for(k in 1:length(numRQ)) {
+      modifiedDegreeGraphChunk <- degreeGraphChunk
+      modifiedDegreeGraphChunk <- str_replace_all(modifiedDegreeGraphChunk,
+                                                 "RQSummaryPlaceholderxbvmgayrkd",
+                                                 RQIndSummaryList[[k]])
+      modifiedDegreeGraphChunk <- str_replace_all(modifiedDegreeGraphChunk,
+                                                 "fileListNumberPlaceholderrmwkpgtffs",
+                                                 as.character(fileListNumber))
+      modifiedDegreeGraphChunk <- str_replace_all(modifiedDegreeGraphChunk,
+                                                 "graphListNumberPlaceholdervifktlvodm",
+                                                 as.character(k))
+      individualPage[[length(individualPage)+1]] <- modifiedDegreeGraphChunk
+    }  
+    
+    dash[[length(dash)+1]] <- unlist(individualPage)
+  }
+  
+  
   addToSetupChunk <- function (textToAdd, setupChunk = dash[[2]]) {
     placeholder <- "'dupnlmffjcatgle'"
     setupChunk <- str_replace_all(setupChunk,
@@ -182,11 +246,11 @@ compileMasterDash <- function(templateDirectoryName,
   dash[[1]] <- setupYaml(title = "IBSC Dash")
   dash[[2]] <- setupSetupChunk()
 #add school-wide pages if needed
-  # if(length(fileList) >= 2) {
-  #   dash[[length(dash)+1]] <- setupSchoolOverviewPage(fileList)
+   if(length(fileList) >= 2) {
+     dash[[length(dash)+1]] <- setupSchoolOverviewPage()
   #    if(belongingnessPresent == TRUE) {
   #       dash[[length(dash)+1]] <- setupOverallBelongingnessPage(fileList)
-  #   }
+     }
   # }
 #add class pages for each class
 
@@ -194,7 +258,7 @@ compileMasterDash <- function(templateDirectoryName,
     if(numRQ == 1) {
        dash[[length(dash)+1]] <- setupRQPageSingle(fileListNumber = i)
        dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
-  #     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
+       dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
      } else if(numRQ >= 2) {
        dash[[length(dash)+1]] <- setupRQClassSummary(fileListNumber = i)
        dash[[2]] <- addToSetupChunk(textToAdd = "d3ClassOverviewPrepSingleInstance\\(fileList\\=fileList\\)")
@@ -202,7 +266,7 @@ compileMasterDash <- function(templateDirectoryName,
          dash[[length(dash)+j]] <- setupRQPageMultiple(fileListNumber = i, questionNumber = j)
        }
        dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
-  #     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
+       dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
   #   }
   #   if(belongingnessPresent == TRUE) {
   #     dash[[length(dash)+1]] <- setupBelongingnessPage(fileList[[i]])
@@ -213,7 +277,8 @@ compileMasterDash <- function(templateDirectoryName,
   #delete setup key string to keep output code clean
   
 #insert package list into setup chunk to call relevant libraries
-  packagesUsed <- append(packagesUsed, c("rmarkdown", "jsonlite", "tidyverse", "flexdashboard"))
+  packagesUsed <- append(packagesUsed, c("rmarkdown", "jsonlite", "tidyverse",
+                                         "flexdashboard", "plotly"))
   dash[[2]] <- addPackages(setupChunk = dash[[2]], packages = packagesUsed)
 
 #Output Code

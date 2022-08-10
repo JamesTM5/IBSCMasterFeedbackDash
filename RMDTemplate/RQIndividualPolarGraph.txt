@@ -1,0 +1,11 @@
+
+### RQSummaryPlaceholderxbvmgayrkd
+
+```{r}
+renderPlotly ({
+  fileList[[fileListNumberPlaceholderrmwkpgtffs]]$polarGraphList[[graphListNumberPlaceholdervifktlvodm]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+

@@ -16,7 +16,7 @@ resource_files:
 ```{r setup, include=FALSE}
 
 #install and call all relevant libraries
-packages = c('rmarkdown', 'jsonlite', 'tidyverse', 'flexdashboard')
+packages = c('rmarkdown', 'jsonlite', 'tidyverse', 'flexdashboard', 'plotly')
 invisible(lapply(packages, library, character.only = TRUE))
 
 #read in all files
@@ -52,6 +52,246 @@ d3ClassOverviewPrepSingleInstance(fileList=fileList)
 d3RQPrepSingleInstance(fileList=fileList)
 'dupnlmffjcatgle'
 ```
+
+
+School Overview {data-orientation=rows}
+=======================================================================
+
+Input {.sidebar}
+--------------------------------------------------------
+
+```{R}
+#build summary data frame
+summaryDataFrame <- data.frame()
+summaryDataFrameColumnNames <- c("Class Name", "Health", "Reciprocity",
+                                 "PfI", "Diameter",
+                                 "Density", "Isolates")
+for (k in summaryDataFrameColumnNames) {
+  summaryDataFrame[[k]] <- as.character()
+} 
+for (i in 1:length(fileList)) {
+  file <- fileList[i]
+  summary <- list(file[[1]]$className,
+                        file[[1]]$overallScoresList[[length(file[[1]]$overallScoresList)]][[1]],
+                        file[[1]]$totalNetworkInfo[[length(file[[1]]$totalNetworkInfo)]][[6]], 
+                        file[[1]]$overallScoresList[[length(file[[1]]$overallScoresList)]][[2]], 
+                        file[[1]]$totalNetworkInfo[[length(file[[1]]$totalNetworkInfo)]][[4]],
+                        file[[1]]$totalNetworkInfo[[length(file[[1]]$totalNetworkInfo)]][[5]], 
+                        as.numeric(length(file[[1]]$isolatesSSNQFormatted)))
+  summaryDataFrame[i,] <- summary
+}
+
+for(i in 2:ncol(summaryDataFrame)){
+summaryDataFrame[,i] <- round(as.numeric(summaryDataFrame[,i]), digits = 1)
+}
+
+#add an arbitrary score for the x axis of summary graphs
+summaryDataFrame$Score <- "A"
+
+classChoices <- summaryDataFrame$'Class Name'
+
+#function to determine scale of whisker plots
+scaleFUN <- function(x) sprintf("%.2f", x)
+
+#choose a set of colours equally spaced on the colour wheel
+ColourPicker <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1:n]
+}
+
+#add colours to cases for the whisker plots
+summaryDataFrame$color <- ColourPicker(nrow(summaryDataFrame))
+
+```
+
+```{R}
+div(style = "margin-top: 1.5vh;")
+
+#create input UI for the whisker plots
+selectInput(
+  inputId = "Set",
+  label = "Class",
+  choices = classChoices,
+  multiple = T
+)
+
+div(style = "margin-top: 27.5vh;")
+```
+
+Summary Data {data-height=350}
+--------------------------------------------------------
+
+### Class Relational Health
+
+```{r}
+
+output$NetworkHealth <- renderPlot({
+  ggplot(summaryDataFrame, aes(x=Score, y=Health)) +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scaleFUN, limits=c(40,150)) +
+  geom_rect(data = summaryDataFrame, aes(),
+                                        xmin = -Inf,
+                                        xmax = Inf,
+                                        ymin = 0,
+                                        ymax = 60,
+                                        fill = "Red",
+                                        alpha = 0.1) +
+  geom_rect(data = summaryDataFrame, aes(),
+                                        xmin = -Inf,
+                                        xmax = Inf,
+                                        ymin = 61,
+                                        ymax = 100,
+                                        fill = "Orange",
+                                        alpha = 0.1) +
+  geom_rect(data = summaryDataFrame, aes(),
+                                        xmin = -Inf,
+                                        xmax = Inf,
+                                        ymin = 101,
+                                        ymax = 150,
+                                        fill = "Green",
+                                        alpha = 0.1) +
+  geom_boxplot(width = 0.25, fill="grey", color="darkslategrey", size = 1) +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=60, binwidth = 1/30) +
+  geom_point(
+    data=subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set),
+    aes(x=Score, y=Health), 
+    size=5, color=
+      subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set)$color,
+      alpha = 0.7) +
+  labs(x="", y="") +
+   theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        plot.title = element_text(hjust = 0.5))
+
+})
+
+plotOutput("NetworkHealth")
+```
+
+### Potential for Improvement
+
+
+```{r}
+
+output$PfIPlot <- renderPlot({
+  ggplot(summaryDataFrame, aes(x=Score, y=PfI)) +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scaleFUN, limits= c(40, 150)) +
+  geom_rect(data = summaryDataFrame, aes(),
+                                        xmin = -Inf,
+                                        xmax = Inf,
+                                        ymin = 0,
+                                        ymax = 60,
+                                        fill = "Red",
+                                        alpha = 0.1) +
+  geom_rect(data = summaryDataFrame, aes(),
+                                        xmin = -Inf,
+                                        xmax = Inf,
+                                        ymin = 61,
+                                        ymax = 100,
+                                        fill = "Orange",
+                                        alpha = 0.1) +
+  geom_rect(data = summaryDataFrame, aes(),
+                                        xmin = -Inf,
+                                        xmax = Inf,
+                                        ymin = 100,
+                                        ymax = 150,
+                                        fill = "Green",
+                                        alpha = 0.1) +
+  geom_boxplot(width = 0.25, fill="grey", color="darkslategrey", size = 1) +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=60, binwidth = 1/30) +
+  geom_point(
+    data=subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set),
+    aes(x=Score, y=PfI), 
+    size=5, color=
+      subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set)$color,
+      alpha = 0.7) +
+  labs(x="", y="") +
+   theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        plot.title = element_text(hjust = 0.5))
+})
+
+plotOutput("PfIPlot")
+```
+
+### Reciprocity
+
+```{r}
+output$ReciprocityPlot <- renderPlot({
+  ggplot(summaryDataFrame, aes(x=Score, y=Reciprocity)) +
+  scale_x_discrete() +
+  scale_y_continuous(labels=scaleFUN, limits=c(0,1)) +
+  geom_boxplot(width = 0.25, fill="grey", color="darkslategrey", size = 1) +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6, binwidth = 1/30) +
+  geom_point(
+    data=subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set),
+    aes(x=Score, y=Reciprocity),
+    size=5, color=
+      subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set)$color,
+      alpha = 0.7) +
+  labs(x="", y="") +
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        plot.title = element_text(hjust = 0.5))
+})
+
+plotOutput("ReciprocityPlot")
+```
+
+### Diameter
+
+```{r}
+output$DiameterPlot <- renderPlot({
+  ggplot(summaryDataFrame, aes(x=Score, y=Diameter)) +
+  scale_x_discrete() +
+  scale_y_reverse(labels=scaleFUN, limits = c(10,0)) +
+  geom_boxplot(width = 0.25, fill="grey", color="darkslategrey", size = 1) +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6, binwidth = 1/3) +
+  geom_point(
+    data=subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set),
+    aes(x=Score, y=Diameter), 
+    size=5, color=
+      subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set)$color,
+      alpha = 0.7) +
+  labs(x="", y="") +
+   theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        plot.title = element_text(hjust = 0.5))
+})
+
+plotOutput("DiameterPlot")
+```
+
+### Edge Density
+
+```{r}
+output$DensityPlot <- renderPlot({
+  ggplot(summaryDataFrame, aes(x=Score, y=Density)) +
+  scale_y_continuous(labels=scaleFUN, limits=c(0,1)) +
+  scale_x_discrete() +
+  geom_boxplot(width = 0.25, fill="grey", color="darkslategrey", size = 1) +
+  geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6, binwidth = 1/30) +
+  geom_point(
+    data=subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set),
+    aes(x=Score, y=Density), 
+    size=5, color=
+      subset(summaryDataFrame, summaryDataFrame[[1]] %in% input$Set)$color,
+      alpha = 0.7) +
+  labs(x="", y="") +
+   theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        plot.title = element_text(hjust = 0.5))
+})
+
+plotOutput("DensityPlot")
+```
+
 
 Scots 7TGAN1 Class Summary {data-navmenu="Scots 7TGAN1"}
 =======================================================================
@@ -1139,6 +1379,64 @@ if(!is.null(fileList[[1]]$isolatesList[[3]])) {
 >These people are not joined to any others in the network by positive
 relationships in at least one of the dimensions they were asked about.
 
+Student - Student Individual Profiles {data-navmenu="Scots 7TGAN1"}
+=======================================================================
+
+Individual Profiles {data-width=900 .tabset}
+-----------------------------------------------------------------------
+
+
+
+### RQ1
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$polarGraphList[[1]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+
+
+
+Degree {.tabset}
+-----------------------------------------------------------------------
+
+
+
+### RQ1
+
+#### 'RQ1' Degree All Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeAllHistogramList[[1]]
+})
+```
+
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
+
+#### 'RQ1' Degree In Scores
+
+```{r}
+renderPlotly ({
+  fileList[[1]]$degreeInHistogramList[[1]]
+})
+```
+
+> A higher 'Degree in' score indicates that more people in the class come
+to this person for information
+
+#### 'RQ1' Degree Out Scores
+
+```{r}
+renderPlotly({
+  fileList[[1]]$degreeOutHistogramList[[1]]
+})
+```
+
+> A higher 'Degree out' score indicates that the person is well connected within the class.
+
 Scots 7TGAN2 Class Summary {data-navmenu="Scots 7TGAN2"}
 =======================================================================
   
@@ -2224,6 +2522,64 @@ if(!is.null(fileList[[2]]$isolatesList[[3]])) {
 
 >These people are not joined to any others in the network by positive
 relationships in at least one of the dimensions they were asked about.
+
+Student - Student Individual Profiles {data-navmenu="Scots 7TGAN2"}
+=======================================================================
+
+Individual Profiles {data-width=900 .tabset}
+-----------------------------------------------------------------------
+
+
+
+### RQ1
+
+```{r}
+renderPlotly ({
+  fileList[[2]]$polarGraphList[[1]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+
+
+
+Degree {.tabset}
+-----------------------------------------------------------------------
+
+
+
+### RQ1
+
+#### 'RQ1' Degree All Scores
+
+```{r}
+renderPlotly ({
+  fileList[[2]]$degreeAllHistogramList[[1]]
+})
+```
+
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
+
+#### 'RQ1' Degree In Scores
+
+```{r}
+renderPlotly ({
+  fileList[[2]]$degreeInHistogramList[[1]]
+})
+```
+
+> A higher 'Degree in' score indicates that more people in the class come
+to this person for information
+
+#### 'RQ1' Degree Out Scores
+
+```{r}
+renderPlotly({
+  fileList[[2]]$degreeOutHistogramList[[1]]
+})
+```
+
+> A higher 'Degree out' score indicates that the person is well connected within the class.
 
 Scots 7TGAR1 Class Summary {data-navmenu="Scots 7TGAR1"}
 =======================================================================
@@ -3311,6 +3667,64 @@ if(!is.null(fileList[[3]]$isolatesList[[3]])) {
 >These people are not joined to any others in the network by positive
 relationships in at least one of the dimensions they were asked about.
 
+Student - Student Individual Profiles {data-navmenu="Scots 7TGAR1"}
+=======================================================================
+
+Individual Profiles {data-width=900 .tabset}
+-----------------------------------------------------------------------
+
+
+
+### RQ1
+
+```{r}
+renderPlotly ({
+  fileList[[3]]$polarGraphList[[1]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+
+
+
+Degree {.tabset}
+-----------------------------------------------------------------------
+
+
+
+### RQ1
+
+#### 'RQ1' Degree All Scores
+
+```{r}
+renderPlotly ({
+  fileList[[3]]$degreeAllHistogramList[[1]]
+})
+```
+
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
+
+#### 'RQ1' Degree In Scores
+
+```{r}
+renderPlotly ({
+  fileList[[3]]$degreeInHistogramList[[1]]
+})
+```
+
+> A higher 'Degree in' score indicates that more people in the class come
+to this person for information
+
+#### 'RQ1' Degree Out Scores
+
+```{r}
+renderPlotly({
+  fileList[[3]]$degreeOutHistogramList[[1]]
+})
+```
+
+> A higher 'Degree out' score indicates that the person is well connected within the class.
+
 Scots 7TGAR2 Class Summary {data-navmenu="Scots 7TGAR2"}
 =======================================================================
   
@@ -4396,4 +4810,62 @@ if(!is.null(fileList[[4]]$isolatesList[[3]])) {
 
 >These people are not joined to any others in the network by positive
 relationships in at least one of the dimensions they were asked about.
+
+Student - Student Individual Profiles {data-navmenu="Scots 7TGAR2"}
+=======================================================================
+
+Individual Profiles {data-width=900 .tabset}
+-----------------------------------------------------------------------
+
+
+
+### RQ1
+
+```{r}
+renderPlotly ({
+  fileList[[4]]$polarGraphList[[1]]
+})
+```
+
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+
+
+
+Degree {.tabset}
+-----------------------------------------------------------------------
+
+
+
+### RQ1
+
+#### 'RQ1' Degree All Scores
+
+```{r}
+renderPlotly ({
+  fileList[[4]]$degreeAllHistogramList[[1]]
+})
+```
+
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
+
+#### 'RQ1' Degree In Scores
+
+```{r}
+renderPlotly ({
+  fileList[[4]]$degreeInHistogramList[[1]]
+})
+```
+
+> A higher 'Degree in' score indicates that more people in the class come
+to this person for information
+
+#### 'RQ1' Degree Out Scores
+
+```{r}
+renderPlotly({
+  fileList[[4]]$degreeOutHistogramList[[1]]
+})
+```
+
+> A higher 'Degree out' score indicates that the person is well connected within the class.
 

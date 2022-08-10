@@ -1,0 +1,6 @@
+Student - Student Individual Profiles {data-navmenu="classNamePlaceholderhonrwufzql"}
+=======================================================================
+
+Individual Profiles {data-width=900 .tabset}
+-----------------------------------------------------------------------
+
