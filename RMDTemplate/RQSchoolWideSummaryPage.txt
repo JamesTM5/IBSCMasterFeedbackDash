@@ -38,12 +38,6 @@ classChoices <- summaryDataFrame$'Class Name'
 #function to determine scale of whisker plots
 scaleFUN <- function(x) sprintf("%.2f", x)
 
-#choose a set of colours equally spaced on the colour wheel
-ColourPicker <- function(n) {
-  hues = seq(15, 375, length = n + 1)
-  hcl(h = hues, l = 65, c = 100)[1:n]
-}
-
 #add colours to cases for the whisker plots
 summaryDataFrame$color <- ColourPicker(nrow(summaryDataFrame))
 

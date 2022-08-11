@@ -1,11 +1,11 @@
 #Function for compiling a .RMD document from a series of templates, substituting variable names appropriately
 
 #For Testing Purposes
-templateDirectoryName = 'RMDTemplate'
-dataDirectoryName = 'test data'
-outputFilename = 'masterDashCompiled'
-outputDirectory = 'compilationOutput'
-runForChecking = TRUE
+# templateDirectoryName = 'RMDTemplate'
+# dataDirectoryName = 'test data'
+# outputFilename = 'masterDashCompiled'
+# outputDirectory = 'compilationOutput'
+# runForChecking = TRUE
 
 compileMasterDash <- function(templateDirectoryName,
                               dataDirectoryName,
@@ -188,7 +188,7 @@ compileMasterDash <- function(templateDirectoryName,
     header <- str_replace_all(header,"classNamePlaceholderhonrwufzql",
                               as.character(className))
     individualPage[[1]] <- header
-    for(j in 1:length(numRQ)) {
+    for(j in 1:numRQ) {
       modifiedPolarGraphChunk <- polarGraphChunk
       modifiedPolarGraphChunk <- str_replace_all(modifiedPolarGraphChunk,
                                                  "RQSummaryPlaceholderxbvmgayrkd",
@@ -203,7 +203,7 @@ compileMasterDash <- function(templateDirectoryName,
     }
     individualPage[[length(individualPage)+1]] <- columnHeader
 
-    for(k in 1:length(numRQ)) {
+    for(k in 1:numRQ) {
       modifiedDegreeGraphChunk <- degreeGraphChunk
       modifiedDegreeGraphChunk <- str_replace_all(modifiedDegreeGraphChunk,
                                                  "RQSummaryPlaceholderxbvmgayrkd",
@@ -261,16 +261,17 @@ compileMasterDash <- function(templateDirectoryName,
        dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
      } else if(numRQ >= 2) {
        dash[[length(dash)+1]] <- setupRQClassSummary(fileListNumber = i)
-       dash[[2]] <- addToSetupChunk(textToAdd = "d3ClassOverviewPrepSingleInstance\\(fileList\\=fileList\\)")
+#       dash[[2]] <- addToSetupChunk(textToAdd = "d3ClassOverviewPrepSingleInstance\\(fileList\\=fileList\\)")
        for (j in 1:(numRQ)) {
          dash[[length(dash)+j]] <- setupRQPageMultiple(fileListNumber = i, questionNumber = j)
        }
-       dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
+      
        dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
   #   }
   #   if(belongingnessPresent == TRUE) {
   #     dash[[length(dash)+1]] <- setupBelongingnessPage(fileList[[i]])
-    }
+     }
+     dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
    }
   # dash[[length(dash)+1]] <- setupRawData(fileList)
   
