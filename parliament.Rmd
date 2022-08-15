@@ -17,6 +17,7 @@ resource_files:
 ```{r setup, include=FALSE}
 library(tidyverse)
 source("C:/Users/jbeng/Documents/IBSCMasterFeedbackDash/assets/R/gatherNodes.R")
+source("C:/Users/jbeng/Documents/IBSCMasterFeedbackDash/assets/forcedirected/forcedirected.R")
 nodesAmalgam <- gatherNodes()
 
 ```
@@ -43,4 +44,9 @@ dataCol {data-width=900}
 --------------------------------------------------------------------------------
 ### parliament graph
 
-some other text
+```{r}
+
+parliamentOutput("parliament1")
+output$parliament1 <- renderParliament(parliament("Hello", nodesAmalgam))
+
+```

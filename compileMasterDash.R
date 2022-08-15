@@ -108,6 +108,15 @@ compileMasterDash <- function(templateDirectoryName,
     setupChunkTemplate
   }
 
+  addToSetupChunk <- function (textToAdd, setupChunk = dash[[2]]) {
+    placeholder <- "'dupnlmffjcatgle'"
+    setupChunk <- str_replace_all(setupChunk,
+                                  placeholder,
+                                  paste(textToAdd,
+                                        placeholder,
+                                        sep = "\n"))
+  }
+
 #add a school wide page summary page
   setupSchoolOverviewPage <- function (schoolOverviewTemplate = templateList$RQSchoolWideSummaryPage.txt) {
     schoolOverviewTemplate
@@ -221,15 +230,7 @@ compileMasterDash <- function(templateDirectoryName,
   }
   
   
-  addToSetupChunk <- function (textToAdd, setupChunk = dash[[2]]) {
-    placeholder <- "'dupnlmffjcatgle'"
-    setupChunk <- str_replace_all(setupChunk,
-                                  placeholder,
-                                  paste(textToAdd,
-                                        placeholder,
-                                        sep = "\n"))
-  }
-
+ 
 #pull together packages to properly call them in the setup chunk
   addPackages <- function (setupChunk = dash[[2]], packages = packagesUsed) {
     #make a string of package names
@@ -257,11 +258,9 @@ compileMasterDash <- function(templateDirectoryName,
    for(i in 1:length(fileList)) {
     if(numRQ == 1) {
        dash[[length(dash)+1]] <- setupRQPageSingle(fileListNumber = i)
-       dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
        dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
      } else if(numRQ >= 2) {
        dash[[length(dash)+1]] <- setupRQClassSummary(fileListNumber = i)
-#       dash[[2]] <- addToSetupChunk(textToAdd = "d3ClassOverviewPrepSingleInstance\\(fileList\\=fileList\\)")
        for (j in 1:(numRQ)) {
          dash[[length(dash)+j]] <- setupRQPageMultiple(fileListNumber = i, questionNumber = j)
        }
@@ -271,8 +270,10 @@ compileMasterDash <- function(templateDirectoryName,
   #   if(belongingnessPresent == TRUE) {
   #     dash[[length(dash)+1]] <- setupBelongingnessPage(fileList[[i]])
      }
-     dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
    }
+  dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
+  dash[[2]] <- addToSetupChunk(textToAdd = "d3ClassOverviewPrepSingleInstance\\(fileList\\=fileList\\)")
+  dash[[2]] <- addToSetupChunk(textToAdd = "nodesAmalgam \\<\\- gatherNodes\\(fileList \\= fileList\\)")
   # dash[[length(dash)+1]] <- setupRawData(fileList)
   
   #delete setup key string to keep output code clean

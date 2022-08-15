@@ -19,7 +19,7 @@ valueBox(
 
 ```{r}
 valueBox(
-  fileList[[fileListNumberPlaceholderrmwkpgtffs]]$`classNamePlaceholderhonrwufzql`,
+  fileList[[fileListNumberPlaceholderrmwkpgtffs]]$className,
   caption = NULL,
   color = '#186ecc',
   icon = "fa-chalkboard-teacher"

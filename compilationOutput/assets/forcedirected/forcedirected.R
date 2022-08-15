@@ -15,7 +15,7 @@ forcedirectedOutput <- function(id){
       name = 'forcedirected',
       version = '1.0.0',
       src = c(file = path),
-      script = c('binding.js','fd.js','repeated-fd.js'),
+      script = c('binding.js','fd.js','repeated-fd.js', 'parliament.js'),
       stylesheet = 'styles.css'
     ),
     htmltools::htmlDependency(
@@ -52,7 +52,7 @@ repeatedforcedirectedOutput <- function(id){
       name = 'forcedirected',
       version = '1.0.0',
       src = c(file = path),
-      script = c('binding.js','fd.js','repeated-fd.js'),
+      script = c('binding.js','fd.js','repeated-fd.js', 'parliament.js'),
       stylesheet = 'styles.css'
     ),
     htmltools::htmlDependency(
@@ -66,6 +66,43 @@ repeatedforcedirectedOutput <- function(id){
 }
 
 renderRepeatedforcedirected <- function(expr, env = parent.frame(), quoted = FALSE) {
+  func <- shiny::exprToFunction(expr, env, quoted)
+  function(){
+    val <- func()
+    return(val)
+  }
+}
+
+
+parliament <- function(title, value) {
+  list(title = title, value = value)
+}
+
+parliamentOutput <- function(id){
+  el <- shiny::tags$div(
+    id = id, class = 'parliament',
+  )
+  path <- normalizePath('assets/forcedirected')
+  
+  deps <- list(
+    htmltools::htmlDependency(
+      name = 'forcedirected',
+      version = '1.0.0',
+      src = c(file = path),
+      script = c('binding.js','fd.js','repeated-fd.js', 'parliament.js'),
+      stylesheet = 'styles.css'
+    ),
+    htmltools::htmlDependency(
+      name = 'd3',
+      version = '7.2.1',
+      src = c(file = normalizePath('assets')),
+      script = c('d3.min.js')
+    )
+  )
+  htmltools::attachDependencies(el, deps)
+}
+
+renderParliament <- function(expr, env = parent.frame(), quoted = FALSE) {
   func <- shiny::exprToFunction(expr, env, quoted)
   function(){
     val <- func()

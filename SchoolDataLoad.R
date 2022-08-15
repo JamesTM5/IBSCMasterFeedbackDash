@@ -6,7 +6,10 @@
 
 #list all student and teacher files in a given directory
 loadSchoolData <- function (path = "test data/") {
-  source("packageSetup.R")
+  path = "test data/"
+  packages = c("rmarkdown", "tidyverse", "readxl")
+  invisible(lapply(packages, library, character.only = TRUE))
+  
   fileListStudent <- list.files(path = path, pattern = ".Student.*.xlsx",
                          full.names=TRUE)
   fileListTeacher <- list.files(path = path, pattern = ".Teacher.*.xlsx",
@@ -22,17 +25,27 @@ loadSchoolData <- function (path = "test data/") {
   }
   
   #read the lists of .xlsx files into r as lists of data frames
-  fileListS <- list()
-  for(i in 1:length(fileListStudent)) {
-   fileListS[[i]] <- as.list(readExcelAll(fileListStudent[i], tibble = F))
+  schoolDataList <- list()
+  
+  if(length(fileListStudent) > 0){
+    fileListS <- list()
+    for(i in 1:length(fileListStudent)) {
+     fileListS[[i]] <- as.list(readExcelAll(fileListStudent[i], tibble = F))
+    }
+    names(fileListS) <- fileListStudent
+    schoolDataList[length(schoolDataList)+1] <- fileListS
+    names(schoolDataList)[length(schoolDataList)] <- "studentResponses"
   }
-  fileListT <- list()
-  for(i in 1:length(fileListTeacher)) {
-    fileListT[[i]] <- as.list(readExcelAll(fileListTeacher[i], tibble = F))
+  if(length(fileListTeacher) > 0){
+    fileListT <- list()
+    for(i in 1:length(fileListTeacher)) {
+      fileListT[[i]] <- as.list(readExcelAll(fileListTeacher[i], tibble = F))
+    }
+    names(fileListT) <- fileListTeacher
+    schoolDataList[length(schoolDataList)+1] <- fileListT
+    names(schoolDataList)[length(schoolDataList)] <- "teacherResponses"
   }
-  names(fileListS) <- fileListStudent
-  names(fileListT) <- fileListTeacher
-  schoolDataList <- list(studentResponses = fileListS, teacherResponses = fileListT)
+  schoolDataList
 }
 
 schoolDataList <- loadSchoolData()

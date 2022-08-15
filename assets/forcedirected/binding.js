@@ -40,3 +40,36 @@ $.extend(repeatedforcedirectedBinding, {
 });
 
 Shiny.outputBindings.register(repeatedforcedirectedBinding, "repeatedforcedirected");
+
+
+
+
+const parliamentBinding = new Shiny.OutputBinding();
+const parliament_plot_by_element = {}
+
+$.extend(parliamentBinding, {
+  find: function (scope) {
+    return $(scope).find(".parliament");
+  },
+  renderValue: function (el, data) {
+    plotDetails = parliament_plot_by_element[el.id]
+
+    if (!plotDetails) {
+      plotDetails = new ParliamentButtons("#"+el.id)
+      parliament_plot_by_element[el.id] = plotDetails
+    }
+    const dataOut = [];
+    for ( let key in data.value ){
+      for ( let i in data.value[key] ){
+        if (!dataOut[i]){
+          dataOut[i]={};
+        }
+        dataOut[i][key] = data.value[key][i];
+      }
+    }
+    plotDetails.setData(dataOut)
+    plotDetails.jump()
+  }
+});
+
+Shiny.outputBindings.register(parliamentBinding, "parliament");

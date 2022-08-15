@@ -231,3 +231,15 @@ output$DensityPlot <- renderPlot({
 plotOutput("DensityPlot")
 ```
 
+dataCol {data-height=900}
+--------------------------------------------------------------------------------
+
+### parliament graph
+
+```{r}
+
+parliamentOutput("parliament1")
+output$parliament1 <- renderParliament(parliament("Hello", nodesAmalgam))
+
+```
+
