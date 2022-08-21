@@ -2,7 +2,7 @@
 
 #For Testing Purposes
 # templateDirectoryName = 'RMDTemplate'
-# dataDirectoryName = 'test data'
+# dataDirectoryName = 'data'
 # outputFilename = 'masterDashCompiled'
 # outputDirectory = 'compilationOutput'
 # runForChecking = TRUE
@@ -229,6 +229,22 @@ compileMasterDash <- function(templateDirectoryName,
     dash[[length(dash)+1]] <- unlist(individualPage)
   }
   
+  #add a class belongingness page
+  setupClassBelongingnessPage <- function (belongingnessTemplate = templateList$belongingnessPageWithoutPredictiveContent.txt,
+                                           fileListNumber,
+                                           classNumber) {
+    className <- fileList[[fileListNumber]]$className
+    modifiedBelongingnessTemplate <- belongingnessTemplate
+    modifiedBelongingnessTemplate <- str_replace_all(modifiedBelongingnessTemplate,
+                                               "fileListNumberPlaceholderrmwkpgtffs",
+                                               as.character(fileListNumber))
+    modifiedBelongingnessTemplate <- str_replace_all(modifiedBelongingnessTemplate,
+                                                     "classNumberPlaceholderckkdnsodds",
+                                                     as.character(classNumber))
+    modifiedBelongingnessTemplate <- str_replace_all(modifiedBelongingnessTemplate,
+                                                     "classNamePlaceholderhonrwufzql",
+                                                     className)
+  }
   
  
 #pull together packages to properly call them in the setup chunk
@@ -266,21 +282,21 @@ compileMasterDash <- function(templateDirectoryName,
        }
       
        dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
-  #   }
-  #   if(belongingnessPresent == TRUE) {
-  #     dash[[length(dash)+1]] <- setupBelongingnessPage(fileList[[i]])
+     }
+     if(belongingnessPresent == TRUE) {
+       dash[[length(dash)+1]] <- setupClassBelongingnessPage(fileListNumber = i, classNumber = i)
      }
    }
   dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
   dash[[2]] <- addToSetupChunk(textToAdd = "d3ClassOverviewPrepSingleInstance\\(fileList\\=fileList\\)")
-  dash[[2]] <- addToSetupChunk(textToAdd = "nodesAmalgam \\<\\- gatherNodes\\(fileList \\= fileList\\)")
+  dash[[2]] <- addToSetupChunk(textToAdd = "nodesAmalgam \\<\\- gatherNodes\\(\\)")
   # dash[[length(dash)+1]] <- setupRawData(fileList)
   
   #delete setup key string to keep output code clean
   
 #insert package list into setup chunk to call relevant libraries
   packagesUsed <- append(packagesUsed, c("rmarkdown", "jsonlite", "tidyverse",
-                                         "flexdashboard", "plotly"))
+                                         "flexdashboard", "plotly", "DT"))
   dash[[2]] <- addPackages(setupChunk = dash[[2]], packages = packagesUsed)
 
 #Output Code
@@ -300,7 +316,7 @@ compileMasterDash <- function(templateDirectoryName,
 }
 
 compileMasterDash(templateDirectoryName = 'RMDTemplate',
-                  dataDirectoryName = 'test data',
+                  dataDirectoryName = 'data',
                   outputFilename = 'masterDashCompiled',
                   outputDirectory = 'compilationOutput')
 

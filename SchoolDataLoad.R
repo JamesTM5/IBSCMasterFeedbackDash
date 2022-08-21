@@ -5,9 +5,9 @@
 #".Teacher <class name>.xlsx" for teacher completed ones.
 
 #list all student and teacher files in a given directory
-loadSchoolData <- function (path = "test data/") {
-  path = "test data/"
-  packages = c("rmarkdown", "tidyverse", "readxl")
+loadSchoolData <- function (path = "data/") {
+  path = "data/"
+  packages = c("rmarkdown", "tidyverse", "readxl", "igraph", "networkD3", "data.table", "ggplot2", "ggdendro", "plotly")
   invisible(lapply(packages, library, character.only = TRUE))
   
   fileListStudent <- list.files(path = path, pattern = ".Student.*.xlsx",
@@ -33,7 +33,7 @@ loadSchoolData <- function (path = "test data/") {
      fileListS[[i]] <- as.list(readExcelAll(fileListStudent[i], tibble = F))
     }
     names(fileListS) <- fileListStudent
-    schoolDataList[length(schoolDataList)+1] <- fileListS
+    schoolDataList[[length(schoolDataList)+1]] <- as.list(fileListS)
     names(schoolDataList)[length(schoolDataList)] <- "studentResponses"
   }
   if(length(fileListTeacher) > 0){
@@ -42,7 +42,7 @@ loadSchoolData <- function (path = "test data/") {
       fileListT[[i]] <- as.list(readExcelAll(fileListTeacher[i], tibble = F))
     }
     names(fileListT) <- fileListTeacher
-    schoolDataList[length(schoolDataList)+1] <- fileListT
+    schoolDataList[[length(schoolDataList)+1]] <- as.list(fileListT)
     names(schoolDataList)[length(schoolDataList)] <- "teacherResponses"
   }
   schoolDataList
@@ -50,11 +50,10 @@ loadSchoolData <- function (path = "test data/") {
 
 schoolDataList <- loadSchoolData()
 
-source("schoolDataPrep.r")
+source("SchoolDataPrep.r")
 
 
 for(z in 1:length(schoolDataList$studentResponses)) {
   SSDashAnalysis (schoolDataList$studentResponses, listNumberStudent = z)
   print(paste("Number", z, "Generated", sep = " "))
 }
-

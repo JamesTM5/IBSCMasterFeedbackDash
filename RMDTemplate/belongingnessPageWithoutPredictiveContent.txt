@@ -1,0 +1,203 @@
+Belongingness Measure {data-navmenu="classNamePlaceholderhonrwufzql"}
+==================================================================
+
+row {.sidebar data-width=400}
+-------------------------------------------------------------------
+
+```{r}
+
+if ("Low" %in% names(table(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$unprocessedBelongingnessData$`Belongingness Stratified`))) {
+lowBelongingnessNumber <- table(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$unprocessedBelongingnessData$`Belongingness Stratified`)[["Low"]]
+} else {
+  lowBelongingnessNumber <- 0
+}
+
+if ("High" %in% names(table(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$unprocessedBelongingnessData$`Belongingness Stratified`))) {
+  highBelongingnessNumber <- table(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$unprocessedBelongingnessData$`Belongingness Stratified`)[["High"]]
+} else {
+  highBelongingnessNumber <- 0
+}
+
+if ("Low" %in% names(table(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$unprocessedBelongingnessData$`Belongingness Stratified`))) {
+  causeForConcernRowIndex <- which(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$unprocessedBelongingnessData$`Belongingness Stratified` == "Low")
+} else {
+  causeForConcernRowIndex <- 0
+}
+
+causeForConcernNames <- vector()
+if(causeForConcernRowIndex != 0) {
+  for (j in 1:length(causeForConcernRowIndex)) {
+    causeForConcernNames[j] <- fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$unprocessedBelongingnessData[causeForConcernRowIndex[j],"id"]
+  }
+}
+
+if(lowBelongingnessNumber == 1) {
+  lowBelongingnessText <- paste(lowBelongingnessNumber, "member", sep = " ")
+} else {
+  lowBelongingnessText <- paste(lowBelongingnessNumber, "members", sep = " ")  
+}
+
+if(highBelongingnessNumber == 1) {
+  highBelongingnessText <- paste(highBelongingnessNumber, "member", sep = " ")
+} else {
+  highBelongingnessText <- paste(highBelongingnessNumber, "members", sep = " ")  
+}
+
+
+if(highBelongingnessNumber > (lowBelongingnessNumber*2)) {
+  belongingnessNumberCommentary <- "This meets or exceeds the international average result for a group of learners"
+} else if (highBelongingnessNumber > lowBelongingnessNumber) {
+  belongingnessNumberCommentary <- "This is not cause for concern per se, but is a little lower than the international average result for a group of learners"
+} else if (highBelongingnessNumber < lowBelongingnessNumber) {
+  belongingnessNumberCommentary <- "This is significantly lower than the international average result for a group of learners and may well represent a reasonable cause for concern"
+} else {
+  belongingnessNumberCommentary <- ""
+}
+```
+
+The data for the Belongingness survey of class `r fileList[[fileListNumberPlaceholderrmwkpgtffs]]$className` at `r fileList[[fileListNumberPlaceholderrmwkpgtffs]]$clientName` is presented on this dashboard page.
+
+This class contains `r highBelongingnessText` with high belongingness scores and `r lowBelongingnessText` with low ones.
+`r belongingnessNumberCommentary`
+
+
+```{css echo=FALSE}
+.custom-inline {
+  color: red;
+}
+```
+
+
+#### Class Members with Notably Low Belongingness:
+
+<span class='custom-inline'>
+
+```{r results='asis'}
+bulletList <- list()
+
+
+if(!length(causeForConcernNames)==0) {
+  for (j in 1:length(causeForConcernNames)){
+    bulletList[j] <- paste0(causeForConcernNames[[j]], "\n")
+  }
+} else {
+  bulletList[j] <- "none"
+}
+
+sprintf("<span class='custom-inline'>%s</span>", bulletList)
+```
+
+</span>
+
+
+<span style="color: black;"> 
+
+The data table to the right allows for filtering of the data by typing in the boxes 
+above each column.  The axes of the graph can be set using the drop down boxes 
+below.
+
+```{r}
+selectInput(inputId = "GBclassNumberPlaceholderckkdnsodds",
+            label = "Group By (x axis)",
+            choices = fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$GBChoices,
+            selected = "id")
+```
+
+```{r}
+selectInput(inputId = "OBclassNumberPlaceholderckkdnsodds",
+            label = "Order By (x axis)",
+            choices = c("Ascending",
+                        "Descending",
+                        "Alphabetical"),
+            selected = "Alphabetical")
+```
+
+```{r}
+selectInput(inputId = "MetricclassNumberPlaceholderckkdnsodds",
+            label = "Metric (y axis)",
+            choices = fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$metricChoices,
+            selected = "Belongingness Mean")
+```
+
+</span>
+
+column
+-------------------------------------------------------------------
+
+### {-}
+
+```{r}
+  DTOutput("WBNumericclassNumberPlaceholderckkdnsodds")
+```
+
+column
+-------------------------------------------------------------------
+
+### {-}
+
+```{r}
+      output$plotBelongingness2classNumberPlaceholderckkdnsodds <- renderPlot({
+        updateData <- 
+          fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$WBNumeric %>%
+          group_by(!!! rlang::syms(input$GBclassNumberPlaceholderckkdnsodds)) %>%
+          summarise_if(is.numeric,mean,na.rm=T)
+        
+        xvar <- rlang::sym(input$GBclassNumberPlaceholderckkdnsodds)
+        yvar <- rlang::sym(input$MetricclassNumberPlaceholderckkdnsodds)
+        aesthetic <- if (input$OBclassNumberPlaceholderckkdnsodds == "Ascending") {
+          aes(x = reorder(factor(!! xvar, levels = unique(!! xvar)), !! yvar, ordered = F),
+                   y = !! yvar,
+                   fill=!! xvar)
+        } else if (input$OBclassNumberPlaceholderckkdnsodds == "Descending") {
+          aes(x = reorder(factor(!! xvar, levels = unique(!! xvar)), -!! yvar, ordered = F),
+                   y = !! yvar,
+                   fill=!! xvar)
+        } else {
+          aes(x = factor(!! xvar, levels = unique(!! xvar)),
+                   y = !! yvar,
+                   fill=!! xvar)
+        }
+        ggplot(updateData[input$WBNumericclassNumberPlaceholderckkdnsodds_rows_all,],
+               aesthetic) +
+        ggtitle(paste(clientName, fileList[[fileListNumberPlaceholderrmwkpgtffs]]$className, "Belongingness Scoring Histogram", sep = "
+")) +
+        scale_colour_brewer(palette="Accent") +
+        theme_bw() +
+        theme(rect = element_rect(fill = "transparent", colour = NA),
+              plot.title = element_text(hjust = 0.5, size = 15, face = "bold"),
+              axis.line = element_line(size=1, colour = "grey"),
+              panel.grid.major = element_line(colour = "#d3d3d3"),
+              panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+              panel.background = element_rect(fill = "transparent", colour = NA),
+              plot.background = element_rect (fill = "transparent", colour = NA),
+              axis.text.x=element_text(colour="black", size = fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$belongingnessFontSize, angle = -45),
+              axis.text.y=element_text(colour="black", size = fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$belongingnessFontSize),
+              axis.title.x = element_text(colour = "black"),
+              axis.title.y = element_text(colour = "black"),
+              legend.key=element_rect(fill = "transparent", colour = NA),
+              legend.background = element_rect(fill = "transparent"),
+              legend.box.background = element_rect(fill = "transparent")
+              ) +
+          labs(x = input$GBclassNumberPlaceholderckkdnsodds) +
+        geom_col()
+     })
+
+      output$WBNumericclassNumberPlaceholderckkdnsodds <- DT::renderDT(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$belongingnessClassList$belongingnessPrepList$WBNumeric, 
+                                       caption = "Table for Subsetting Belongingness Data", 
+                                       fillContainer = TRUE,
+                                       filter = list(autowidth = TRUE,
+                                                     position = "top",
+                                                     clear = FALSE),
+                                       class="cell-border stripe",
+                                       rownames = FALSE,
+                                       selection = 'none',
+                                       options = list(
+                         scrollY="36vh",scrollX="300px",
+                         pageLength = 50,
+                         autoWidth = TRUE, columnDefs =
+                         list(list(width = '100', targets = "_all", visible = TRUE))))
+                                      
+  plotOutput("plotBelongingness2classNumberPlaceholderckkdnsodds")
+```
+

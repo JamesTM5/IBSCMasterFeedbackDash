@@ -1,11 +1,9 @@
-library(tidyverse)
-
-gatherNodes <- function (filePath = "./test data/") {
+gatherNodes <- function (filePath = "./data/") {
   files = list.files(path = filePath, pattern = '^.*rds$')
   fileList <- list()
   
   for (i in 1:length(files)) {
-    file <- readRDS(paste("./test data", files[i], sep = "/"))
+    file <- readRDS(paste(filePath, files[i], sep = "/"))
     name <- as.character(files[i])
     fileList[[name]] <- file
   }
@@ -17,6 +15,3 @@ gatherNodes <- function (filePath = "./test data/") {
   
   nodesAmalgam <- bind_rows(nodesAmalgam, .id = "column_label")
 }
-
-
-#gatherNodes(filePath = "./data/")

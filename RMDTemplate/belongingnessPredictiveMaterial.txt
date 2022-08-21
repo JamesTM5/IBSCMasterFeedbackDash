@@ -1,0 +1,86 @@
+
+```{r}
+significantFactorsFound <- "We have performed analysis on the data to identify
+where there are statistically significant differences in the data that are due
+to more than chance across each of the metrics the data contain.  Where these
+have been found to be significant, they are viewable using the 'Snapshot' box
+below:"
+
+significantFactorsNotFound <- "We have performed analysis on the data to determine if any differences between groups are down to expected variance or if
+they are statistically significant, and for each of the factors in this dataset
+there are no indications that significant differences exist."
+```
+
+`r if(!length(significantPredictors) == 0) {significantFactorsFound} else {significantFactorsNotFound}`
+
+
+```{r}
+#for each significant factor, view it using a dropdown list initialised by an
+#action button
+
+#make a list of SDVs that show significant links for each experimental variable.
+SDVSet <- list()
+for (i in 1:ncol(SDVTable)) {
+  SDVSet[[i]] <- as.vector(SDVTable[,i])
+  SDVSet[[i]] <- SDVSet[[i]][!is.na(SDVSet[[i]])]
+}
+SDVSetNames <- colnames(SDVTable)
+names(SDVSet) <- SDVSetNames
+
+selectInput(inputId = "experimentalVariable",label = "Choose a Snapshot to View", choices = colnames(valueTable), selected = 1) 
+actionButton(
+  "init", "View Snapshot", 
+  onclick = "var $btn=$(this); setTimeout(function(){$btn.remove();},0);"
+)
+uiOutput("ui")
+
+makeSnapshot <- eventReactive(input$init, {
+  observe({
+    x <- input$experimentalVariable
+    
+    updateSelectInput(session, "GB",
+                      label = "Group By (x axis)",
+                      choices = GBChoices,
+                      selected = valueTable[2, ..x]
+    )
+    
+    updateSelectInput(session, "Metric",
+                      label = "Metric(y axis)",
+                      choices = metricChoices,
+                      selected = valueTable[3, ..x]
+    )
+  })
+})
+
+#make the new button on submit button being pressed:
+observeEvent(input$init, {
+  makeSnapshot()
+})
+
+```
+
+```{r}
+interactionEffectsFound <- "In addition to these effects, we have determined
+that there are interaction effects between some of the factors we studied.
+Interaction effects are when the combination of the factors have a greater
+impact on the difference in result than either one alone can fully explain.
+The interaction effects we found are:"
+
+interactionEffectsNotFound <- "In addition for looking to identify significant
+effects for each factor alone, we also explored the data for cases where the
+combination of factors could explain any difference in result better than
+individual factors.  In this case there were none."
+```
+
+`r if(!length(interactionEffects) == 0) { interactionEffectsFound } else if (!length(significantPredictors) == 0 && length(interactionEffects == 0)) { interactionEffectsNotFound }`
+
+```{r, results='asis'}
+#insert list of interaction effects if relevant
+if(!length(interactionEffects)==0) {
+  bullets <- as.list(unique(names(interactionEffects)))
+  for (i in bullets){
+    cat("*", i, "\n")
+  }
+}
+```
+
