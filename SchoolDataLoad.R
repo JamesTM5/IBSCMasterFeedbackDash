@@ -52,8 +52,9 @@ schoolDataList <- loadSchoolData()
 
 source("SchoolDataPrep.r")
 
-
 for(z in 1:length(schoolDataList$studentResponses)) {
-  SSDashAnalysis (schoolDataList$studentResponses, listNumberStudent = z)
+  SSDashAnalysis (schoolDataList$studentResponses,
+                  schoolDataList$teacherResponses,
+                  listNumberStudent = z)
   print(paste("Number", z, "Generated", sep = " "))
 }
