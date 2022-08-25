@@ -55,7 +55,10 @@ $.extend(parliamentBinding, {
     plotDetails = parliament_plot_by_element[el.id]
 
     if (!plotDetails) {
-      plotDetails = new ParliamentButtons("#"+el.id)
+      let elref = d3.select("#"+el.id);
+      let disp = elref.append("div").attr("class","parliament-display").append("svg");
+      let control = elref.append("div").attr("class","parliament-control");
+      plotDetails = new ParliamentControl( disp , control , { autoSize:true });
       parliament_plot_by_element[el.id] = plotDetails
     }
     const dataOut = [];

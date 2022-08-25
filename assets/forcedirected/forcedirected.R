@@ -15,7 +15,7 @@ forcedirectedOutput <- function(id){
       name = 'forcedirected',
       version = '1.0.0',
       src = c(file = path),
-      script = c('binding.js','fd.js','repeated-fd.js', 'parliament.js'),
+      script = c('binding.js','fd.js','repeated-fd.js', 'parliament.js', 'control.js'),
       stylesheet = 'styles.css'
     ),
     htmltools::htmlDependency(
@@ -52,7 +52,7 @@ repeatedforcedirectedOutput <- function(id){
       name = 'forcedirected',
       version = '1.0.0',
       src = c(file = path),
-      script = c('binding.js','fd.js','repeated-fd.js', 'parliament.js'),
+      script = c('binding.js','fd.js','repeated-fd.js', 'parliament.js', 'control.js'),
       stylesheet = 'styles.css'
     ),
     htmltools::htmlDependency(
@@ -89,7 +89,7 @@ parliamentOutput <- function(id){
       name = 'forcedirected',
       version = '1.0.0',
       src = c(file = path),
-      script = c('binding.js','fd.js','repeated-fd.js', 'parliament.js'),
+      script = c('binding.js','fd.js','repeated-fd.js', 'parliament.js', 'control.js'),
       stylesheet = 'styles.css'
     ),
     htmltools::htmlDependency(
