@@ -58,7 +58,11 @@ $.extend(parliamentBinding, {
       let elref = d3.select("#"+el.id);
       let disp = elref.append("div").attr("class","parliament-display").append("svg");
       let control = elref.append("div").attr("class","parliament-control");
-      plotDetails = new ParliamentControl( disp , control , { autoSize:true });
+      plotDetails = new ParliamentControl( disp , control , { 
+        autoSize:true,
+        barTargetAspectRation: 0.4,
+        scatterBlockWidth: 80
+      });
       parliament_plot_by_element[el.id] = plotDetails
     }
     const dataOut = [];
