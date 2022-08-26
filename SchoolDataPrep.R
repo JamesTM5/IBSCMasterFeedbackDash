@@ -12,7 +12,7 @@ SSDashAnalysis <- function (studentDataInput,
                             teacherDataInput,
                             listNumberStudent) {
   
-       # listNumberStudent <- 3
+       # listNumberStudent <- 2
        # studentDataInput <- schoolDataList$studentResponses
        # teacherDataInput <- schoolDataList$teacherResponses
 
@@ -44,97 +44,99 @@ SSDashAnalysis <- function (studentDataInput,
   source("assets/R/makeResponseNumeric.R")
   
   #marry the corresponding teacher data with the student data where necessary
-  # teacherClassNameList <- list()
-  # for (m in 1:length(teacherDataInput)){  
-  #   TclassName <- substring(names(teacherDataInput)[[m]], regexpr("Teacher",
-  #                 names(teacherDataInput)[[m]]) + 8)
-  #   teacherClassNameList[[m]] <- substring(TclassName, 1, nchar(TclassName)-5) #remove ".xlsx"
-  # }
-  # if (className %in% teacherClassNameList) {
-  #  #   isolate this class' teacher data
-  #   teacherData <- teacherDataInput[[which(grepl(className,teacherClassNameList)==TRUE)]]
-  #   teacherData <- teacherData[2:length(teacherData)]
-  #  # for each of 2:length teacherData, if ncol = 4, take cols 2&3, order by name
-  #   # (col2) and add it to the nodes frame
-  # 
-  #   nameList <- vector()
-  #   for (i in 1:length(teacherData)) {
-  #     nameList <- c(nameList, teacherData[[i]]$Target)
-  #   }
-  #   Target <- unique(sort(nameList))
-  #   teacherAnswersFrame <- data.frame(Target)
-  #   for (j in 1:length(teacherData)){
-  #     if(ncol(teacherData[[j]]) == 4) {
-  #       questionData <- teacherData[[j]][2:3]
-  #       questionData <- questionData[order(questionData$Target),]
-  #       teacherAnswersFrame <- merge(teacherAnswersFrame, questionData, by = "Target", all.x = T, all.y = T)
-  #       }
-  #     }
-  #   
-  #   if(ncol(teacherAnswersFrame)==7){
-  #     names(teacherAnswersFrame) <- c(
-  #       "Name",
-  #       "Teacher-My communication with this student is highly effective.",
-  #       "Teacher-Our relationship has a strong 'story' or timeline" ,
-  #       "Teacher-I know this student well.",
-  #       "Teacher-Our relationship is fair and respectful.",
-  #       "Teacher-We are aligned in purpose and values.",
-  #       "Teacher-There are opportunities to build our relationship")
-  #     #make numeric columns for teacher/student questions (0-5) 
-  #     teacherDataNames <- teacherAnswersFrame[[1]]
-  #     teacherAnswersFrame <- teacherAnswersFrame[2:ncol(teacherAnswersFrame)]
-  #     numericAnswerColumns <- list()
-  #     for(i in 1:ncol(teacherAnswersFrame)) {
-  #       numericReplacementVector <- makeResponseNumeric(
-  #         data = teacherAnswersFrame[[i]],
-  #         conversionKey = nodesKeyStudentTeacher)
-  #       numericReplacementColumn <- data.frame(numericReplacementVector)
-  #       getNames <- names(teacherAnswersFrame)
-  #       names(numericReplacementColumn) <- paste0(
-  #         getNames[[i]], ".numeric")
-  #       numericAnswerColumns[[i]] <- numericReplacementColumn
-  #     }
-  #     numericAnswers <- data.frame(numericAnswerColumns)
-  #     #For each student, Take the mean
-  #     numericAnswers$`Teacher-Student Mean` <- rowMeans(numericAnswers)
-  #     
-  #     #make stratified columns for teacher/student questions (low, medium, high)  
-  #     modifiedNodesTS <- teacherAnswersFrame
-  #     originalNamesTS <- names(teacherAnswersFrame)
-  #     names(modifiedNodesTS) <- c("a", "b", "c", "d", "e", "f")
-  #     replacementNames <- names(modifiedNodesTS)
-  #     
-  #     modifiedNodesTS <- modifiedNodesTS %>%
-  #       left_join(nodesKeyStudentTeacherCategorical, by = c("a" = "answers"))
-  #     names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[1], "(stratified)", sep = ".")
-  #     
-  #     modifiedNodesTS <- modifiedNodesTS %>%
-  #       left_join(nodesKeyStudentTeacherCategorical, by = c("b" = "answers"))
-  #     names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[2], "(stratified)", sep = ".")
-  #     
-  #     modifiedNodesTS <- modifiedNodesTS %>%
-  #       left_join(nodesKeyStudentTeacherCategorical, by = c("c" = "answers"))
-  #     names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[3], "(stratified)", sep = ".")
-  #     
-  #     modifiedNodesTS <- modifiedNodesTS %>%
-  #       left_join(nodesKeyStudentTeacherCategorical, by = c("d" = "answers"))
-  #     names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[4], "(stratified)", sep = ".")
-  #     
-  #     modifiedNodesTS <- modifiedNodesTS %>%
-  #       left_join(nodesKeyStudentTeacherCategorical, by = c("e" = "answers"))
-  #     names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[5], "(stratified)", sep = ".")
-  #     
-  #     modifiedNodesTS <- modifiedNodesTS %>%
-  #       left_join(nodesKeyStudentTeacherCategorical, by = c("f" = "answers"))
-  #     names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[6], "(stratified)", sep = ".")
-  #     stratifiedAnswers <- modifiedNodesTS[,7:ncol(modifiedNodesTS)]
-  #     teacherAnswersFrame1 <- cbind(teacherAnswersFrame, numericAnswers)
-  #     teacherAnswersFrame1 <- cbind(teacherAnswersFrame1, stratifiedAnswers)  
-  #     Name <- teacherDataNames
-  #     teacherAnswersFrame1 <- cbind(Name, teacherAnswersFrame1)
-  #   }
-  # }
-  #  #nb this gets added to the nodes frame later in the script
+  teacherClassNameList <- list()
+  for (m in 1:length(teacherDataInput)){
+    TclassName <- substring(names(teacherDataInput)[[m]], regexpr("Teacher",
+                  names(teacherDataInput)[[m]]) + 8)
+    teacherClassNameList[[m]] <- substring(TclassName, 1, nchar(TclassName)-5) #remove ".xlsx"
+  }
+  teacherDataPresent <- FALSE
+  if (className %in% teacherClassNameList) {
+    teacherDataPresent <- TRUE
+   #   isolate this class' teacher data
+    teacherData <- teacherDataInput[[which(grepl(className,teacherClassNameList)==TRUE)]]
+    teacherData <- teacherData[2:length(teacherData)]
+   # for each of 2:length teacherData, if ncol = 4, take cols 2&3, order by name
+    # (col2) and add it to the nodes frame
+
+    nameList <- vector()
+    for (i in 1:length(teacherData)) {
+      nameList <- c(nameList, teacherData[[i]]$Target)
+    }
+    Target <- unique(sort(nameList))
+    teacherAnswersFrame <- data.frame(Target)
+    for (j in 1:length(teacherData)){
+      if(ncol(teacherData[[j]]) == 4) {
+        questionData <- teacherData[[j]][2:3]
+        questionData <- questionData[order(questionData$Target),]
+        teacherAnswersFrame <- merge(teacherAnswersFrame, questionData, by = "Target", all.x = T, all.y = T)
+        }
+      }
+
+    if(ncol(teacherAnswersFrame)==7){
+      names(teacherAnswersFrame) <- c(
+        "Name",
+        "Teacher-My communication with this student is highly effective.",
+        "Teacher-Our relationship has a strong 'story' or timeline" ,
+        "Teacher-I know this student well.",
+        "Teacher-Our relationship is fair and respectful.",
+        "Teacher-We are aligned in purpose and values.",
+        "Teacher-There are opportunities to build our relationship")
+      #make numeric columns for teacher/student questions (0-5)
+      teacherDataNames <- teacherAnswersFrame[[1]]
+      teacherAnswersFrame <- teacherAnswersFrame[2:ncol(teacherAnswersFrame)]
+      numericAnswerColumns <- list()
+      for(i in 1:ncol(teacherAnswersFrame)) {
+        numericReplacementVector <- makeResponseNumeric(
+          data = teacherAnswersFrame[[i]],
+          conversionKey = nodesKeyStudentTeacher)
+        numericReplacementColumn <- data.frame(numericReplacementVector)
+        getNames <- names(teacherAnswersFrame)
+        names(numericReplacementColumn) <- paste0(
+          getNames[[i]], ".numeric")
+        numericAnswerColumns[[i]] <- numericReplacementColumn
+      }
+      numericAnswers <- data.frame(numericAnswerColumns)
+      #For each student, Take the mean
+      numericAnswers$`Teacher-Student Mean` <- rowMeans(numericAnswers)
+
+      #make stratified columns for teacher/student questions (low, medium, high)
+      modifiedNodesTS <- teacherAnswersFrame
+      originalNamesTS <- names(teacherAnswersFrame)
+      names(modifiedNodesTS) <- c("a", "b", "c", "d", "e", "f")
+      replacementNames <- names(modifiedNodesTS)
+
+      modifiedNodesTS <- modifiedNodesTS %>%
+        left_join(nodesKeyStudentTeacherCategorical, by = c("a" = "answers"))
+      names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[1], "(stratified)", sep = ".")
+
+      modifiedNodesTS <- modifiedNodesTS %>%
+        left_join(nodesKeyStudentTeacherCategorical, by = c("b" = "answers"))
+      names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[2], "(stratified)", sep = ".")
+
+      modifiedNodesTS <- modifiedNodesTS %>%
+        left_join(nodesKeyStudentTeacherCategorical, by = c("c" = "answers"))
+      names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[3], "(stratified)", sep = ".")
+
+      modifiedNodesTS <- modifiedNodesTS %>%
+        left_join(nodesKeyStudentTeacherCategorical, by = c("d" = "answers"))
+      names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[4], "(stratified)", sep = ".")
+
+      modifiedNodesTS <- modifiedNodesTS %>%
+        left_join(nodesKeyStudentTeacherCategorical, by = c("e" = "answers"))
+      names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[5], "(stratified)", sep = ".")
+
+      modifiedNodesTS <- modifiedNodesTS %>%
+        left_join(nodesKeyStudentTeacherCategorical, by = c("f" = "answers"))
+      names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[6], "(stratified)", sep = ".")
+      stratifiedAnswers <- modifiedNodesTS[,7:ncol(modifiedNodesTS)]
+      teacherAnswersFrame1 <- cbind(teacherAnswersFrame, numericAnswers)
+      teacherAnswersFrame1 <- cbind(teacherAnswersFrame1, stratifiedAnswers)
+      Name <- teacherDataNames
+      teacherAnswersFrame1 <- cbind(Name, teacherAnswersFrame1)
+    }
+  }
+   #nb this gets added to the nodes frame later in the script
 
  
 #convert data to numeric where necessary
@@ -1112,13 +1114,14 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
   
   #Add teacher Answer Data to the nodes frame
       #confirm the nodes frame is the right order to add the teacher/student data to
-  # nodes <- nodes[order(nodes[[1]]),]
-  # if(exists("teacherAnswersFrame1")) {
-  #   nodes <- merge(nodes, teacherAnswersFrame1, by = "Name", all.x = T)
-  #   teacherStudentData <- teacherAnswersFrame1
-  # } else {
-  #   teacherStudentData <- data.frame()
-  # }
+   nodes <- nodes[order(nodes[[1]]),]
+   names(nodes)[[1]] <- "Name"
+   if(teacherDataPresent == TRUE) {
+     nodes <- merge(nodes, teacherAnswersFrame1, by = "Name", all.x = T)
+     teacherStudentData <- teacherAnswersFrame1
+   } else {
+     teacherStudentData <- data.frame()
+   }
 #gather data for school summary page raincloud plots of extra measures (belongingness/S-T etc.)
   nodesRainCloud <- nodes  
 #remove numeric response columns from nodes
@@ -1153,8 +1156,8 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                     rawEdgesList,
                                     belongingnessDF,
                                     nodesRainCloud,
-                                    belongingnessClassList#,
-                                    #teacherStudentData
+                                    belongingnessClassList,
+                                    teacherStudentData
                                     )
 
     names(classDashAnalysisOutput) <-  c("clientName",
@@ -1183,12 +1186,13 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                          "rawEdgesList",
                                          "belongingnessDF",
                                          "nodesRainCloud",
-                                         "belongingnessClassList"#,
-                                         #"teacherStudentData"
+                                         "belongingnessClassList",
+                                         "teacherStudentData"
                                          )
 #Write output object to disk as a .rds    
     filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
-    write_rds(classDashAnalysisOutput, as.character(filename))
+    filenameWithPath <- paste("./data", filename, sep = "/")
+    write_rds(classDashAnalysisOutput, as.character(filenameWithPath))
   
 }
 
