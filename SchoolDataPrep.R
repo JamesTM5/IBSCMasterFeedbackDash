@@ -1118,7 +1118,7 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
    names(nodes)[[1]] <- "Name"
    if(teacherDataPresent == TRUE) {
      nodes <- merge(nodes, teacherAnswersFrame1, by = "Name", all.x = T)
-     teacherStudentData <- teacherAnswersFrame1
+     teacherStudentData <- nodes
    } else {
      teacherStudentData <- data.frame()
    }
