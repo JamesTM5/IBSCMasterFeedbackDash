@@ -12,7 +12,7 @@ SSDashAnalysis <- function (studentDataInput,
                             teacherDataInput,
                             listNumberStudent) {
   
-       # listNumberStudent <- 2
+       # listNumberStudent <- 3
        # studentDataInput <- schoolDataList$studentResponses
        # teacherDataInput <- schoolDataList$teacherResponses
 
@@ -137,7 +137,6 @@ SSDashAnalysis <- function (studentDataInput,
     }
   }
    #nb this gets added to the nodes frame later in the script
-
  
 #convert data to numeric where necessary
   
@@ -272,6 +271,7 @@ SSDashAnalysis <- function (studentDataInput,
   nodes <- cbind(nodes, modifiedNodes)
 
   #make numeric columns for student/teacher questions (0-5) 
+  STFrame <- list()
   for(i in 1:length(nodes[,studentTeacherResponseColumnIndices])) {
     numericReplacementVector <- makeResponseNumeric(
       data = nodes[,studentTeacherResponseColumnIndices[i]],
@@ -281,9 +281,13 @@ SSDashAnalysis <- function (studentDataInput,
     names(numericReplacementColumn) <- paste0(
       getNames[[studentTeacherResponseColumnIndices[[i]]]], ".numeric")
     nodes <- cbind(nodes, numericReplacementColumn)
-    
+    STFrame[[i]] <- numericReplacementColumn
   }
-  
+  STFrame <- as.data.frame(STFrame)
+  STFrame$`Student-Teacher Mean` <- rowMeans(STFrame)
+  `Student-Teacher Mean` <- STFrame$`Student-Teacher Mean`
+  nodes <- cbind(nodes, `Student-Teacher Mean`)
+
 #make stratified columns for student - teacher questions (low, medium, high)  
   modifiedNodesST <- nodes[,studentTeacherResponseColumnIndices]
   originalNamesST <- names(modifiedNodesST)
@@ -314,6 +318,19 @@ SSDashAnalysis <- function (studentDataInput,
   names(modifiedNodesST)[names(modifiedNodesST) == 'newAnswers'] <-  paste(originalNamesST[7], "(stratified)", sep = ".")
   modifiedNodesST <- modifiedNodesST[,8:ncol(modifiedNodesST)]
   nodes <- cbind(nodes, modifiedNodesST)
+  
+  
+  #Add teacher Answer Data to the nodes frame
+  #confirm the nodes frame is the right order to add the teacher/student data to
+  nodes <- nodes[order(nodes[[1]]),]
+  names(nodes)[[1]] <- "Name"
+  if(teacherDataPresent == TRUE) {
+    nodes <- merge(nodes, teacherAnswersFrame1, by = "Name", all.x = T)
+    teacherStudentData <- nodes
+  } else {
+    teacherStudentData <- data.frame()
+  }
+  
   
 #make the numeric keypair dataframes from which to convert
 #relationship question answers
@@ -1112,16 +1129,38 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
   
   # prepTotalBelongingness(belongingnessDF = belongingnessDF)
   
-  #Add teacher Answer Data to the nodes frame
-      #confirm the nodes frame is the right order to add the teacher/student data to
-   nodes <- nodes[order(nodes[[1]]),]
-   names(nodes)[[1]] <- "Name"
-   if(teacherDataPresent == TRUE) {
-     nodes <- merge(nodes, teacherAnswersFrame1, by = "Name", all.x = T)
-     teacherStudentData <- nodes
-   } else {
-     teacherStudentData <- data.frame()
-   }
+      
+  #STTS Graph Make
+      STTSnodes <- nodes
+      #establish line of best fit and correlation between s-t and t-s
+      x <- as.numeric(STTSnodes$`Teacher-Student Mean`)
+      y <- as.numeric(STTSnodes$`Student-Teacher Mean`)
+      
+      fit = lm(STTSnodes$`Teacher-Student Mean` ~ STTSnodes$`Student-Teacher Mean`, data=STTSnodes)
+      fitdata <- data.frame(STTSnodes$`Teacher-Student Mean`)
+      prediction = predict(fit, fitdata, se.fit=TRUE)
+      fitdata$fitted = prediction$fit
+      
+      fitdata$ymin = fitdata$fitted - 1.96*prediction$se.fit
+      fitdata$ymax = fitdata$fitted + 1.96*prediction$se.fit
+      
+      correlation = cor.test(x,y)[c("estimate","p.value")]
+      correlationText = paste(c("R=","p="),signif(as.numeric(correlation,3),3),collapse=" ")
+ 
+   
+        STTSnodes %>%
+          plot_ly(x = ~STTSnodes$`Teacher-Student Mean`) %>%
+          add_markers(x=~STTSnodes$`Teacher-Student Mean`, y = ~STTSnodes$`Student-Teacher Mean`) %>%
+          add_trace(data=fitdata,x= ~STTSnodes$`Teacher-Student Mean`, y = ~fitted, 
+                    mode = "lines",type="scatter",line=list(color="#8d93ab")) %>%
+          add_ribbons(data=fitdata, ymin = ~ ymin, ymax = ~ ymax,
+                      line=list(color="#F1F3F8E6"),fillcolor ="#F1F3F880" ) %>%
+          layout(
+            showlegend = F,
+            annotations = list(x = 5, y = 5,
+                               text = correlationText,showarrow =FALSE)
+          )
+      
 #gather data for school summary page raincloud plots of extra measures (belongingness/S-T etc.)
   nodesRainCloud <- nodes  
 #remove numeric response columns from nodes
