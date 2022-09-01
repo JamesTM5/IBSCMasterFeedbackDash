@@ -25,6 +25,7 @@ class Parliament{
  extraAxisPadding:0.1,
  ...config
  };
+ }
 
  this.scales = {
  xScale:d3.scaleLinear()

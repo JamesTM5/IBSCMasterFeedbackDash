@@ -1135,31 +1135,51 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
       #establish line of best fit and correlation between s-t and t-s
       x <- as.numeric(STTSnodes$`Teacher-Student Mean`)
       y <- as.numeric(STTSnodes$`Student-Teacher Mean`)
-      
-      fit = lm(STTSnodes$`Teacher-Student Mean` ~ STTSnodes$`Student-Teacher Mean`, data=STTSnodes)
+      #break if no teacher data present
+    if(!teacherDataPresent) {
+      STTSPlot <- vector()
+      #break if teacher data present but not completed
+    } else if (all(is.na(x))||all(is.na(y))){
+      STTSPlot <- vector()
+    } else {
+      fit = lm(STTSnodes$`Student-Teacher Mean` ~ STTSnodes$`Teacher-Student Mean`, data=STTSnodes)
       fitdata <- data.frame(STTSnodes$`Teacher-Student Mean`)
       prediction = predict(fit, fitdata, se.fit=TRUE)
       fitdata$fitted = prediction$fit
       
       fitdata$ymin = fitdata$fitted - 1.96*prediction$se.fit
       fitdata$ymax = fitdata$fitted + 1.96*prediction$se.fit
-      
+
       correlation = cor.test(x,y)[c("estimate","p.value")]
       correlationText = paste(c("R=","p="),signif(as.numeric(correlation,3),3),collapse=" ")
- 
-   
-        STTSnodes %>%
+
+      maxVal <- max(c(max(x), max(y)))
+      minVal <- min(c(min(x), min(y)))
+      
+        STTSPlot <- STTSnodes %>%
           plot_ly(x = ~STTSnodes$`Teacher-Student Mean`) %>%
           add_markers(x=~STTSnodes$`Teacher-Student Mean`, y = ~STTSnodes$`Student-Teacher Mean`) %>%
-          add_trace(data=fitdata,x= ~STTSnodes$`Teacher-Student Mean`, y = ~fitted, 
-                    mode = "lines",type="scatter",line=list(color="#8d93ab")) %>%
-          add_ribbons(data=fitdata, ymin = ~ ymin, ymax = ~ ymax,
-                      line=list(color="#F1F3F8E6"),fillcolor ="#F1F3F880" ) %>%
-          layout(
-            showlegend = F,
-            annotations = list(x = 5, y = 5,
-                               text = correlationText,showarrow =FALSE)
-          )
+           add_trace(data=fitdata, x= ~STTSnodes..Teacher.Student.Mean., y = ~fitted, 
+                     mode = "lines",type="scatter",line=list(color="#8d93ab")) %>%
+           add_ribbons(data=fitdata, ymin = ~ ymin, ymax = ~ ymax,
+                       line=list(color="#F1F3F8E6"),fillcolor ="#F1F3F880" ) %>%
+           layout(
+             title = "Student and Teacher Score Variance",
+             showlegend = F,
+             annotations = list(x = 5, y = 5,
+                                text = correlationText,showarrow =FALSE),
+             xaxis = list(title = "Teacher - Student Mean Score",
+                          scaleratio = 1,
+                          scaleanchor = y,
+                          range = list(minVal, maxVal)
+                          ),
+             yaxis = list(title = "Student - Teacher Mean Score",
+                          scaleratio = 1,
+                          scaleanchor = y,
+                          range = list(minVal, maxVal)
+                          )
+           )
+    }
       
 #gather data for school summary page raincloud plots of extra measures (belongingness/S-T etc.)
   nodesRainCloud <- nodes  
@@ -1196,7 +1216,8 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                     belongingnessDF,
                                     nodesRainCloud,
                                     belongingnessClassList,
-                                    teacherStudentData
+                                    teacherStudentData,
+                                    STTSPlot
                                     )
 
     names(classDashAnalysisOutput) <-  c("clientName",
@@ -1226,7 +1247,8 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                          "belongingnessDF",
                                          "nodesRainCloud",
                                          "belongingnessClassList",
-                                         "teacherStudentData"
+                                         "teacherStudentData",
+                                         "STTSPlot"
                                          )
 #Write output object to disk as a .rds    
     filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
