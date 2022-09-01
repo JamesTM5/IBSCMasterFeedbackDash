@@ -95,7 +95,7 @@ compileMasterDash <- function(templateDirectoryName,
   } else {
     belongingnessPresent <- FALSE
   }
-
+      
 #Template Modification  
 #add a YAML header suitable for the dashboard
   setupYaml <- function (template = templateList$YAML.txt, title = "RF Dashboard") {
@@ -283,8 +283,13 @@ compileMasterDash <- function(templateDirectoryName,
       
        dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
      }
-     if(belongingnessPresent == TRUE) {
-       dash[[length(dash)+1]] <- setupClassBelongingnessPage(fileListNumber = i, classNumber = i)
+   if (!is.vector(fileList[[i]]$STTSPlot)) {
+     dash[[length(dash)+1]] <- setupSTTSPage(fileListNumber = i)
+   } else if () {
+     #check for just s-t data, and if !is.na, setupSTPage(fileListNumber = i)
+   }
+   if(belongingnessPresent == TRUE) {
+     dash[[length(dash)+1]] <- setupClassBelongingnessPage(fileListNumber = i, classNumber = i)
      }
    }
   dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")

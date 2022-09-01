@@ -1,0 +1,266 @@
+classNamePlaceholderhonrwufzql RQSummaryPlaceholderxbvmgayrkd Relationship Question
+=======================================================================
+  
+Headlines {data-width=200}
+--------------------------------------------------------------------------
+
+### Question Statement: RQTextPlaceholdersqqpizconj
+
+```{r}
+valueBox(
+  "RQSummaryPlaceholderxbvmgayrkd",
+  caption = NULL,
+  color = '#186ecc',
+  icon = "fa-comment"
+)
+```
+
+### {-}
+
+```{r}
+valueBox(
+  fileList[[fileListNumberPlaceholderrmwkpgtffs]]$className,
+  caption = NULL,
+  color = '#186ecc',
+  icon = "fa-chalkboard-teacher"
+)
+```
+
+### Network Health
+
+```{r}
+valueBox(
+  fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth[[1]][[1]],
+  color = fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth[[1]][[2]],
+  icon = "fa-file-medical"
+)
+```
+
+### Potential for Improvement
+
+```{r}
+valueBox(
+  fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallPfI[[1]][[1]],
+  color = fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallPfI[[1]][[2]],
+  icon = "fa-chart-line"
+)
+```
+
+### Our Commentary
+
+  The data shown here is a result of analysis conducted upon the social
+network data provided by completing our Relationships Foundation
+Questionnaires, along with any other information provided to us by you
+and/or `r fileList[[fileListNumberPlaceholderrmwkpgtffs]]$clientName`.
+
+### Class Predictive Factors
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[1]][[1]] > 0)) {
+  cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[1]][[1]])
+} else {
+  cat("None")
+}
+```
+</center>
+
+>These factors statistically significantly influence the nature and function of the class
+
+### Class Indeterminate Factors
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[1]][[3]] > 0)) {
+  cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[1]][[3]])
+} else {
+  cat("None")
+}
+```
+</center>
+
+>These factors could not be shown to influence the nature and function of the class at a peer-to-peer level due to limitations in the data collected
+
+### Class Non-Predictive Factors
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[1]][[2]] > 0)) {
+  cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[1]][[2]])
+} else {
+  cat("None")
+}
+```
+</center>
+
+>These factors do not statistically significantly influence the nature and
+function of the class
+
+Row {data-width=250}
+-----------------------------------------------------------------------
+
+### Class Diameter
+
+```{r}
+diameter <- fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[4]][[1]]
+nodes <- length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[10]])
+
+source("./assets/R/graphConnected.R")
+
+if(graphConnected(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$SSNQGraph[[1]])== F) {
+  customSectors <-  gaugeSectors (
+    danger = c(0, 100)
+  )
+} else {
+  customSectors <-  gaugeSectors (
+    success = c(0,(nodes/6)),
+    warning = c((nodes/6), (nodes/3)),
+    danger = c((nodes/3), (nodes/2)))
+}
+
+#make gauge
+gauge(round(diameter, digits = 2), min = 1, max = (nodes/2), sectors = customSectors)
+
+#provide warning text if graph is fragmented.
+if (graphConnected(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$SSNQGraph[[1]]) == F) {
+  SSNQConnectedWarning <- paste("However, as this group is split across ",
+    "separate unconnected sub-groups, this may not be a good measure of group ",
+    "cohesiveness.",
+    sep = "")
+} else {
+  SSNQConnectedWarning <- ""
+}
+```
+ 
+> The most distant people are `r round(diameter, digits=0)` relationships away
+from each other. <span style="color: red;">`r SSNQConnectedWarning`</span> 
+
+### Percentage of Positive Relationships
+
+```{r}
+edgeDensity <- fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[5]]
+edgeDensityPercentage <- round((edgeDensity*100), digits = 0)
+gauge(edgeDensityPercentage, min = 0, max = 100, symbol = '%', gaugeSectors(
+    success = c(21, 100), 
+    warning = c(16, 20), 
+    danger = c(0, 15)
+  ))
+```
+  
+> `r round(edgeDensity, digits = 2)*100`% of all possible relationships are
+strongly positive.
+  
+### Class Reciprocity
+  
+```{r}
+reciprocity <- fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[6]]
+reciprocityPercentage <- round((reciprocity*100), digits = 0)
+gauge(reciprocityPercentage, min = 0, max = 100, symbol = '%', gaugeSectors(
+    success = c(55, 100), 
+    warning = c(40, 54), 
+    danger = c(0, 39)
+  ))
+```
+
+> Both parties agreed on a relationship status
+`r round(reciprocity, digits = 2)*100`% of the time.
+
+### Class Communities Dendrogram  {data-height=400} 
+<center>
+```{r}
+
+fileList[[fileListNumberPlaceholderrmwkpgtffs]]$dendrogramList[[1]]
+
+```
+</center>
+
+> This shows how the relational landscape divides into subgroups, mirrored in the colour of the dots on the summary graph.  The higher the number on the left, the bigger the distance between the group members attached at the split.
+  
+
+Network Maps 
+----------------------------------------------------------------
+
+### Summary graph {.no-padding data-height=700} 
+
+```{r}
+
+JSData1 <- jsonlite::read_json("D3JSData11.json")
+
+repeatedforcedirectedOutput("repeatedforcedirected1")
+output$repeatedforcedirected1 <- renderRepeatedforcedirected(repeatedforcedirected("Hello", JSData1))
+```
+
+> The lines on this graph represent the strongest relationships in the class. Each dot is a person, and each line is a strong relationship. The colours indicate cliques, or subgroups in the data which naturally form as people form and maintain social networks. Zoom using the scroll wheel or pinch on a touchscreen device, and drag people around to see who is connected most closely to them. The position on the graph doesn't matter itself, its about the position relative to the other people and how linked in they are with the group as a whole.
+
+Key Network Information {data-width=250}
+-----------------------------------------------------
+
+### Class 'Hubs' {data-height=350} 
+
+<center>
+```{r, results = 'asis'}
+if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$HSList[[1]]) > 0) {
+  cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$HSList[[1]])
+} else {
+  cat("Contact Volume Hub Analysis Encountered an Error")
+}
+```
+</center>
+
+> These people are the lifeblood of the class: Their absence would hamper communication and they make good contacts for new members to get more integrated.  They are those who report the most highly positive relationships with others.
+
+### Class 'Authorities' {data-height=350} 
+
+<center>
+```{r, results = 'asis'}
+if (length(as.character(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$ASList[[1]]) > 0)) {
+  cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$ASList[[1]])
+} else {
+  cat("Network Authority Analysis Encountered an Error")
+}
+```
+</center>
+
+>These tend to be the class members who are  looked up to, or approached for advice or information by their peers: They have high value to others in the group.  They are those whom others identify as having the most highly positive relationships with.
+
+### Fundamental Relationships  {data-height=750}
+
+<center>
+```{r, results = 'asis'}
+cat(paste(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[9]][1,1], "<br>", "and<br>",
+          fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[9]][1,2])
+    )
+```
+
+***
+
+```{r, results = 'asis'}
+cat(paste(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[9]][2,1], "<br>", "and<br>",
+          fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[9]][2,2])
+    )
+```
+
+***
+
+```{r, results = 'asis'}
+cat(paste(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[9]][3,1], "<br>", "and<br>",
+          fileList[[fileListNumberPlaceholderrmwkpgtffs]]$totalNetworkInfo[[1]][[9]][3,2])
+    )
+```
+</center>
+
+>These are the relationships which make the class operate as it does.  Promoting
+these adds cohesion.
+
+### Network Isolates
+
+<center>
+```{r, results = 'asis'}
+if(!is.null(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$isolatesList[[1]])) {
+  cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$isolatesList[[1]])
+}
+```
+</center>
+
+>These people are not joined to any others in the network by positive
+relationships in at least one of the dimensions they were asked about.

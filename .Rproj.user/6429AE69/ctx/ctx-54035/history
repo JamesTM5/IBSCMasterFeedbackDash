@@ -1,0 +1,512 @@
+overallSSEdgesDF <- edgeDataSetup(overallSSEdgesDF)
+for(i in 1:nrow(overallSSEdgesDF)) {
+if(overallSSEdgesDF[i,"score"]>3){
+overallSSEdgesDF[i,"mutual"]<- 2
+}
+overallSSEdgesDF[i,"mutual"]
+}
+#filter all edges that lack reciprocity
+overallSSEdgesDF <- filter(overallSSEdgesDF, mutual == 2)
+#Generate summative statistics about the overall network map
+source("networkSurveyAnalysis.R")
+overallSSEdgesDF2 <- overallSSEdgesDF
+names(overallSSEdgesDF2) <- c("Source", "Target", "Mutual", "Network")
+overallNetworkInfo <- surveyDataAnalysis(questionData = overallSSEdgesDF2)
+#TODO: fix broken reciprocity score to factor in all of the edges drawn or undrawn
+#perform summative network analysis on each relationship question
+totalNetworkInfo <- list()
+for(i in 1:length(surveyDataFiltered)) {
+totalNetworkInfo[[length(totalNetworkInfo)+1]] <-
+surveyDataAnalysis(questionData = surveyDataFiltered[[i]])
+}
+#Combine question and overall NetworkInfo lists
+totalNetworkInfo[[length(totalNetworkInfo)+1]] <- overallNetworkInfo
+for (i in 1:length(totalNetworkInfo)){
+totalNetworkInfo[[i]][[6]] <- questionReciprocityListComplete[i]
+}
+#Insert HTML into a list to display it properly in-dash
+formatDataForDisplay <- function(Data) {
+Data <- na.omit(Data)
+ogValue <- Data[length(Data)]
+formattedValue <- paste(Data, "<br>", sep=" ")
+formattedValue[length(formattedValue)] <- ogValue
+return(formattedValue)
+}
+#find isolates
+isolatesList <- list()
+for(i in 1:length(totalNetworkInfo)) {
+isolatesList[[i]] <- nodes$Name [!(nodes$Name %in%
+totalNetworkInfo[[i]][[3]][["People"]])]
+isolatesList[[i]][isolatesList[[i]] == ""] <- NA
+}
+#format isolates list for display in dash, or display 'None'
+for(i in 1:length(isolatesList)) {
+if(length(isolatesList[[i]])>0) {
+isolatesList[[i]] <- formatDataForDisplay(isolatesList[[i]])
+} else {
+isolatesList[[i]] <- "None"
+}
+}
+#Prepare data for D3.JS forceDirected
+surveyDataFiltered[[length(surveyDataFiltered)+1]] <- overallSSEdgesDF2
+SSNQGraphList <- list()
+SSNQCommunitiesDataList <- list()
+SSNQMembersList <- list()
+Graph2 <- list()
+for (i in 1:length(surveyDataFiltered)) {
+SSNQGraphFromDataset <- data.frame(
+surveyDataFiltered[[i]]$Source,
+surveyDataFiltered[[i]]$Target,
+... = surveyDataFiltered[[i]]$Network)
+#Make an igraph object for each question for the D3 R port.
+Graph2[[i]] <- SSNQGraphFromDataset
+SSNQGraphList[[i]] <- graph_from_data_frame(SSNQGraphFromDataset,
+directed = T)
+# Perform Communities Analysis for each igraph object
+SSNQCommunitiesDataList[[i]] <- cluster_walktrap(SSNQGraphList[[i]])
+SSNQMembersList[[i]] <- membership(SSNQCommunitiesDataList[[i]])
+}
+#Convert igraph to D3
+SSNQNetworkD3 <- list()
+for(i in 1:length(SSNQGraphList)) {
+SSNQNetworkD3[[i]] <- igraph_to_networkD3(SSNQGraphList[[i]],
+group = SSNQMembersList[[i]])
+}
+edgeDataList <- list()
+thing <- SSNQGraphList[[1]]
+edgeDataList[[1]] <- edgeDataSetup(Graph2[[1]])
+edgeDataList[[2]] <- edgeDataSetup(Graph2[[2]])
+edgeDataList[[3]] <- edgeDataSetup(Graph2[[3]])
+edgeDataList[[4]] <- overallSSEdgesDF2
+#TODO: maybe reset score column in each to all 1's
+# Prepare Dendrograms
+dendrogramList <- list()
+for (i in 1:length(SSNQCommunitiesDataList)){
+if(length(membership(SSNQCommunitiesDataList[[i]]))>1){
+dendrogramList[[i]] <- ggplotly(ggdendro::ggdendrogram(as.dendrogram(SSNQCommunitiesDataList[[i]])))
+} else {
+dendrogramList[[i]] <- ggplotly(NULL)
+}
+}
+# Overall Scoring calculation
+source("overallScoring.R")
+overallScoresList <- list()
+for(i in 1:length(totalNetworkInfo)) {
+overallScoresList[[i]] <- overallScoring (totalNetworkInfo[[i]],
+SSNQGraphList[[i]],
+SSNQMembersList[[i]])
+}
+# Format overall scoring data for display in dash
+overallHealthList <- list()
+overallPfIList <- list()
+for(i in 1:length(overallScoresList)) {
+overallHealthList[[i]] <- computeHealth(overallScoresList[[i]])
+overallPfIList[[i]] <- computePfI(overallScoresList[[i]])
+}
+#Generate the polar graphs for individual pages
+overallSSEdgesDF2 <- as.data.frame(overallSSEdgesDF2)
+polarList <- c(surveyData, list(overallSSEdgesDF2))
+source("generatePolar.R")
+polarGraphList <- list()
+for(i in 1:length(polarList)) {
+polarGraphList[[i]] <- generatePolar(data = polarList[[i]])
+}
+source("generateDegreeHistogram.R")
+degreeAllHistogramList <- list()
+degreeInHistogramList <- list()
+degreeOutHistogramList <- list()
+for(i in 1:length(totalNetworkInfo)) {
+degreeAllHistogramList[[i]] <- generateDegreeHistogram(
+totalNetworkInfo[[i]][[3]])
+degreeInHistogramList[[i]] <- generateDegreeHistogram(
+totalNetworkInfo[[i]][[1]])
+degreeOutHistogramList[[i]] <- generateDegreeHistogram(
+totalNetworkInfo[[i]][[2]])
+}
+#Extract and format Authority Score
+ASList <- list()
+for(i in 1:length(totalNetworkInfo)) {
+AS <- setDT(as.data.frame(totalNetworkInfo[[i]][[8]]),
+keep.rownames = TRUE) []
+ASFormatted <- AS[[1]]
+for (j in 1:length(ASFormatted)) {
+ASFormatted[[j]] <- paste(ASFormatted[[j]], "<br>", sep = " ")
+}
+ASList[[i]] <- ASFormatted[1:3]
+}
+#Extract and format Hub Score
+HSList <- list()
+for(i in 1:length(totalNetworkInfo)) {
+HS <- data.table::setDT(as.data.frame(totalNetworkInfo[[i]][[7]]),
+keep.rownames = TRUE) []
+HSFormatted <- HS[[1]]
+for (j in 1:length(HSFormatted)) {
+HSFormatted[[j]] <- paste(HSFormatted[[j]], "<br>", sep = " ")
+}
+HSList[[i]] <- HSFormatted[1:3]
+}
+#Add degree data to nodes for output to .RDS
+names(nodes)[1] <- "id"
+nodes <- nodes[order(nodes$id),]
+for(i in 1:length(totalNetworkInfo)) {
+for(j in 1:4) {
+#  totalNetworkInfo[[i]][[j]] <- do.call(data.frame,                      # Replace Inf in data by NA
+#                                        lapply(totalNetworkInfo[[i]][[j]],
+#                                               function(x) replace(x, is.infinite(x), NA)))
+names(totalNetworkInfo[[i]][[j]])[names(totalNetworkInfo[[i]][[j]])
+== "People"] <- "id"
+names(totalNetworkInfo[[i]][[j]])[names(totalNetworkInfo[[i]][[j]])
+== "Degree"] <-
+paste("Degree Relationship Question", i, j, sep = " ")
+}
+}
+for(i in 1:length(totalNetworkInfo)) {
+nodes <- merge(nodes, totalNetworkInfo[[i]][[3]], all = T)
+}
+totalNetworkInfo[[1]][[4]]
+totalNetworkInfo[[1]][[3]]
+View(totalNetworkInfo[[1]])
+source("~/IBSCMasterFeedbackDash/SchoolDataPrep.R")
+#list all student and teacher files in a given directory
+loadSchoolData <- function (path = "test data/") {
+source("packageSetup.R")
+fileListStudent <- list.files(path = path, pattern = ".Student.*.xlsx",
+full.names=TRUE)
+fileListTeacher <- list.files(path = path, pattern = ".Teacher.*.xlsx",
+full.names=TRUE)
+#turn a multi sheet .xlsx file into a list of data frames or tibbles
+readExcelAll <- function(filename, tibble = FALSE) {
+sheets <- readxl::excel_sheets(filename)
+x <- lapply(sheets, function(X) readxl::read_excel(filename, sheet = X))
+if(!tibble) x <- lapply(x, as.data.frame)
+names(x) <- sheets
+x
+}
+#read the lists of .xlsx files into r as lists of data frames
+fileListS <- list()
+for(i in 1:length(fileListStudent)) {
+fileListS[[i]] <- as.list(readExcelAll(fileListStudent[i], tibble = F))
+}
+fileListT <- list()
+for(i in 1:length(fileListTeacher)) {
+fileListT[[i]] <- as.list(readExcelAll(fileListTeacher[i], tibble = F))
+}
+names(fileListS) <- fileListStudent
+names(fileListT) <- fileListTeacher
+schoolDataList <- list(studentResponses = fileListS, teacherResponses = fileListT)
+}
+schoolDataList <- loadSchoolData()
+source("schoolDataPrep.r")
+for(z in 1:length(schoolDataList$studentResponses)) {
+SSDashAnalysis (schoolDataList$studentResponses, listNumberStudent = z)
+print("foo")
+print(z)
+}
+filename
+#Write output object to disk as a .rds
+filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
+filename
+#extract class name from file
+className <- substring(names(schoolDataInput$studentResponses)[[listNumberStudent]], regexpr("Student", names(schoolDataInput$studentResponses)[[listNumberStudent]]) + 8)
+className <- substring(className, 1, nchar(className)-5) #remove ".xlsx"
+className
+names(schoolDataInput$studentResponses)
+View(schoolDataInput$studentResponses)
+source("~/IBSCMasterFeedbackDash/SchoolDataPrep.R")
+#list all student and teacher files in a given directory
+loadSchoolData <- function (path = "test data/") {
+source("packageSetup.R")
+fileListStudent <- list.files(path = path, pattern = ".Student.*.xlsx",
+full.names=TRUE)
+fileListTeacher <- list.files(path = path, pattern = ".Teacher.*.xlsx",
+full.names=TRUE)
+#turn a multi sheet .xlsx file into a list of data frames or tibbles
+readExcelAll <- function(filename, tibble = FALSE) {
+sheets <- readxl::excel_sheets(filename)
+x <- lapply(sheets, function(X) readxl::read_excel(filename, sheet = X))
+if(!tibble) x <- lapply(x, as.data.frame)
+names(x) <- sheets
+x
+}
+#read the lists of .xlsx files into r as lists of data frames
+fileListS <- list()
+for(i in 1:length(fileListStudent)) {
+fileListS[[i]] <- as.list(readExcelAll(fileListStudent[i], tibble = F))
+}
+fileListT <- list()
+for(i in 1:length(fileListTeacher)) {
+fileListT[[i]] <- as.list(readExcelAll(fileListTeacher[i], tibble = F))
+}
+names(fileListS) <- fileListStudent
+names(fileListT) <- fileListTeacher
+schoolDataList <- list(studentResponses = fileListS, teacherResponses = fileListT)
+}
+schoolDataList <- loadSchoolData()
+source("schoolDataPrep.r")
+for(z in 1:length(schoolDataList$studentResponses)) {
+SSDashAnalysis (schoolDataList$studentResponses, listNumberStudent = z)
+print("foo")
+print(z)
+}
+print(paste(z, "Generated", sep = " "))
+print(paste("number", z, "Generated", sep = " "))
+print(paste("Number", z, "Generated", sep = " "))
+listNumberStudent <- 1
+schoolDataInput <- schoolDataList$studentResponses
+#Pull in config info
+source("surveyConfig.R")
+source("clientConfig.R")
+#import student responses for a given class as nodes, edges1...edgesn and assign data to
+#appropriate variables
+organiseClassData <- function(...) {
+dfNameVecS <- vector()
+dfNameVecS[[1]] <- "nodes"
+for(j in 2:length(schoolDataList$studentResponses[[listNumberStudent]])) {
+dfNameVecS[j] <- paste("edges", j-1, sep = "")
+}
+for(j in 1:length(dfNameVecS)) {
+do.call("<<-",list(dfNameVecS[j],schoolDataList$studentResponses[[listNumberStudent]][[j]]))
+}
+}
+organiseClassData(schoolDataList, listNumberStudent)
+View(schoolDataInput)
+names(schoolDataInput)
+#extract class name from file
+className <- substring(names(schoolDataInput)[[listNumberStudent]], regexpr("Student", names(schoolDataInput$studentResponses)[[listNumberStudent]]) + 8)
+#extract class name from file
+className <- substring(names(schoolDataInput)[[listNumberStudent]], regexpr("Student", names(schoolDataInput)[[listNumberStudent]]) + 8)
+className
+className <- substring(className, 1, nchar(className)-5) #remove ".xlsx"
+className
+source("~/IBSCMasterFeedbackDash/SchoolDataPrep.R")
+#list all student and teacher files in a given directory
+loadSchoolData <- function (path = "test data/") {
+source("packageSetup.R")
+fileListStudent <- list.files(path = path, pattern = ".Student.*.xlsx",
+full.names=TRUE)
+fileListTeacher <- list.files(path = path, pattern = ".Teacher.*.xlsx",
+full.names=TRUE)
+#turn a multi sheet .xlsx file into a list of data frames or tibbles
+readExcelAll <- function(filename, tibble = FALSE) {
+sheets <- readxl::excel_sheets(filename)
+x <- lapply(sheets, function(X) readxl::read_excel(filename, sheet = X))
+if(!tibble) x <- lapply(x, as.data.frame)
+names(x) <- sheets
+x
+}
+#read the lists of .xlsx files into r as lists of data frames
+fileListS <- list()
+for(i in 1:length(fileListStudent)) {
+fileListS[[i]] <- as.list(readExcelAll(fileListStudent[i], tibble = F))
+}
+fileListT <- list()
+for(i in 1:length(fileListTeacher)) {
+fileListT[[i]] <- as.list(readExcelAll(fileListTeacher[i], tibble = F))
+}
+names(fileListS) <- fileListStudent
+names(fileListT) <- fileListTeacher
+schoolDataList <- list(studentResponses = fileListS, teacherResponses = fileListT)
+}
+schoolDataList <- loadSchoolData()
+source("schoolDataPrep.r")
+for(z in 1:length(schoolDataList$studentResponses)) {
+SSDashAnalysis (schoolDataList$studentResponses, listNumberStudent = z)
+print(paste("Number", z, "Generated", sep = " "))
+}
+`Organisation One Scots 7TGBRO S to S Dash Data` <- readRDS("~/IBSCMasterFeedbackDash/Organisation One Scots 7TGBRO S to S Dash Data.rds")
+View(`Organisation One Scots 7TGBRO S to S Dash Data`)
+source("~/IBSCMasterFeedbackDash/packageSetup.R")
+compileMasterDash <- function(templateDirectoryName,
+dataDirectoryName,
+outputDirectory,
+outputFilename,
+runForChecking = TRUE) {
+packages = c("rmarkdown", "tidyverse")
+invisible(lapply(packages, library, character.only = TRUE))
+#Input Code
+#read in all template text files
+files = list.files(path = paste(".", templateDirectoryName, sep = "/"), pattern = '.txt$')
+templateList <- list()
+for (i in 1:length(files)) {
+file <- read_file(paste(templateDirectoryName, files[i], sep = "/"))
+name <- as.character(files[i])
+templateList[[name]] <- file
+}
+#make an output directory
+if(!dir.exists(outputDirectory)){
+dir.create(outputDirectory)
+}
+#move survey data files to a subdirectory of the output directory
+if(!dir.exists(path = paste(outputDirectory, "data", sep = "/"))) {
+dir.create(path = paste(outputDirectory, "data", sep = "/"))
+}
+ogDataFolder <- paste(getwd(), dataDirectoryName, sep = "/")
+listOfFilesRDS <- list.files(ogDataFolder, pattern = '^.*rds$')
+file.copy(file.path(ogDataFolder,listOfFilesRDS), paste(outputDirectory, "data", sep = "/"))
+listOfFilesJSON <- list.files(ogDataFolder, pattern = '^.*json$')
+file.copy(file.path(ogDataFolder,listOfFilesJSON), paste(outputDirectory, "data", sep = "/"))
+#copy assets folder and all contents to output directory
+if(!dir.exists(path = paste(outputDirectory, "assets", sep = "/"))){
+file.copy("./assets",outputDirectory,recursive=TRUE)
+}
+#read in data to figure out page/section requirements for the dash.
+fileList <- list()
+for (i in 1:length(listOfFilesRDS)) {
+file <- readRDS(paste(ogDataFolder, listOfFilesRDS[i], sep = "/"))
+name <- as.character(listOfFilesRDS[i])
+fileList[[name]] <- file
+}
+#count number of RQs
+numRQ <- vector()
+for(i in 1:length(fileList)){
+numRQ[i] <- length(fileList[[1]]$totalNetworkInfo)
+}
+if(length(numRQ) >= 2) {
+if(var(numRQ) > 0) {
+warning("number of relationship questions not consistent across all datasets")
+}
+numRQ <- numRQ[1]
+#factor in presence of overview page
+if(numRQ == 1) {
+numRQ <- 1
+} else {
+numRQ <- numRQ - 1
+}
+}
+#Check for additional measures questions
+#if nodes contains the right columns, belongingness = present
+belongingnessText <- c(
+"I feel like I belong at",
+"I make friends easily at",
+" seem to like me",
+"I feel awkward and out of place",
+"I feel like an outsider",
+"I feel lonely at"
+)
+belongingnessIndices <- vector()
+for(i in 1:length(belongingnessText)){
+belongingnessIndices[[length(belongingnessIndices)+1]] <- grep(belongingnessText[i], colnames(fileList[[1]]$nodes))
+}
+if(length(belongingnessIndices)>6) {
+warning("more belongingness question columns have been matched than there should be.")
+belongingnessPresent <- TRUE
+} else if (length(belongingnessIndices) == 6) {
+belongingnessPresent <- TRUE
+} else if (length(belongingnessIndices) > 0) {
+warning("fewer belongingness question columns have been matched than there should be.  Check the belongingness pages for errors")
+belongingnessPresent <- TRUE
+} else {
+belongingnessPresent <- FALSE
+}
+#Template Modification
+#add a YAML header suitable for the dashboard
+setupYaml <- function (template = templateList$YAML.txt, title = "RF Dashboard") {
+titlePlaceholder <- "titleOfDashboard"
+template <- str_replace_all(template, titlePlaceholder, title)
+}
+#add a setup code chunk to call libraries, read in .RDS data and set.seed()
+setupSetupChunk <- function (setupChunkTemplate = templateList$setupChunk.txt) {
+setupChunkTemplate
+}
+#add a page for a single RQ with no expectation of a class overview.
+setupRQPageSingle <- function(template = templateList$RQPageSingle.txt,
+fileListNumber = 1,
+RQText = "How closely do you relate to this person?",
+RQSummary = "Relatedness",
+...){
+className <- fileList[[fileListNumber]]$className
+template <- str_replace_all(template, "classNamePlaceholderhonrwufzql", className)
+template <- str_replace_all(template, "fileListNumberPlaceholderrmwkpgtffs", as.character(fileListNumber))
+template <- str_replace_all(template, "RQTextPlaceholdersqqpizconj", RQText)
+template <- str_replace_all(template, "RQSummaryPlaceholderxbvmgayrkd", RQSummary)
+dash[[length(dash)+1]] <- template
+}
+setupRQPageMultiple <- function(template = templateList$RQPageMulti.txt,
+fileListNumber,
+questionNumber,
+RQTextList = c("Relationships Question 1",
+"Relationships Question 2",
+"Relationships Question 3",
+"Relationships Question 4"
+),
+RQSummaryList = c("RQ1",
+"RQ2",
+"RQ3",
+"RQ4"
+),
+...){
+className <- fileList[[fileListNumber]]$className
+template <- str_replace_all(template, "classNamePlaceholderhonrwufzql", className)
+template <- str_replace_all(template, "fileListNumberPlaceholderrmwkpgtffs", as.character(fileListNumber))
+template <- str_replace_all(template, "RQTextPlaceholdersqqpizconj", RQTextList[[questionNumber]])
+template <- str_replace_all(template, "RQSummaryPlaceholderxbvmgayrkd", RQSummaryList[[questionNumber]])
+template <- str_replace_all(template, "RQNumberPlaceholderjkkfdufsse", as.character(questionNumber))
+dash[[length(dash)+1]] <- template
+}
+addToSetupChunk <- function (textToAdd, setupChunk = dash[[2]]) {
+placeholder <- "'dupnlmffjcatgle'"
+setupChunk <- str_replace_all(setupChunk,
+placeholder,
+paste(textToAdd,
+placeholder,
+sep = "\n"))
+}
+#pull together packages to properly call them in the setup chunk
+addPackages <- function (setupChunk = dash[[2]], packages = packagesUsed) {
+#make a string of package names
+packages <- unlist(unique(packages))
+packages <- lapply(packages, function(x){paste0("'", x, "'")})
+packages <- paste(packages, sep = '', collapse = ", ")
+setupChunk <- str_replace_all(setupChunk, "packageListPlaceholder", packages)
+}
+dash <- list()
+packagesUsed <- list()
+#build dash page list
+dash[[1]] <- setupYaml(title = "IBSC Dash")
+dash[[2]] <- setupSetupChunk()
+#add school-wide pages if needed
+# if(length(fileList) >= 2) {
+#   dash[[length(dash)+1]] <- setupSchoolOverviewPage(fileList)
+#    if(belongingnessPresent == TRUE) {
+#       dash[[length(dash)+1]] <- setupOverallBelongingnessPage(fileList)
+#   }
+# }
+#add class pages for each class
+for(i in 1:length(fileList)) {
+if(numRQ == 1) {
+dash[[length(dash)+1]] <- setupRQPageSingle(fileListNumber = i)
+dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
+#     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
+} else if(numRQ >= 2) {
+#     dash[[length(dash)+1]] <- setupRQClassOverviewPage(fileList[[i]])
+for (j in 1:(numRQ-1)) {
+dash[[length(dash)+j]] <- setupRQPageMultiple(fileListNumber = i, questionNumber = j)
+}
+dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
+#     dash[[length(dash)+1]] <- setupIndividualScores(fileList[[i]])
+#   }
+#   if(belongingnessPresent == TRUE) {
+#     dash[[length(dash)+1]] <- setupBelongingnessPage(fileList[[i]])
+}
+}
+# dash[[length(dash)+1]] <- setupRawData(fileList)
+#delete setup key string to keep output code clean
+#insert package list into setup chunk to call relevant libraries
+packagesUsed <- append(packagesUsed, c("rmarkdown", "jsonlite", "tidyverse", "flexdashboard"))
+dash[[2]] <- addPackages(setupChunk = dash[[2]], packages = packagesUsed)
+#Output Code
+#define where the .RMD file will be located when it is generated
+outputFilePath <- paste(outputDirectory, "/", outputFilename, ".RMD", sep = "")
+#Write out the file to a .RMD document
+fileConn <- file(outputFilePath)
+writeLines(unlist(dash), fileConn)
+close(fileConn)
+#Run the .RMD for quality assurance purposes
+if(runForChecking == TRUE) {
+rmarkdown::run(outputFilePath)
+}
+}
+compileMasterDash(templateDirectoryName = 'RMDTemplate',
+dataDirectoryName = 'test data',
+outputFilename = 'masterDashCompiled',
+outputDirectory = 'compilationOutput')

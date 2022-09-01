@@ -1,0 +1,382 @@
+---
+title: "Teacher Student Dashboard"
+output:
+  flexdashboard::flex_dashboard:
+  orientation: columns
+  social: menu
+  vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+#read in the data
+
+library("openxlsx")
+library("dplyr")
+library("ggplot2")
+library("shiny")
+library("flexdashboard")
+library("data.table")
+library("plotly")
+
+files = list.files(path = '.', pattern = '^.*xlsx$')
+fileList <- list()
+for (i in 1:length(files)) {
+  file <- read.xlsx(files[i])
+  name <- as.character(files[i])
+  fileList[[name]] <- file
+}
+
+Instance <- fileList
+for (i in 1:length(Instance)) {
+  Instance[[i]]$Grammar.and.Punctuation <- as.factor(Instance[[i]]$Grammar.and.Punctuation)
+  Instance[[i]]$Numeracy <- as.factor(Instance[[i]]$Numeracy)
+  Instance[[i]]$Reading <- as.factor(Instance[[i]]$Reading)
+  Instance[[i]]$Spelling <- as.factor(Instance[[i]]$Spelling)
+  Instance[[i]]$Writing <- as.factor(Instance[[i]]$Writing)
+}
+combined <- bind_rows(Instance, .id = "column_label")
+
+# total the t-s and s-t scores
+for(i in 26:44) {
+  combined[,i] <- as.numeric(combined[,i])
+}
+
+STTotal <- vector()
+TSTotal <- vector()
+for (i in 1:nrow(combined)) {
+  STTotal[[i]] <- sum(combined[i,26:35])
+  TSTotal[[i]] <- sum(combined[i,36:44])
+}
+
+combined$Student.Teacher.Total <- STTotal
+combined$Teacher.Student.Total <- TSTotal
+
+instance1 <- rep("First Instance", times = 129)
+instance2 <- rep("Second Instance", times = 128)
+instance <- c(instance1, instance2)
+combined$instance <- instance
+combined$instance <- as.factor(combined$instance)
+
+#establish line of best fit and correlation between s-t and t-s
+x <- as.numeric(combined$Teacher.Student.Total)
+y <- as.numeric(combined$Student.Teacher.Total)
+combined$Teacher.Student.Total <- as.numeric(combined$Teacher.Student.Total)
+combined$Student.Teacher.Total <- as.numeric(combined$Student.Teacher.Total)
+
+fit = lm(combined$Teacher.Student.Total ~ combined$Student.Teacher.Total,data=combined)
+fitdata <- data.frame(combined$Teacher.Student.Total)
+prediction = predict(fit,fitdata,se.fit=TRUE)
+fitdata$fitted = prediction$fit
+ 
+fitdata$ymin = fitdata$fitted - 1.96*prediction$se.fit
+fitdata$ymax = fitdata$fitted + 1.96*prediction$se.fit
+
+correlation = cor.test(x,y)[c("estimate","p.value")]
+correlationText = paste(c("R=","p="),signif(as.numeric(correlation,3),3),collapse=" ")
+
+```
+
+Student-Teacher Relationships {data-orientation=columns}
+=======================================================================
+  
+ST Input {.sidebar}
+--------------------------------------------------------
+  
+```{r}
+#filter by tutor group
+selectInput(
+  inputId = "QFilter",
+  label = "Filter by Tutor Group",
+  choices = c(LETTERS[1:5]),
+  multiple = F
+)
+
+#filter by question
+
+selectInput(
+  inputId = "QFilter",
+  label = "Filter by Question",
+  choices = c("all", 1:9),
+  multiple = F
+)
+
+#filter by characteristic
+
+selectInput(
+  inputId = "CFilter",
+  label = "Filter by Characteristic",
+  choices = colnames(combined),
+  multiple = T
+)
+
+selectInput(
+  inputId = "PFilter",
+  label = "Snapshot of Predictive Factors",
+  choices = colnames(combined),
+  multiple = T
+)
+
+#predictive factors list
+```
+
+ST and TS Score
+-------------------------------------------------------------------------
+  
+### Student-Teacher Scores
+
+```{r}
+#leaf diagrams x2 first instance, 50% height
+scoreData <- filter(combined, Form == '7A')
+
+
+output$STPlot <- renderPlotly ({
+  ggplotly(
+    ggplot(scoreData, aes(x=instance, y=Student.Teacher.Total)) + 
+    scale_x_discrete(labels = levels(combined$instance)) +
+    scale_y_continuous(limits=c(0, max(combined$Student.Teacher.Total, na.rm = T))) + #add labels here
+    geom_boxplot(width = 0.25, fill="grey", color="darkslategrey", size = 0.6) +
+    geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6, binwidth = 1/30) +
+    # geom_point(
+    #   data=subset(combined, combined$instance %in% input$CFilter),
+    #   aes(x=instance, y=Sudent.Teacher.Total),
+    #   size=5,
+    #   #color=
+    #   #  subset(combined, combined[[1]] %in% input$Set)$color,
+    #   #  alpha = 0.7
+    #   ) +
+    labs(x="", y="") +
+    theme(axis.title.x=element_blank(),
+          #axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          plot.title = element_text(hjust = 0.5))
+  )
+})  
+
+plotlyOutput("STPlot")
+```
+
+>This Graph shows the scores and distribution of results of Student-Teacher Relationships in the named Teacher's class
+
+### Teacher-Student Scores
+
+```{r}
+#leaf diagrams x2 first instance, 50% height
+scoreData2 <- filter(combined, Form == '7A')
+
+
+output$TSPlot <- renderPlotly ({
+  ggplotly(
+    ggplot(scoreData2, aes(x=instance, y=Teacher.Student.Total)) + 
+    scale_x_discrete(labels = levels(combined$instance)) +
+    scale_y_continuous(limits=c(0, max(combined$Teacher.Student.Total, na.rm = T))) + #add labels here
+    geom_boxplot(width = 0.25, fill="grey", color="darkslategrey", size = 0.6) +
+    geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6, binwidth = 1/30) +
+    # geom_point(
+    #   data=subset(combined, combined$instance %in% input$CFilter),
+    #   aes(x=instance, y=Sudent.Teacher.Total),
+    #   size=5,
+    #   #color=
+    #   #  subset(combined, combined[[1]] %in% input$Set)$color,
+    #   #  alpha = 0.7
+    #   ) +
+    labs(x="", y="") +
+    theme(axis.title.x=element_blank(),
+          #axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          plot.title = element_text(hjust = 0.5))
+  )
+})  
+
+plotlyOutput("TSPlot")
+```
+
+>This Graph shows the scores and distribution of results of Teacher-Student Relationships in the named Teacher's class
+
+ST Variance
+-------------------------------------------------------------------------
+  
+### First Instance Student-Teacher Variance
+
+```{r}
+#Variance value box 1 (first instance, Teacher Variance, 1/6 height)
+teacherVar <- round(var(combined$Teacher.Student.Total, na.rm = T), 2)
+
+valueBox(
+  teacherVar,
+  caption = "First Instance Student-Teacher Variance",
+  color = '#186ecc',
+  icon = "fa-chalkboard-teacher"
+)
+```
+
+### First Instance Teacher-Student Variance
+
+```{r}
+#Variance value box 3 (first instance, Student Variance, 1/6 height)
+studentVar <- round(var(combined$Student.Teacher.Total, na.rm = T), 2)
+
+valueBox(
+  studentVar,
+  caption = "First Instance Student-Teacher Variance",
+  color = '#186ecc',
+  icon = "fa-file-medical"
+)
+```
+
+
+### First Instance Combined Variance
+
+```{r}
+#Variance correlated scatter plot (first instance,Between Variance, 1/6 height)
+library(plotly)
+
+combined %>%
+plot_ly(x = ~combined$Student.Teacher.Total) %>%
+add_markers(x=~combined$Student.Teacher.Total, y = ~combined$Teacher.Student.Total) %>%
+add_trace(data=fitdata,x= ~combined$Student.Teacher.Total, y = ~fitted, 
+mode = "lines",type="scatter",line=list(color="#8d93ab")) %>%
+add_ribbons(data=fitdata, ymin = ~ ymin, ymax = ~ ymax,
+line=list(color="#F1F3F8E6"),fillcolor ="#F1F3F880" ) %>%
+layout(
+    showlegend = F,
+    annotations = list(x = 50, y = 50,
+    text = correlationText,showarrow =FALSE)
+)
+```
+
+### Second Instance Teacher-Student Variance
+
+```{r}
+#Variance value box 1 (first instance, Teacher Variance, 1/6 height)
+teacherVar <- round(var(combined$Teacher.Student.Total, na.rm = T), 2)
+
+valueBox(
+  teacherVar,
+  caption = "Second Instance Teacher-Student Variance",
+  color = '#186ecc',
+  icon = "fa-chalkboard-teacher"
+)
+```
+
+### Second Instance Student-Teacher Variance
+
+```{r}
+#Variance value box 3 (first instance, Student Variance, 1/6 height)
+studentVar <- round(var(combined$Student.Teacher.Total, na.rm = T), 2)
+
+valueBox(
+  studentVar,
+  caption = "Second Instance Student-Teacher Variance",
+  color = '#186ecc',
+  icon = "fa-file-medical"
+)
+```
+
+  
+### Second Instance Combined Variance
+
+```{r}
+#Variance correlated scatter plot (first instance,Between Variance, 1/6 height
+
+combined %>%
+plot_ly(x = ~combined$Student.Teacher.Total) %>%
+add_markers(x=~combined$Student.Teacher.Total, y = ~combined$Teacher.Student.Total) %>%
+add_trace(data=fitdata,x= ~combined$Student.Teacher.Total, y = ~fitted, 
+mode = "lines",type="scatter",line=list(color="#8d93ab")) %>%
+add_ribbons(data=fitdata, ymin = ~ ymin, ymax = ~ ymax,
+line=list(color="#F1F3F8E6"),fillcolor ="#F1F3F880" ) %>%
+layout(
+    showlegend = F,
+    annotations = list(x = 50, y = 50,
+    text = correlationText,showarrow =FALSE)
+)
+```
+
+ST Change Positive
+-------------------------------------------------------------------------
+ 
+### TS Change 
+
+```{r}
+#(filter by student?)
+library(data.table)
+#Change graph (full height)
+changeData <- combined
+
+#change instance to numeric
+instance1 <- rep(1, times = 129)
+instance2 <- rep(2, times = 128)
+instance <- c(instance1, instance2)
+changeData$instance <- as.numeric(changeData$instance)
+STdirectionTravel <- vector()
+
+#filter per form
+changeDataX <- filter(changeData, Form == "7A")
+
+changeDataX <- ungroup(changeDataX) 
+
+
+#split the dataframe into two instances
+#look up the name in each and see which is higher scoring
+#if two values exist and second is higher, put those two lines into a third dataframe positive
+#if not put them into a fourth dataframe negative
+
+first <- filter(changeDataX, instance == 1)
+second <- filter(changeDataX, instance == 2)
+positive <- filter(changeDataX, instance == "asil;kjdgao;soidjg")
+negative <- filter(changeDataX, instance == "asil;kjdgao;soidjg")
+
+for (i in 1:nrow(first)) {
+  value1 <- first[i,]$Teacher.Student.Total
+  row1 <- subset(second, second$Name %in% first[i,]$Name)
+  value2 <- row1$Teacher.Student.Total
+  if (value1 < value2) {
+    positive<- rbind(positive, first[i,])
+    positive<- rbind(positive, row1)
+  } else if (value1 > value2) {
+    negative <- rbind(negative, first[i,])
+    negative <- rbind(negative, row1)
+  } else {
+    
+  }
+}
+
+V <- plot_ly()
+V <- plot_ly(positive, x = ~instance, y = ~Teacher.Student.Total,
+             type = 'scatter', mode = 'lines+markers', name = ~Name, line = list(color = 'green'))
+
+
+V
+
+```
+### TS Change Negative
+
+```{r}
+
+W <- plot_ly()
+W <- plot_ly(negative, x = ~instance, y = ~Teacher.Student.Total,
+             type = 'scatter', mode = 'lines+markers', name = ~Name, line = list(color = 'red'))
+
+
+W
+
+
+```
+
+
+ST Change Summary
+-------------------------------------------------------------------------
+  
+```{r}
+#Value box 1 (% up) (33% height)
+```
+
+```{r}
+#Value box 2 (% change overall) (33% height)
+```
+
+```{r}
+#Value box 3 (% down) (33% height)
+```
+
