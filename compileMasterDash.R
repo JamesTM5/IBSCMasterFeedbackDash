@@ -283,11 +283,11 @@ compileMasterDash <- function(templateDirectoryName,
       
        dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
      }
-   if (!is.vector(fileList[[i]]$STTSPlot)) {
-     dash[[length(dash)+1]] <- setupSTTSPage(fileListNumber = i)
-   } else if () {
-     #check for just s-t data, and if !is.na, setupSTPage(fileListNumber = i)
-   }
+   # if (!is.vector(fileList[[i]]$STTSPlot)) {
+   #   dash[[length(dash)+1]] <- setupSTTSPage(fileListNumber = i)
+   # } else if () {
+   #   #check for just s-t data, and if !is.na, setupSTPage(fileListNumber = i)
+   # }
    if(belongingnessPresent == TRUE) {
      dash[[length(dash)+1]] <- setupClassBelongingnessPage(fileListNumber = i, classNumber = i)
      }

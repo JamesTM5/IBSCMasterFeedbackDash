@@ -64,7 +64,7 @@ SSDashAnalysis <- function (studentDataInput,
       nameList <- c(nameList, teacherData[[i]]$Target)
     }
     Target <- unique(sort(nameList))
-    teacherAnswersFrame <- data.frame(Target)
+    teacherAnswersFrame <- data.fr2ame(Target)
     for (j in 1:length(teacherData)){
       if(ncol(teacherData[[j]]) == 4) {
         questionData <- teacherData[[j]][2:3]
