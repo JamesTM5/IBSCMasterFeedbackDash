@@ -1,0 +1,33 @@
+Student-Teacher Data {data-navmenu="classNamePlaceholderhonrwufzql"}
+======================================================================
+  
+column1
+--------------
+  
+### {data-height=720}
+  
+```{R}
+ggplotly(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$STPlot)
+```
+
+### Student-Teacher Questions {data-height=280}
+
+**1.  I can talk to or contact my teacher when I need to**
+  
+**2.  It is worth building a good relationship with my teacher because I may be in a class or activity with them in the future**
+  
+**3.  My teacher and I have shared goals for my progress and development**
+  
+**4.  My teacher cares about me**
+  
+**5.  My teacher has a good understanding of my skills and interests**
+  
+**6.  My teacher inspires and motivates me**
+
+**7.  My teacher recognises and rewards my efforts**
+
+**8.  My teacher treats me fairly**
+
+**9.  My teacher understands any particular needs or pressures I face**
+
+**10.  Neither my nor my teacher's reputation have made the relationship difficult**

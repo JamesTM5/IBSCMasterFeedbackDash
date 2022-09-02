@@ -246,6 +246,32 @@ compileMasterDash <- function(templateDirectoryName,
                                                      className)
   }
   
+  setupSTPage <- function (template = templateList$STPage.txt,
+                           fileListNumber,
+                           ...) {
+    className <- fileList[[fileListNumber]]$className
+    modifiedSTTemplate <- template
+    modifiedSTTemplate <- str_replace_all(modifiedSTTemplate,
+                                          "fileListNumberPlaceholderrmwkpgtffs",
+                                          as.character(fileListNumber))
+    modifiedSTTemplate <- str_replace_all(modifiedSTTemplate,
+                                          "classNamePlaceholderhonrwufzql",
+                                          className)
+  }
+  
+  setupSTTSPage <- function (template = templateList$STTSPage.txt,
+                             fileListNumber,
+                             ...) {
+    className <- fileList[[fileListNumber]]$className
+    modifiedSTTSTemplate <- template
+    modifiedSTTSTemplate <- str_replace_all(modifiedSTTSTemplate,
+                                          "fileListNumberPlaceholderrmwkpgtffs",
+                                          as.character(fileListNumber))
+    modifiedSTTSTemplate <- str_replace_all(modifiedSTTSTemplate,
+                                          "classNamePlaceholderhonrwufzql",
+                                          className)
+  }
+  
  
 #pull together packages to properly call them in the setup chunk
   addPackages <- function (setupChunk = dash[[2]], packages = packagesUsed) {
@@ -283,11 +309,15 @@ compileMasterDash <- function(templateDirectoryName,
       
        dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
      }
-   # if (!is.vector(fileList[[i]]$STTSPlot)) {
-   #   dash[[length(dash)+1]] <- setupSTTSPage(fileListNumber = i)
-   # } else if () {
-   #   #check for just s-t data, and if !is.na, setupSTPage(fileListNumber = i)
-   # }
+    if (is.vector(fileList[[i]]$STTSPlot) && is.vector(fileList[[i]]$TSPlot) && is.vector(fileList[[i]]$STPlot)) {
+     #no student-teacher or teacher-student data to display
+   } else if (is.vector(fileList[[i]]$STTSPlot) && is.vector(fileList[[i]]$TSPlot)){
+     #make the student-teacher graph only page
+     dash[[length(dash)+1]] <- setupSTPage(fileListNumber = i)
+   } else {
+     #make the student-teacher-student page
+     dash[[length(dash)+1]] <- setupSTTSPage(fileListNumber = i)
+   }
    if(belongingnessPresent == TRUE) {
      dash[[length(dash)+1]] <- setupClassBelongingnessPage(fileListNumber = i, classNumber = i)
      }

@@ -12,7 +12,7 @@ SSDashAnalysis <- function (studentDataInput,
                             teacherDataInput,
                             listNumberStudent) {
   
-       # listNumberStudent <- 3
+       # listNumberStudent <- 1
        # studentDataInput <- schoolDataList$studentResponses
        # teacherDataInput <- schoolDataList$teacherResponses
 
@@ -64,7 +64,7 @@ SSDashAnalysis <- function (studentDataInput,
       nameList <- c(nameList, teacherData[[i]]$Target)
     }
     Target <- unique(sort(nameList))
-    teacherAnswersFrame <- data.fr2ame(Target)
+    teacherAnswersFrame <- data.frame(Target)
     for (j in 1:length(teacherData)){
       if(ncol(teacherData[[j]]) == 4) {
         questionData <- teacherData[[j]][2:3]
@@ -1132,7 +1132,7 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
       
   #STTS Graph Make
       STTSnodes <- nodes
-      #establish line of best fit and correlation between s-t and t-s
+      
       x <- as.numeric(STTSnodes$`Teacher-Student Mean`)
       y <- as.numeric(STTSnodes$`Student-Teacher Mean`)
       #break if no teacher data present
@@ -1142,6 +1142,7 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
     } else if (all(is.na(x))||all(is.na(y))){
       STTSPlot <- vector()
     } else {
+      #establish line of best fit and correlation between s-t and t-s
       fit = lm(STTSnodes$`Student-Teacher Mean` ~ STTSnodes$`Teacher-Student Mean`, data=STTSnodes)
       fitdata <- data.frame(STTSnodes$`Teacher-Student Mean`)
       prediction = predict(fit, fitdata, se.fit=TRUE)
@@ -1180,6 +1181,125 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                           )
            )
     }
+  
+      
+    if (all(is.na(y))){
+      STPlot <- vector()
+    } else {
+      ST1 <- as.data.frame(table(STTSnodes$`Q5-I can talk to or contact my teacher when I need to`))
+      ST1$Q <- rep(1, nrow(ST1))
+      ST2 <- as.data.frame(table(STTSnodes$`Q5-It is worth building a good relationship with my teacher because I may be in a class or activity with them in the future`))
+      ST2$Q <- rep(2, nrow(ST2))
+      ST3 <- as.data.frame(table(STTSnodes$`Q5-My teacher and I have shared goals for my progress and development`))
+      ST3$Q <- rep(3, nrow(ST3))
+      ST4 <- as.data.frame(table(STTSnodes$`Q5-My teacher cares about me`))
+      ST4$Q <- rep(4, nrow(ST4))
+      ST5 <- as.data.frame(table(STTSnodes$`Q5-My teacher has a good understanding of my skills and interests`))
+      ST5$Q <- rep(5, nrow(ST5))
+      ST6 <- as.data.frame(table(STTSnodes$`Q5-My teacher inspires and motivates me`))
+      ST6$Q <- rep(6, nrow(ST6))
+      ST7 <- as.data.frame(table(STTSnodes$`Q5-My teacher recognises and rewards my efforts`))
+      ST7$Q <- rep(7, nrow(ST7))
+      ST8 <- as.data.frame(table(STTSnodes$`Q5-My teacher treats me fairly`))
+      ST8$Q <- rep(8, nrow(ST8))
+      ST9 <- as.data.frame(table(STTSnodes$`Q5-My teacher understands any particular needs or pressures I face`))
+      ST9$Q <- rep(9, nrow(ST9))
+      ST10 <- as.data.frame(table(STTSnodes$`Q5-Neither my nor my teacher's reputation have made the relationship difficult`))
+      ST10$Q <- rep(10, nrow(ST10))
+      
+      STCombined <- rbind(ST1, ST2)
+      STCombined <- rbind(STCombined, ST3)
+      STCombined <- rbind(STCombined, ST4)
+      STCombined <- rbind(STCombined, ST5)
+      STCombined <- rbind(STCombined, ST6)
+      STCombined <- rbind(STCombined, ST7)
+      STCombined <- rbind(STCombined, ST8)
+      STCombined <- rbind(STCombined, ST9)
+      STCombined <- rbind(STCombined, ST10)
+      
+      STInput2 <- STCombined %>% mutate(Var1 = factor(Var1), 
+                                        Var1 = factor(Var1, levels = c("Strongly Agree",
+                                                                       "Agree",
+                                                                       "Slightly Agree",
+                                                                       "Slightly Disagree",
+                                                                       "Disagree",
+                                                                       "Strongly Disagree"
+                                        )))
+      
+      STPlot <- ggplot(STInput2, aes(x=as.factor(Q), y=Freq, fill= Var1)) + 
+        geom_bar(stat="identity") +
+        ggtitle("Student-Teacher Question Breakdown") +
+        xlab("Question Number") +
+        ylab("Count") +
+        scale_fill_brewer(palette="Accent") +
+        theme_bw() +
+        theme(axis.line = element_line(size=1, colour = "grey"),
+              panel.grid.major = element_line(colour = "#d3d3d3"),
+              panel.grid.minor = element_blank(),
+              panel.border = element_blank(),
+              panel.background = element_rect(fill = "transparent"),
+              plot.background = element_rect (fill = "transparent", color = NA),
+              legend.position = "bottom",
+              legend.title = element_blank(),
+              legend.background = element_rect(fill = "transparent"),
+              legend.box.background = element_rect(fill = "transparent"),
+              legend.key=element_rect(fill = "transparent"),
+        )
+    }
+    
+    if (!teacherDataPresent){
+      TSPlot <- vector()
+    } else if (all(is.na(x))) {
+      TSPlot <- vector()
+    } else {
+      TS1 <- as.data.frame(table(STTSnodes$`Teacher-My communication with this student is highly effective `))
+      TS1$Q <- rep(1, nrow(TS1))
+      TS2 <- as.data.frame(table(STTSnodes$`Teacher-Our relationship has a strong 'story' or timeline`))
+      TS2$Q <- rep(2, nrow(TS2))
+      TS3 <- as.data.frame(table(STTSnodes$`Teacher-I know this student well `))
+      TS3$Q <- rep(3, nrow(TS3))
+      TS4 <- as.data.frame(table(STTSnodes$`Teacher-Our relationship is fair and respectful `))
+      TS4$Q <- rep(4, nrow(TS4))
+      TS5 <- as.data.frame(table(STTSnodes$`Teacher-We are aligned in purpose and values `))
+      TS5$Q <- rep(5, nrow(TS5))
+      TS6 <- as.data.frame(table(STTSnodes$`Teacher-There are opportunities to build our relationship`))
+      TS6$Q <- rep(6, nrow(TS6))
+      
+      TSCombined <- rbind(TS1, TS2)
+      TSCombined <- rbind(TSCombined, TS3)
+      TSCombined <- rbind(TSCombined, TS4)
+      TSCombined <- rbind(TSCombined, TS5)
+      TSCombined <- rbind(TSCombined, TS6)
+      
+      TSInput2 <- TSCombined %>% mutate(Var1 = factor(Var1), 
+                                        Var1 = factor(Var1, levels = c("Strongly Agree",
+                                                                       "Agree",
+                                                                       "Slightly Agree",
+                                                                       "Slightly Disagree",
+                                                                       "Disagree",
+                                                                       "Strongly Disagree"
+                                        )))
+      
+      TSPlot <- ggplot(TSInput2, aes(x=as.factor(Q), y=Freq, fill= Var1)) + 
+                           geom_bar(stat="identity") +
+                           ggtitle("Teacher-Student Question Breakdown") +
+                           xlab("Question Number") +
+                           ylab("Count") +
+                           scale_fill_brewer(palette="Accent") +
+                           theme_bw() +
+                           theme(axis.line = element_line(size=1, colour = "grey"),
+                                 panel.grid.major = element_line(colour = "#d3d3d3"),
+                                 panel.grid.minor = element_blank(),
+                                 panel.border = element_blank(),
+                                 panel.background = element_rect(fill = "transparent"),
+                                 plot.background = element_rect (fill = "transparent", color = NA),
+                                 legend.position = "bottom",
+                                 legend.title = element_blank(),
+                                 legend.background = element_rect(fill = "transparent"),
+                                 legend.box.background = element_rect(fill = "transparent"),
+                                 legend.key=element_rect(fill = "transparent"),
+                           )
+    }
       
 #gather data for school summary page raincloud plots of extra measures (belongingness/S-T etc.)
   nodesRainCloud <- nodes  
@@ -1217,7 +1337,9 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                     nodesRainCloud,
                                     belongingnessClassList,
                                     teacherStudentData,
-                                    STTSPlot
+                                    STTSPlot,
+                                    STPlot,
+                                    TSPlot
                                     )
 
     names(classDashAnalysisOutput) <-  c("clientName",
@@ -1248,7 +1370,9 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                          "nodesRainCloud",
                                          "belongingnessClassList",
                                          "teacherStudentData",
-                                         "STTSPlot"
+                                         "STTSPlot",
+                                         "STPlot",
+                                         "TSPlot"
                                          )
 #Write output object to disk as a .rds    
     filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
