@@ -1,9 +1,55 @@
-.ts-buttons button {
+svg.parliament {
+    padding:0;
+    margin:0;
+    outline:2px solid transparent;
+}
+svg.parliament:focus {
+    outline:2px solid greenyellow;
 }
 
-.parliament-display {
-  margin:0;
-  padding:0;
-  height:80%;
-  width:100%;
+div.parliament-controls {
+    position:absolute;
+    top:5px;
+    left:5px;
+    border:1px solid black;
+    padding:3px;
+    background-color: rgba(255,255,255,0.8);
+    opacity: 1;
+    transition: opacity 1s;
+}
+div.parliament-controls.hidden {
+    opacity: 0;
+}
+
+div.parliament-controls label {
+    padding: 2px;
+    padding-left: 8px;
+}
+
+div.layout-filter-values {
+    margin-bottom: 3px;
+}
+div.layout-filter-values div label {
+    min-width: 6em;
+    display: inline-block;
+    text-align: right;
+}
+
+div.legend {
+    position:absolute;
+    font-family: sans-serif;
+    top:5px;
+    right:5px;
+    border:1px solid black;
+    padding:3px;
+    background-color: rgba(255,255,255,0.8);
+}
+
+div.legend span.swatch {
+    padding: 2px;
+    margin-right: 1em;
+    width: 5px;
+    height: 5px;
+    border: 1px solid black;
+    display: inline-block;
 }

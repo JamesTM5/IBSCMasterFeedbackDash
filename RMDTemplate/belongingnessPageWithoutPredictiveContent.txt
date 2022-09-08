@@ -81,7 +81,7 @@ if(!length(causeForConcernNames)==0) {
     bulletList[j] <- paste0(causeForConcernNames[[j]], "\n")
   }
 } else {
-  bulletList[j] <- "none"
+  bulletList <- "none"
 }
 
 sprintf("<span class='custom-inline'>%s</span>", bulletList)

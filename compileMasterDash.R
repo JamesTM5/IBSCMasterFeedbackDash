@@ -339,9 +339,12 @@ compileMasterDash <- function(templateDirectoryName,
   outputFilePath <- paste(outputDirectory, "/", outputFilename, ".RMD", sep = "")
   
   #Write out the file to a .RMD document
-  fileConn <- file(outputFilePath)
-  writeLines(unlist(dash), fileConn)
-  close(fileConn)
+  # fileConn <- file(outputFilePath)
+  # writeLines(unlist(dash), fileConn)
+  # close(fileConn)
+  dash <- unlist(dash)
+  dash <- paste(dash, collapse = '\n', sep = "\n")
+  write_file(dash, outputFilePath)
   
   #Run the .RMD for quality assurance purposes
   if(runForChecking == TRUE) {
