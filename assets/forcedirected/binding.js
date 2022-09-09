@@ -43,7 +43,12 @@ Shiny.outputBindings.register(repeatedforcedirectedBinding,
     "repeatedforcedirected");
 
 
-
+function agreementColors(v){
+            if ( v == "Strongly Disagree" ) return "darkblue";
+            if ( v == "Disagree" ) return "blue";
+            if ( v == "Agree" ) return "red";
+            if ( v == "Strongly Agree" ) return "darkred";
+        }
 
 const parliamentBinding = new Shiny.OutputBinding();
 const parliament_plot_by_element = {}
@@ -75,8 +80,9 @@ $.extend(parliamentBinding, {
             plotDetails.addLayout(new BarLayout());
             plotDetails.addLayout(new ScatterLayout());
             plotDetails.addLayout(new PieChartLayout());
-            p.layout_config.x = new SortOrderingNumeric("weight");
-            p.layout_config.x = new SortOrderingNumeric("income");
+            plotDetails.layout_config.x = new SortOrderingNumeric("weight");
+            plotDetails.layout_config.x = new SortOrderingNumeric("income");
+            plotDetails.setField( "Q1-I feel awkward and out of place in my school", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });
             //p.addLayout(new GraphLayout());
             // default colour field
             plotDetails.setColorField("gender");

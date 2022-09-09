@@ -390,6 +390,14 @@ class ParliamentControl {
                     }else{
                         console.log("Done " + max_delta);
                         this.simulation.alpha( 0.0);
+                        // force all points ot the final location and rerender
+                        filtered_nodes.forEach( (d,i)=>{
+                            d.vx =0;
+                            d.vy = 0;
+                            d.x = d.tx;
+                            d.y = d.ty;
+                        });
+                        this.rerender();
                     }
                 } else{
                     const max_speed = Math.sqrt(max_speed_squared);
@@ -976,10 +984,15 @@ class ScatterLayout extends CircleLayout{
     getCollisionRadiusAccessor( factor ){
         return (d,i)=>d.hidden?0:(this.radius); // we just use the radius when clustering...
     }
+        
     process( data , graph , config , parliament_config ){
         this.radius = [];
+        if ( !config.x || !config.y ){
+            return;
+        }
         const x = config.x.f;
         const y = config.y.f;
+        
         if ( data.length == 0 ) return []; // no data - ignore everything...
         const typeX = typeof x(data[0]);
         const typeY = typeof y(data[0]);
@@ -1361,7 +1374,7 @@ function wanderTowardsForce() {
       nodes = _;
       movement = nodes.map( ()=>{
         return {
-            speed: 30.0 + (Math.random() * 10.0),
+            speed: 90.0 + (Math.random() * 10.0),
             squee: (Math.random()* 0.4)+0.1,
             momentum: (Math.random()*0.3) + 0.6
         };
