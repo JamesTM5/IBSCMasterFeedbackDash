@@ -1,4 +1,4 @@
-classNamePlaceholderhonrwufzql Class Summary {data-navmenu="classNamePlaceholderhonrwufzql"}
+classNamePlaceholderhonrwufzql Class Summary {data-navmenu="Class Relationships"}
 =======================================================================
   
 Headlines {data-width=200}

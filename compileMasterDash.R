@@ -283,6 +283,10 @@ compileMasterDash <- function(templateDirectoryName,
   }
 
   dash <- list()
+  classRelationshipsList <- list()
+  individualRelationshipsList <- list()
+  studentTeacherRelationshipsList <- list()
+  belongingnessList <- list()
   packagesUsed <- list()
 
 #build dash page list  
@@ -291,35 +295,32 @@ compileMasterDash <- function(templateDirectoryName,
 #add school-wide pages if needed
    if(length(fileList) >= 2) {
      dash[[length(dash)+1]] <- setupSchoolOverviewPage()
-  #    if(belongingnessPresent == TRUE) {
-  #       dash[[length(dash)+1]] <- setupOverallBelongingnessPage(fileList)
      }
-  # }
 #add class pages for each class
 
    for(i in 1:length(fileList)) {
     if(numRQ == 1) {
-       dash[[length(dash)+1]] <- setupRQPageSingle(fileListNumber = i)
-       dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
+       classRelationshipsList[[length(classRelationshipsList)+1]] <- setupRQPageSingle(fileListNumber = i)
+       individualRelationshipsList[[length(individualRelationshipsList)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
      } else if(numRQ >= 2) {
-       dash[[length(dash)+1]] <- setupRQClassSummary(fileListNumber = i)
+       classRelationshipsList[[length(classRelationshipsList)+1]] <- setupRQClassSummary(fileListNumber = i)
        for (j in 1:(numRQ)) {
-         dash[[length(dash)+j]] <- setupRQPageMultiple(fileListNumber = i, questionNumber = j)
+         classRelationshipsList[[length(classRelationshipsList)+1]] <- setupRQPageMultiple(fileListNumber = i, questionNumber = j)
        }
       
-       dash[[length(dash)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
+       individualRelationshipsList[[length(individualRelationshipsList)+1]] <- setupRQIndividualScores(fileListNumber = i, numRQ = numRQ)
      }
     if (is.vector(fileList[[i]]$STTSPlot) && is.vector(fileList[[i]]$TSPlot) && is.vector(fileList[[i]]$STPlot)) {
      #no student-teacher or teacher-student data to display
    } else if (is.vector(fileList[[i]]$STTSPlot) && is.vector(fileList[[i]]$TSPlot)){
      #make the student-teacher graph only page
-     dash[[length(dash)+1]] <- setupSTPage(fileListNumber = i)
+     studentTeacherRelationshipsList[[length(studentTeacherRelationshipsList)+1]] <- setupSTPage(fileListNumber = i)
    } else {
      #make the student-teacher-student page
-     dash[[length(dash)+1]] <- setupSTTSPage(fileListNumber = i)
+     studentTeacherRelationshipsList[[length(studentTeacherRelationshipsList)+1]] <- setupSTTSPage(fileListNumber = i)
    }
    if(belongingnessPresent == TRUE) {
-     dash[[length(dash)+1]] <- setupClassBelongingnessPage(fileListNumber = i, classNumber = i)
+     belongingnessList[[length(belongingnessList)+1]] <- setupClassBelongingnessPage(fileListNumber = i, classNumber = i)
      }
    }
   dash[[2]] <- addToSetupChunk(textToAdd = "d3RQPrepSingleInstance\\(fileList\\=fileList\\)")
@@ -333,15 +334,15 @@ compileMasterDash <- function(templateDirectoryName,
   packagesUsed <- append(packagesUsed, c("rmarkdown", "jsonlite", "tidyverse",
                                          "flexdashboard", "plotly", "DT"))
   dash[[2]] <- addPackages(setupChunk = dash[[2]], packages = packagesUsed)
+  
+#Append each menu entry into dash
+  dash <- c(dash, classRelationshipsList, individualRelationshipsList, studentTeacherRelationshipsList, belongingnessList)
 
 #Output Code
   #define where the .RMD file will be located when it is generated
   outputFilePath <- paste(outputDirectory, "/", outputFilename, ".RMD", sep = "")
   
   #Write out the file to a .RMD document
-  # fileConn <- file(outputFilePath)
-  # writeLines(unlist(dash), fileConn)
-  # close(fileConn)
   dash <- unlist(dash)
   dash <- paste(dash, collapse = '\n', sep = "\n")
   write_file(dash, outputFilePath)

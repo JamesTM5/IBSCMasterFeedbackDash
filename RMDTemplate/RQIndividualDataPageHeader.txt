@@ -1,4 +1,4 @@
-Student - Student Individual Profiles {data-navmenu="classNamePlaceholderhonrwufzql"}
+classNamePlaceholderhonrwufzql {data-navmenu="Individual Relationships"}
 =======================================================================
 
 Individual Profiles {data-width=900 .tabset}

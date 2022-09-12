@@ -44,10 +44,13 @@ Shiny.outputBindings.register(repeatedforcedirectedBinding,
 
 
 function agreementColors(v){
-            if ( v == "Strongly Disagree" ) return "darkblue";
-            if ( v == "Disagree" ) return "blue";
-            if ( v == "Agree" ) return "red";
-            if ( v == "Strongly Agree" ) return "darkred";
+            if ( v == "Strongly Disagree" ) return "#8c510a";
+            if ( v == "Disagree" ) return "#d8b365";
+            if ( v == "Slightly Disagree" ) return "#f6e8c3";
+            if ( v == "Neither Agree nor Disagree" ) return "#f5f5f5";
+            if ( v == "Slightly Agree" ) return "#c7eae5";
+            if ( v == "Agree" ) return "#5ab4ac";
+            if ( v == "Strongly Agree" ) return "#01665e";
         }
 
 const parliamentBinding = new Shiny.OutputBinding();
@@ -83,6 +86,30 @@ $.extend(parliamentBinding, {
             plotDetails.layout_config.x = new SortOrderingNumeric("weight");
             plotDetails.layout_config.x = new SortOrderingNumeric("income");
             plotDetails.setField( "Q1-I feel awkward and out of place in my school", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });
+            plotDetails.setField( "Q1-I feel like an outsider (or left out of things) at school", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });
+            plotDetails.setField( "Q1-I feel like I belong at school", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });
+            plotDetails.setField( "Q1-I feel lonely at school", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });
+            plotDetails.setField( "Q1-I make friends easily at school", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });  
+            plotDetails.setField( "Q1-Other students seem to like me", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });  
+
+            plotDetails.setField( "Q5-I can talk to or contact my teacher when I need to", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });  
+            plotDetails.setField( "Q5-It is worth building a good relationship with my teacher because I may be in a class or activity with them in the future", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });  
+            plotDetails.setField( "Q5-My teacher and I have shared goals for my progress and development", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });  
+            plotDetails.setField( "Q5-My teacher cares about me", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });  
+            plotDetails.setField( "Q5-My teacher has a good understanding of my skills and interests", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });  
+            plotDetails.setField( "Q5-My teacher inspires and motivates me", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });  
+            plotDetails.setField( "Q5-My teacher recognises and rewards my efforts", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });  
+            plotDetails.setField( "Q5-My teacher treats me fairly", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors });
+            plotDetails.setField( "Q5-My teacher understands any particular needs or pressures I face", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors }); 
+            plotDetails.setField( "Q5-Neither my nor my teacher's reputation have made the relationship difficult", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors }); 
+
+            plotDetails.setField( "Teacher-My communication with this student is highly effective ", { values:["Strongly Disagree","Disagree", "Slightly Disagree", "Slightly Agree", "Agree","Strongly Agree"] , color:agreementColors }); 
+            plotDetails.setField( "Teacher-Our relationship has a strong 'story' or timeline", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors }); 
+            plotDetails.setField( "Teacher-I know this student well ", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors }); 
+            plotDetails.setField( "Teacher-Our relationship is fair and respectful ", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors }); 
+            plotDetails.setField( "Teacher-We are aligned in purpose and values ", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors }); 
+            plotDetails.setField( "Teacher-There are opportunities to build our relationship", { values:["Strongly Disagree","Disagree","Agree","Strongly Agree"] , color:agreementColors }); 
+            
             //p.addLayout(new GraphLayout());
             // default colour field
             plotDetails.setColorField("gender");

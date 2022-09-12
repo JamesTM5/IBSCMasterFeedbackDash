@@ -1,5 +1,5 @@
 
-Student - Student Individual Score Profiles {data-navmenu="Class Name"}
+Student - Student Individual Score Profiles {data-navmenu="Individual Relationships"}
 =======================================================================
 
 Individual Score Profiles {data-width=900 .tabset}

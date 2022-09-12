@@ -1,4 +1,4 @@
-Student-Teacher Data {data-navmenu="classNamePlaceholderhonrwufzql"}
+classNamePlaceholderhonrwufzql Student-Teacher {data-navmenu="Student Teacher Relationships"}
 ======================================================================
   
 column1

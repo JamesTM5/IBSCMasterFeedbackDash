@@ -1,4 +1,4 @@
-classNamePlaceholderhonrwufzql RQSummaryPlaceholderxbvmgayrkd Relationship Question {data-navmenu="classNamePlaceholderhonrwufzql"}
+classNamePlaceholderhonrwufzql RQSummaryPlaceholderxbvmgayrkd Relationship Question {data-navmenu="Class Relationships"}
 =======================================================================
   
 Headlines {data-width=200}

@@ -1,4 +1,4 @@
-Belongingness Measure {data-navmenu="classNamePlaceholderhonrwufzql"}
+classNamePlaceholderhonrwufzql {data-navmenu="Belongingness"}
 ==================================================================
 
 row {.sidebar data-width=400}
@@ -159,7 +159,7 @@ column
         }
         ggplot(updateData[input$WBNumericclassNumberPlaceholderckkdnsodds_rows_all,],
                aesthetic) +
-        ggtitle(paste(clientName, fileList[[fileListNumberPlaceholderrmwkpgtffs]]$className, "Belongingness Scoring Histogram", sep = "
+        ggtitle(paste(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$clientName, fileList[[fileListNumberPlaceholderrmwkpgtffs]]$className, "Belongingness Scoring Histogram", sep = "
 ")) +
         scale_colour_brewer(palette="Accent") +
         theme_bw() +
