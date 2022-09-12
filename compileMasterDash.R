@@ -13,7 +13,7 @@ compileMasterDash <- function(templateDirectoryName,
                               outputFilename,
                               runForChecking = TRUE) {
   
-  packages = c("rmarkdown", "tidyverse")
+  packages = c("rmarkdown", "readr", "stringr", "dplyr")
   
   invisible(lapply(packages, library, character.only = TRUE))
   

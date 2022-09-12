@@ -67,9 +67,15 @@ class ParliamentControl {
 
     onKeydown( event ){
         const key = event.key;
-        if ( key == "Escape" ){
+        if ( key == "ArrowUp" ){
             // toggle display of controls.
             this.showControls( !this.controlsVisible );
+        }
+        if ( key == "ArrowDown" ){
+          if ( this.simulation ){
+            this.simulation.stop();
+            this.simulation = null;
+          }
         }
     }
 
@@ -487,11 +493,12 @@ class ParliamentControl {
         let matched = 0;
         let missing = 0;
         let unmatched = 0;
+        let hiddenCount = 0;
         this.data.forEach( (d,i)=>{
                 const p = position_map[d.id];
                 if ( p ){
                     matched ++;
-                    if ( !Number.isNaN(p.x) && !Number.isNaN(p.y) ){
+                    if ( !Number.isNaN(p.x) && !Number.isNaN(p.y) && p.x !== undefined && p.y !== undefined){
                         d.tx = p.x;
                         d.ty = p.y;
                         d.hidden = p.hidden || false;
@@ -509,9 +516,10 @@ class ParliamentControl {
                     unmatched ++;
                     d.hidden = true; // hidden as we don't have a data point
                 }
+                if (d.hidden) hiddenCount++;
         });
-        console.log(`applyTargetPoints input:${this.data.length} filtered:${filteredData.length} positions:${targets.length}  matched:${matched}   unmatched: ${unmatched}   missing:${missing}`);
-        this.svg_group_data.selectAll("path").transition(500)
+        console.log(`applyTargetPoints input:${this.data.length} filtered:${filteredData.length} positions:${targets.length}  matched:${matched}   unmatched: ${unmatched}   missing:${missing}  hidden${hiddenCount}`);
+        this.svg_group_data.selectAll("path")/*.transition(500)*/
             .attr("opacity", (d)=>d.hidden?0.0:1.0 )
             .call( (e)=>this.active_layout.applyDataElement(e,true) );
     }
@@ -994,12 +1002,23 @@ class ScatterLayout extends CircleLayout{
         const y = config.y.f;
         
         if ( data.length == 0 ) return []; // no data - ignore everything...
-        const typeX = typeof x(data[0]);
-        const typeY = typeof y(data[0]);
+
+        function find_a_type( accessor , data ){
+          for ( let index in data ){
+            const v = accessor(data[index]);
+            if ( v !== null ){
+              return typeof v;
+            }
+          }
+          return null;
+        }
+        const typeX = find_a_type( x , data );
+        const typeY = find_a_type( y , data );
 
         let rangeX = null;
         let rangeY = null;
         this.clustering = false;
+
         if ( typeX == "number" ){
             rangeX = new RangeComputer();
         }else if (typeX == "string"){
@@ -1014,7 +1033,7 @@ class ScatterLayout extends CircleLayout{
             rangeY = new CategoricalRangeComputer( (a,b)=>config.y.compareKeys(a,b) );
             this.clustering = true;
         }else{
-            throw new Error(`Unexpected type from field Y: ${typeX} ${x}`);
+            throw new Error(`Unexpected type from field Y: ${typeY} ${y}`);
         }
 
 
