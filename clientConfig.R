@@ -11,16 +11,10 @@ dataFile <- "test data/IBSC Student Scots 7TGAR1.xlsx"
 dataFileTS <- "test data/IBSC Teacher Scots 7TGAR1.xlsx"
 
 #What does the client call themselves?
-clientName <- "Organisation One"
+clientName <- "Scotch College"
 
 #Which SDV have been supplied for analysis alongside network data? (must be
 #factorial data, in the order it appears in the .xlsx and is case sensitive.
 #Additionally, it must not contain the character string "numeric".)
 
-socioDemographicVariables <- c(
-                                "co-curricular",
-                                "Day/Boarder",
-                                "House",
-                                "International /Domestic",
-                                "TSC siblings",
-                                "winter sport")
+socioDemographicVariables <- c()

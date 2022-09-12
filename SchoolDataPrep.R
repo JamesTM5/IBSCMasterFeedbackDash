@@ -54,7 +54,7 @@ SSDashAnalysis <- function (studentDataInput,
   if (className %in% teacherClassNameList) {
     teacherDataPresent <- TRUE
    #   isolate this class' teacher data
-    teacherData <- teacherDataInput[[which(grepl(className,teacherClassNameList)==TRUE)]]
+    teacherData <- teacherDataInput[which(grepl(className,teacherClassNameList)==TRUE)]
     teacherData <- teacherData[2:length(teacherData)]
    # for each of 2:length teacherData, if ncol = 4, take cols 2&3, order by name
     # (col2) and add it to the nodes frame
