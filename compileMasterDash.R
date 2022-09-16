@@ -146,9 +146,9 @@ compileMasterDash <- function(templateDirectoryName,
                                                  "Relationships Question 3",
                                                  "Relationships Question 4"
                                                  ),
-                                  RQSummaryList = c("RQ1",
-                                                    "RQ2",
-                                                    "RQ3",
+                                  RQSummaryList = c("Interaction",
+                                                    "Knowing",
+                                                    "Collaboration",
                                                     "RQ4"
                                                     ),
                                   ...){

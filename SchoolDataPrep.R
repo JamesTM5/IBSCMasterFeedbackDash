@@ -54,7 +54,9 @@ SSDashAnalysis <- function (studentDataInput,
   if (className %in% teacherClassNameList) {
     teacherDataPresent <- TRUE
    #   isolate this class' teacher data
-    teacherData <- teacherDataInput[which(grepl(className,teacherClassNameList)==TRUE)]
+    teacherData <- teacherDataInput[which(grepl(paste("^", className, "$", sep = ""),teacherClassNameList)==TRUE)]
+   # flatten
+    teacherData <- teacherData[[1]]
     teacherData <- teacherData[2:length(teacherData)]
    # for each of 2:length teacherData, if ncol = 4, take cols 2&3, order by name
     # (col2) and add it to the nodes frame
@@ -832,26 +834,36 @@ SSDashAnalysis <- function (studentDataInput,
                                       function(v) {gsub("\\."," ", as.character(v))})
   
   deleteVector <- vector()
-  for (i in 1:length(socioDemographicVariables)) {
-    if(socioDemographicVariables[i] %in% names(nodes)) {
-      if(length(levels(as.factor(nodes[,socioDemographicVariables[i]]))) <= 1) {
-        deleteVector[length(deleteVector)+1] <- i
-      } else if (length(levels(as.factor(nodes[,socioDemographicVariables[i]]))) == nrow(nodes)) {
-        deleteVector[length(deleteVector)+1] <- i
+  if(length(socioDemographicVariables)>0) {
+    for (i in 1:length(socioDemographicVariables)) {
+      if(socioDemographicVariables[i] %in% names(nodes)) {
+        if(length(levels(as.factor(nodes[,socioDemographicVariables[i]]))) <= 1) {
+          deleteVector[length(deleteVector)+1] <- i
+        } else if (length(levels(as.factor(nodes[,socioDemographicVariables[i]]))) == nrow(nodes)) {
+          deleteVector[length(deleteVector)+1] <- i
+        }
       }
     }
   }
   
   indeterminateChoicesBelongingness <- socioDemographicVariables[c(deleteVector)]
   socioDemographicVariablesBelongingness <- socioDemographicVariables[-c(deleteVector)]
-  
-  belongingnessDF <- nodes[,c("id",
-                               socioDemographicVariablesBelongingness,
-                               "Communities Relationship Question 1",
-                               "Communities Relationship Question 2",
-                               "Communities Relationship Question 3",
-                               "Student - Teacher Relationship Score",
-                               "Belongingness Score")]
+  if(length(socioDemographicVariablesBelongingness) > 0) {
+    belongingnessDF <- nodes[,c("id",
+                                 socioDemographicVariablesBelongingness,
+                                 "Communities Relationship Question 1",
+                                 "Communities Relationship Question 2",
+                                 "Communities Relationship Question 3",
+                                 "Student - Teacher Relationship Score",
+                                 "Belongingness Score")]
+  } else {
+    belongingnessDF <- nodes[,c("id",
+                                "Communities Relationship Question 1",
+                                "Communities Relationship Question 2",
+                                "Communities Relationship Question 3",
+                                "Student - Teacher Relationship Score",
+                                "Belongingness Score")]
+  }
   names(belongingnessDF)[names(belongingnessDF) == "Belongingness Score"] <- "Belongingness Stratified" 
   names(belongingnessNumeric) <- c("I feel like I belong",
                                    "I make friends easily",
@@ -1167,19 +1179,20 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
            layout(
              title = "Student and Teacher Score Variance",
              showlegend = F,
-             annotations = list(x = 5, y = 5,
-                                text = correlationText,showarrow =FALSE),
              xaxis = list(title = "Teacher - Student Mean Score",
                           scaleratio = 1,
                           scaleanchor = y,
-                          range = list(minVal, maxVal)
+                          range = list(0, 5.2)
                           ),
              yaxis = list(title = "Student - Teacher Mean Score",
                           scaleratio = 1,
                           scaleanchor = y,
-                          range = list(minVal, maxVal)
+                          range = list(0, 5.2)
                           )
            )
+        STTSPlot <- STTSPlot %>%
+          add_annotations(x = 0.5, y = 4.5, text = correlationText,
+                          showarrow = FALSE, xref = "x", yref = "y")
     }
   
       

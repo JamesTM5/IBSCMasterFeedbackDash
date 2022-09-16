@@ -267,6 +267,6 @@ if(!is.null(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$isolatesList[[length
 ```
 </center>
 
->These people are not joined to any others in the network by positive
+> These people are not joined to any others in the network by positive
 relationships in at least one of the dimensions they were asked about.
 

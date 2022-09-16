@@ -13,5 +13,11 @@ gatherNodes <- function (filePath = "./data/") {
    nodesAmalgam[[length(nodesAmalgam)+1]] <- fileList[[i]]$nodes
   }
   
-  nodesAmalgam <- bind_rows(nodesAmalgam, .id = "column_label")
+  nodesAmalgam <- bind_rows(nodesAmalgam, .id = "classNumber")
+  
+  if (!length(unique(nodesAmalgam$id)) == nrow(nodesAmalgam)) {
+    for (i in 1:nrow(nodesAmalgam)) { nodesAmalgam[i, "id"] <- i}
+    nodesAmalgam$id <- as.character(nodesAmalgam$id)
+  }
+  return(nodesAmalgam)
 }

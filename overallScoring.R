@@ -117,17 +117,17 @@ overallScoring <- function (networkInfo, SSNQGraph, SSNQMembers) {
 
 computeHealth <- function(overallScores) {
   if(overallScores[1] > 140) {
-    health <- "Excellent"
-    healthColour <- "success"
-  } else if (overallScores[1] > 100) {
-    health <- "Good"
-    healthColour <- "success"
+    health <- "Gold"
+    healthColour <- "#F8E114"
+  } else if (overallScores[1] > 90) {
+    health <- "Gold"
+    healthColour <- "#F8E114"
   } else if (overallScores[1] > 60) {
-    health <- "Moderate"
-    healthColour <- "warning"
+    health <- "Silver"
+    healthColour <- "#D7D7D7"
   } else if (overallScores[1] < 60) {
-    health <- "Poor"
-    healthColour <- "danger"
+    health <- "Bronze"
+    healthColour <- "#AD8A56"
   } else {
     health <- "NA"
     healthColour <- "info"
@@ -138,17 +138,17 @@ computeHealth <- function(overallScores) {
 #convert potential for improvement score (PfI) into valuebox info
 computePfI <- function(overallScores) {
   if(overallScores[2] > 140) {
-    PfI <- "Excellent"
-    PfIColour <- "success"
-  } else if (overallScores[2] > 100) {
-    PfI <- "Good"
-    PfIColour <- "success"
+    PfI <- "Gold"
+    PfIColour <- "#F8E114"
+  } else if (overallScores[2] > 90) {
+    PfI <- "Gold"
+    PfIColour <- "#F8E114"
   } else if (overallScores[2] > 60) {
-    PfI <- "Moderate"
-    PfIColour <- "warning"
+    PfI <- "Silver"
+    PfIColour <- "#D7D7D7"
   } else if (overallScores[2] < 60) {
-    PfI <- "Poor"
-    PfIColour <- "danger"
+    PfI <- "Bronze"
+    PfIColour <- "#AD8A56"
   } else {
     PfI <- "NA"
     PfIColour <- "info"
