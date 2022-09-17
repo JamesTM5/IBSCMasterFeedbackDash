@@ -57,7 +57,7 @@ if(highBelongingnessNumber > (lowBelongingnessNumber*2)) {
 
 The data for the Belongingness survey of class `r fileList[[fileListNumberPlaceholderrmwkpgtffs]]$className` at `r fileList[[fileListNumberPlaceholderrmwkpgtffs]]$clientName` is presented on this dashboard page.
 
-This class contains `r highBelongingnessText` with high belongingness scores and `r lowBelongingnessText` with low ones.
+This class contains `r highBelongingnessText` with high belongingness scores and `r lowBelongingnessText` with low scores.
 `r belongingnessNumberCommentary`
 
 

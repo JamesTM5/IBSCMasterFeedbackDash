@@ -13,7 +13,7 @@ renderPlotly ({
 })
 ```
 
-> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The dotted line is the average score given by the network.
 
 
 ### Knowing One Another
@@ -24,7 +24,7 @@ renderPlotly ({
 })
 ```
 
-> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The dotted line is the average score given by the network.
 
 
 ### Student Value and Respect
@@ -35,7 +35,7 @@ renderPlotly ({
 })
 ```
 
-> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The green dotted line is the average score given by the network.
+> Scores for each person for how well they report knowing one another can be explored here.  Click on the person's name in the list to visualise the scores and hover over the graph for more details.  Select multiple people to overlay their scores for comparison.  The dotted line is the average score given by the network.
 
 
 Degree {.tabset}
@@ -61,9 +61,6 @@ renderPlotly ({
 })
 ```
 
-> A higher 'Degree in' score indicates that more people in the class come
-to this person for information
-
 #### 'Interaction Positivity' Degree Out Scores
 
 ```{r}
@@ -72,7 +69,7 @@ renderPlotly({
 })
 ```
 
-> A higher 'Degree out' score indicates that the person is well connected within the class.
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention. A higher 'Degree in' score indicates that more people in the class come to this person for information. A higher 'Degree out' score indicates that the person is well connected within the class.
 
 ### Knowing One Another
 
@@ -84,8 +81,6 @@ renderPlotly ({
 })
 ```
 
-> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
-
 #### 'Knowing One Another' Degree In Scores
 
 ```{r}
@@ -93,9 +88,6 @@ renderPlotly ({
   fileList[[1]]$degreeInHistogramList[[2]]
 })
 ```
-
-> A higher 'Degree in' score indicates that more people in the class come
-to this person for information
 
 #### 'Knowing One Another' Degree Out Scores
 
@@ -105,7 +97,7 @@ renderPlotly({
 })
 ```
 
-> A higher 'Degree out' score indicates that the person is well connected within the class.
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention. A higher 'Degree in' score indicates that more people in the class come to this person for information. A higher 'Degree out' score indicates that the person is well connected within the class.
 
 ### Student Value and Respect
 
@@ -117,8 +109,6 @@ renderPlotly ({
 })
 ```
 
-> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
-
 #### 'Value and Respect' Degree In Scores
 
 ```{r}
@@ -126,9 +116,6 @@ renderPlotly ({
   fileList[[1]]$degreeInHistogramList[[3]]
 })
 ```
-
-> A higher 'Degree in' score indicates that more people in the class come
-to this person for information
 
 #### 'Value and Respect' Degree Out Scores
 
@@ -138,4 +125,4 @@ renderPlotly({
 })
 ```
 
-> A higher 'Degree out' score indicates that the person is well connected within the class
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention. A higher 'Degree in' score indicates that more people in the class come to this person for information. A higher 'Degree out' score indicates that the person is well connected within the class.

@@ -126,9 +126,9 @@ compileMasterDash <- function(templateDirectoryName,
 #add a page for a single RQ with no expectation of a class overview.
   setupRQPageSingle <- function(template = templateList$RQPageSingle.txt,
                                 fileListNumber = 1,
-                                RQText = "How closely do you relate to this person?",
-                                RQSummary = "Relatedness",
                                 ...){
+    RQText <- fileList[[fileListNumber]]$RQTitles
+    RQSummary <- fileList[[fileListNumber]]$RQList
 
     className <- fileList[[fileListNumber]]$className
     template <- str_replace_all(template, "classNamePlaceholderhonrwufzql", className)
@@ -141,18 +141,10 @@ compileMasterDash <- function(templateDirectoryName,
   setupRQPageMultiple <- function(template = templateList$RQPageMulti.txt,
                                   fileListNumber,
                                   questionNumber,
-                                  RQTextList = c("Relationships Question 1",
-                                                 "Relationships Question 2",
-                                                 "Relationships Question 3",
-                                                 "Relationships Question 4"
-                                                 ),
-                                  RQSummaryList = c("Interaction",
-                                                    "Knowing",
-                                                    "Collaboration",
-                                                    "RQ4"
-                                                    ),
                                   ...){
 
+    RQTextList <- fileList[[fileListNumber]]$RQList
+    RQSummaryList <- fileList[[fileListNumber]]$RQTitles
     className <- fileList[[fileListNumber]]$className
     template <- str_replace_all(template, "classNamePlaceholderhonrwufzql", className)
     template <- str_replace_all(template, "fileListNumberPlaceholderrmwkpgtffs", as.character(fileListNumber))
@@ -176,19 +168,12 @@ compileMasterDash <- function(templateDirectoryName,
                                       polarGraphChunk = templateList$RQIndividualPolarGraph.txt,
                                       columnHeader = templateList$RQIndividualDataPageColumnHeader.txt,
                                       degreeGraphChunk = templateList$RQIndividualDegreeGraphs.txt,
-                                  fileListNumber,
-                                  RQIndTextList = c("Relationships Question 1",
-                                                 "Relationships Question 2",
-                                                 "Relationships Question 3",
-                                                 "Relationships Question 4"
-                                  ),
-                                  RQIndSummaryList = c("RQ1",
-                                                    "RQ2",
-                                                    "RQ3",
-                                                    "RQ4"
-                                  ),
-                                  numRQ,
-                                  ...){
+                                      fileListNumber,
+                                      numRQ,
+                                      ...){
+    
+    RQIndTextList <- fileList[[fileListNumber]]$RQList
+    RQIndSummaryList <- fileList[[fileListNumber]]$RQTitles
     
     className <- fileList[[fileListNumber]]$className
     
@@ -290,7 +275,7 @@ compileMasterDash <- function(templateDirectoryName,
   packagesUsed <- list()
 
 #build dash page list  
-  dash[[1]] <- setupYaml(title = "IBSC Dash")
+  dash[[1]] <- setupYaml(title = "Scotch College Relationships Dash")
   dash[[2]] <- setupSetupChunk()
 #add school-wide pages if needed
    if(length(fileList) >= 2) {

@@ -9,8 +9,6 @@ renderPlotly ({
 })
 ```
 
-> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention.
-
 #### 'RQSummaryPlaceholderxbvmgayrkd' Degree In Scores
 
 ```{r}
@@ -18,9 +16,6 @@ renderPlotly ({
   fileList[[fileListNumberPlaceholderrmwkpgtffs]]$degreeInHistogramList[[graphListNumberPlaceholdervifktlvodm]]
 })
 ```
-
-> A higher 'Degree in' score indicates that more people in the class come
-to this person for information
 
 #### 'RQSummaryPlaceholderxbvmgayrkd' Degree Out Scores
 
@@ -30,4 +25,4 @@ renderPlotly({
 })
 ```
 
-> A higher 'Degree out' score indicates that the person is well connected within the class.
+> The higher the overall degree score, the more tied in the person is to the class.  Those learners who score nearest the average are those who are best placed to develop resiliency in the relational network of the class when they are encouraged to relate to one another, because they have connections to bring to bear, and have relational overhead to be able to develop further relationships without others suffering from divided attention. A higher 'Degree in' score indicates that more people in the class come to this person for information. A higher 'Degree out' score indicates that the person is well connected within the class.

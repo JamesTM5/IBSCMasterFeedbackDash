@@ -61,9 +61,9 @@ This page is an overview of the class data that the Relationships Foundation hav
 
 The array of dots to the right represent each of the learners who completed our surveys with you.
 
-**To access the menu, select the window, so that a green border appears, and press the Arrow Up key on your keyboard.
+**To access the menu, select the window, so that a green border appears, and press the Arrow Up key on your keyboard.**
 
-To pause the movement of the learners on the page, press the Arrow Down key on your keyboard.**
+**To pause the movement of the learners on the page, press the Arrow Down key on your keyboard.**
 
 In this early version of the simulation, to access all the features, please chose an option from the ‘Color’ drop-down menu and select the second option on the list such that the learners change color.  Then select ‘Grid’ from the ‘Layout’ drop-down menu.  This will trigger full functionality to be available to you.
 
@@ -90,13 +90,13 @@ output$NetworkHealth <- renderPlot({
                                         xmin = -Inf,
                                         xmax = Inf,
                                         ymin = 61,
-                                        ymax = 100,
+                                        ymax = 90,
                                         fill = "#D7D7D7",
                                         alpha = 0.1) +
   geom_rect(data = summaryDataFrame, aes(),
                                         xmin = -Inf,
                                         xmax = Inf,
-                                        ymin = 101,
+                                        ymin = 91,
                                         ymax = 150,
                                         fill = "#F8E114",
                                         alpha = 0.1) +
@@ -141,13 +141,13 @@ output$PfIPlot <- renderPlot({
                                         xmin = -Inf,
                                         xmax = Inf,
                                         ymin = 61,
-                                        ymax = 100,
+                                        ymax = 90,
                                         fill = "#D7D7D7",
                                         alpha = 0.1) +
   geom_rect(data = summaryDataFrame, aes(),
                                         xmin = -Inf,
                                         xmax = Inf,
-                                        ymin = 100,
+                                        ymin = 91,
                                         ymax = 150,
                                         fill = "#F8E114",
                                         alpha = 0.1) +

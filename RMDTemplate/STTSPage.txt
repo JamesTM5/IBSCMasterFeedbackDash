@@ -10,6 +10,8 @@ column1 {data-width=400}
 ggplotly(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$STPlot)
 ```
 
+> This stacked bar chart shows the answers given by students to the Student-Teacher questions.  Overall, the more Green and Purple in a bar, the more positive the result.
+
 ### Student-Teacher Questions {data-height=280}
 
 **1.  I can talk to or contact my teacher when I need to**
@@ -39,6 +41,8 @@ ggplotly(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$STPlot)
 ggplotly(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$TSPlot)
 ```
 
+> This stacked bar chart shows the answers given by the class teacher to the Teacher-Student questions.
+
 ### Teacher-Student Questions {data-height=280}
 
 **1.  My communication with this student is highly effective**
@@ -61,3 +65,6 @@ column2 {data-width=600}
 ```{R}
 ggplotly(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$STTSPlot)
 ```
+
+> This graph of variance shows the amount of agreement in positiviy between the students and their class teacher,each relationship represented by a blue dot.  The nearer the line of best fit the point is, the more in agreement the student is with their teacher.  Student names can be found by hovering over the point with your mouse.  The stronger the correlation between the teacher and student perception of the relationships in the class, the lower the 'P' value will be (as shown in the top left section of the graph).  If the correlation is statistically significant, that value will be less than 0.05.
+

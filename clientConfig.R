@@ -2,13 +2,6 @@
 #interpret the .xlsx data output from Polinode and process it for the IBSC
 #Dashboard.
 
-#What is the file that contains the data?
-  #Demo Data
-  # dataFile <- "Time Academy Class 4E Data.xlsx"
-  #dataFile <- "Time Academy Student Survey 4D.xlsx"
-
-dataFile <- "test data/IBSC Student Scots 7TGAR1.xlsx"
-dataFileTS <- "test data/IBSC Teacher Scots 7TGAR1.xlsx"
 
 #What does the client call themselves?
 clientName <- "Scotch College"

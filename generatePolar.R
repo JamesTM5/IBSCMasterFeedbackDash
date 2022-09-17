@@ -103,7 +103,7 @@ fig <- fig %>%
             fillcolor = 'transparent',
             hoverinfo = "r",
             opacity = 1,
-            text = ""
+            text = "Average (Mean) Score"
             )
 fig <- fig %>%
   layout(

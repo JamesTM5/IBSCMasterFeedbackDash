@@ -10,6 +10,8 @@ column1
 ggplotly(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$STPlot)
 ```
 
+> This stacked bar chart shows the answers given by students to the Student-Teacher questions.  Overall, the more Green and Purple in a bar, the more positive the result.
+
 ### Student-Teacher Questions {data-height=280}
 
 **1.  I can talk to or contact my teacher when I need to**

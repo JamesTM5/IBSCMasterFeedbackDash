@@ -1171,7 +1171,7 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
       
         STTSPlot <- STTSnodes %>%
           plot_ly(x = ~STTSnodes$`Teacher-Student Mean`) %>%
-          add_markers(x=~STTSnodes$`Teacher-Student Mean`, y = ~STTSnodes$`Student-Teacher Mean`) %>%
+          add_markers(x=~STTSnodes$`Teacher-Student Mean`, y = ~STTSnodes$`Student-Teacher Mean`,text = STTSnodes$id) %>%
            add_trace(data=fitdata, x= ~STTSnodes..Teacher.Student.Mean., y = ~fitted, 
                      mode = "lines",type="scatter",line=list(color="#8d93ab")) %>%
            add_ribbons(data=fitdata, ymin = ~ ymin, ymax = ~ ymax,
@@ -1352,7 +1352,9 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                     teacherStudentData,
                                     STTSPlot,
                                     STPlot,
-                                    TSPlot
+                                    TSPlot,
+                                    RQList,
+                                    RQTitles
                                     )
 
     names(classDashAnalysisOutput) <-  c("clientName",
@@ -1385,7 +1387,9 @@ for (i in degreeIndices:ncol(belongingnessDF)) {
                                          "teacherStudentData",
                                          "STTSPlot",
                                          "STPlot",
-                                         "TSPlot"
+                                         "TSPlot",
+                                         "RQList",
+                                         "RQTitles"
                                          )
 #Write output object to disk as a .rds    
     filename <- paste(clientName, className, "S to S Dash Data.rds", sep = " ")
