@@ -1,4 +1,6 @@
-#Function for compiling a .RMD document from a series of templates, substituting variable names appropriately
+#Source this script to build the dashboard and associated files needed for 
+#the Relationships Foundation School Dashboard.  See the README for more
+#information.
 
 #For Testing Purposes
 # templateDirectoryName = 'RMDTemplate'

@@ -1,8 +1,10 @@
 
-#Use this function to take a list of survey data .xlsx worksheets and read them
+#source this script to take a list of survey data .xlsx worksheets and read them
 #into a list of data frames ready for processing.  Each file needs to be in the 
 #format ".Student <class name>.xlsx" for student-completed questions, or
-#".Teacher <class name>.xlsx" for teacher completed ones.
+#".Teacher <class name>.xlsx" for teacher completed ones.  Edit clientConfig.R
+#To add the school name and the sociodemographic variables and Delete any 
+#spreadsheets which contain no responses.  See the README for more information.
 
 #list all student and teacher files in a given directory
 loadSchoolData <- function (path = "data/") {

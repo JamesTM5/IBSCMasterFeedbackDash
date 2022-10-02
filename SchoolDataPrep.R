@@ -1,17 +1,13 @@
 #This script takes data output from Polinode, and processes it for use in the
-#IBSC Class dashboard.  To use, put the .xlsx output from all the surveys for a
-#given school from polinode into a directory, add the path to fileList below and
-#make sure the file name is in the format ".Student <class name>.xlsx".
-#then edit the survey information and the client information in surveyConfig.R
-#and clientConfig.R and source the script. The output will be in the working
-#directory (the .RDS files needed by the dashboard). The .xlsx and this file do
-#not need to be published to shinyApps.io
+#RF class dashboard.  This is called by SchoolDataLoad.R and needn't be
+#changed during ordinary use.
 
 
 SSDashAnalysis <- function (studentDataInput,
                             teacherDataInput,
                             listNumberStudent) {
-  
+
+#for debugging purposes
        # listNumberStudent <- 1
        # studentDataInput <- schoolDataList$studentResponses
        # teacherDataInput <- schoolDataList$teacherResponses

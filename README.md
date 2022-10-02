@@ -1,10 +1,14 @@
-"# IBSCMasterFeedbackDash" 
+"# RFMasterFeedbackDash" 
 
-This Dashboard is designed to give the skeleton framework for individual school feedback dashboards for the International Boys School Coalition Phase 2 Project.
+This Dashboard is designed to give the skeleton framework for Relationship Foundation individual school feedback dashboards.
 
-To install any missing packages, uncomment and run the first part of packageSetup.R.
+There are two stages to generating the dashboard once data have been collected through Polinode.  First lists of R objects need to be generated as .RDS files, then these need to be used to generate the files needed to publish (including the .RMD file that will run the dashboard).
 
-masterDash.RMD requires the requisite .RDS files from the working directory.  To generate these, download the .xlsx data from the Polinode surveys to a directory, rename to the format "*.Student <class name>.xlsx" and run SchoolDataPrep.R, specifying the path in fileList.  Then run dashMaster.RMD and quality review.  Finally publish to shinyApps.io, adding each .RDS file and those files in the header, either by adding them to masterDash.RMD YAML header, or via gui to shinyApps.io.
+1. To generate the .RDS files, put the .xlsx files from polinode into the ./data directory, check they are named in the format '\*.Student <class name>.xlsx', or '\*.Teacher <class name>.xlsx'.  Then open clientConfig.R and specify both the name of the school, and which sociodemographic variables should be passed through to the dashboard (found in the column headers of each 'nodes' sheet).  Finally, open and source SchoolDataLoad.R.  This should generate one .RDS file for each class.
+
+2. To generate the dashboard files, open and source compileMasterDash.R.  This will generate and populate a directory called 'compilationOutput' and run the dashboard locally for error checking (if runForChecking = TRUE in compileMasterDash).
+
+3. To publish the dashboard, set the working directory to ./compilationOutput and open masterDashCompiled.RMD. Add all the files in the compilationOutput directory as assets either in the YAML header of the .RMD file, or via your IDE GUI such as R Studio.  Finally push the contents of the compilationOutput directory to your cloud provider of choice and use the cloud server framework to secure it behind encryption.
 
 For reference, these are the questions asked of staff and students:
 Staff Questions
@@ -50,3 +54,5 @@ Student Questions
 5.7 My teacher recognizes and rewards my efforts
 5.6 My teacher inspires and motivates me
 5.3 My teacher and I have shared goals for my progress and development
+
+nb.  This is not tested on IOS - references to paths may have to be edited to make this work outside of a Windows installation.

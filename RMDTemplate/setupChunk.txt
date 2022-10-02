@@ -1,8 +1,15 @@
 ```{r setup, include=FALSE}
 
 #install and call all relevant libraries
-packages = c(packageListPlaceholder)
-invisible(lapply(packages, library, character.only = TRUE))
+
+library('rmarkdown')
+library('jsonlite')
+library('readr')
+library('dplyr')
+library('ggplot2')
+library('flexdashboard')
+library('plotly')
+library('DT')
 
 #read in all files
 files = list.files(path = paste(".", "data", sep = "/"), pattern = '^.*rds$')
