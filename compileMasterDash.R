@@ -84,7 +84,9 @@ compileMasterDash <- function(templateDirectoryName,
   )
   belongingnessIndices <- vector()
   for(i in 1:length(belongingnessText)){
-    belongingnessIndices[[length(belongingnessIndices)+1]] <- grep(belongingnessText[i], colnames(fileList[[1]]$nodes))
+    if(belongingnessText[i] %in% names(fileList[[1]]$nodes)) {
+      belongingnessIndices[[length(belongingnessIndices)+1]] <- grep(belongingnessText[i], colnames(fileList[[1]]$nodes))
+    }
   }  
   if(length(belongingnessIndices)>6) {
     warning("more belongingness question columns have been matched than there should be.")
