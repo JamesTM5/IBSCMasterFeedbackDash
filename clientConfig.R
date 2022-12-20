@@ -4,14 +4,12 @@
 
 
 #What does the client call themselves?
-clientName <- "Peaks Institute"
+clientName <- "Crescent School"
 
 #Which SDV have been supplied for analysis alongside network data? (must be
 #factorial data, in the order it appears in the .xlsx and is case sensitive.
 #Additionally, it must not contain the character string "numeric".)
 
 socioDemographicVariables <- c(
-  'Music Extracurricular',	'Day/Boarder',	'GPA',	'House',
-  'International /Domestic',	'start year', 'Summer Sport',
-  'Tutor Group',	'Winter Sport'
+  
 )

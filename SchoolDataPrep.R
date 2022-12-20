@@ -56,7 +56,16 @@ SSDashAnalysis <- function (studentDataInput,
     teacherData <- teacherData[2:length(teacherData)]
    # for each of 2:length teacherData, if ncol = 4, take cols 2&3, order by name
     # (col2) and add it to the nodes frame
-
+    
+    #adding these here because they don't seem to be called until later
+    nodesKeyStudentTeacher <- keyToNumeric(scoreData = nodes[,responseColumnsStudentTeacher],
+                                           answers = nodeAnswersStudentTeacher,
+                                           normalized = FALSE)
+    nodesKeyStudentTeacherCategorical <- data.frame(nodeAnswersStudentTeacher)
+    nodesKeyStudentTeacherCategorical$newAnswers <- c("High", "High", "Moderate", "Moderate", "Low", "Low")
+    names(nodesKeyStudentTeacherCategorical) <- c("answers", "newAnswers")
+    
+    
     nameList <- vector()
     for (i in 1:length(teacherData)) {
       nameList <- c(nameList, teacherData[[i]]$Target)
@@ -323,7 +332,7 @@ SSDashAnalysis <- function (studentDataInput,
   nodes <- nodes[order(nodes[[1]]),]
   names(nodes)[[1]] <- "Name"
   if(teacherDataPresent == TRUE) {
-    nodes <- merge(nodes, teacherAnswersFrame1, by = "Name", all.x = T)
+    nodes <- merge(nodes, teacherAnswersFrame1, all.x = T)
     teacherStudentData <- nodes
   } else {
     teacherStudentData <- data.frame()
