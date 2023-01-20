@@ -15,6 +15,8 @@ compileMasterDash <- function(templateDirectoryName,
                               outputFilename,
                               runForChecking = TRUE) {
   
+  schoolName <- "St. Christopher's"
+  
   packages = c("rmarkdown", "readr", "stringr", "dplyr")
   
   invisible(lapply(packages, library, character.only = TRUE))
@@ -277,7 +279,7 @@ compileMasterDash <- function(templateDirectoryName,
   packagesUsed <- list()
 
 #build dash page list  
-  dash[[1]] <- setupYaml(title = "Scotch College Relationships Dash")
+  dash[[1]] <- setupYaml(title = schoolName)
   dash[[2]] <- setupSetupChunk()
 #add school-wide pages if needed
    if(length(fileList) >= 2) {

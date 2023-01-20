@@ -41,10 +41,12 @@ SSDashAnalysis <- function (studentDataInput,
   
   #marry the corresponding teacher data with the student data where necessary
   teacherClassNameList <- list()
-  for (m in 1:length(teacherDataInput)){
+  if(!is.null(teacherDataInput)) {
+    for (m in 1:length(teacherDataInput)){
     TclassName <- substring(names(teacherDataInput)[[m]], regexpr("Teacher",
                   names(teacherDataInput)[[m]]) + 8)
     teacherClassNameList[[m]] <- substring(TclassName, 1, nchar(TclassName)-5) #remove ".xlsx"
+    }
   }
   teacherDataPresent <- FALSE
   if (className %in% teacherClassNameList) {
@@ -80,15 +82,22 @@ SSDashAnalysis <- function (studentDataInput,
         }
       }
 
-    if(ncol(teacherAnswersFrame)==7){
-      names(teacherAnswersFrame) <- c(
-        "Name",
-        "Teacher-My communication with this student is highly effective.",
-        "Teacher-Our relationship has a strong 'story' or timeline" ,
-        "Teacher-I know this student well.",
-        "Teacher-Our relationship is fair and respectful.",
-        "Teacher-We are aligned in purpose and values.",
-        "Teacher-There are opportunities to build our relationship")
+    TAFIDKey <- data.frame("original" = c("Q9",
+                                          "Q10",
+                                          "Q11",
+                                          "Q12",
+                                          "Q13",
+                                          "Q14"),
+                           "new" = c("Teacher-My communication with this student is highly effective.",
+                                     "Teacher-Our relationship has a strong 'story' or timeline" ,
+                                     "Teacher-I know this student well.",
+                                     "Teacher-Our relationship is fair and respectful.",
+                                     "Teacher-We are aligned in purpose and values.",
+                                     "Teacher-There are opportunities to build our relationship")
+                           )
+    colnames(teacherAnswersFrame) <- dplyr::recode(colnames(teacherAnswersFrame),
+                                                   !!!setNames(as.character(TAFIDKey$new), TAFIDKey$original))
+    
       #make numeric columns for teacher/student questions (0-5)
       teacherDataNames <- teacherAnswersFrame[[1]]
       teacherAnswersFrame <- teacherAnswersFrame[2:ncol(teacherAnswersFrame)]
@@ -110,39 +119,65 @@ SSDashAnalysis <- function (studentDataInput,
       #make stratified columns for teacher/student questions (low, medium, high)
       modifiedNodesTS <- teacherAnswersFrame
       originalNamesTS <- names(teacherAnswersFrame)
-      names(modifiedNodesTS) <- c("a", "b", "c", "d", "e", "f")
-      replacementNames <- names(modifiedNodesTS)
+      
+      IDKeyMNTS <- data.frame("original" = c("Teacher-My communication with this student is highly effective.",
+                                             "Teacher-Our relationship has a strong 'story' or timeline" ,
+                                             "Teacher-I know this student well.",
+                                             "Teacher-Our relationship is fair and respectful.",
+                                             "Teacher-We are aligned in purpose and values.",
+                                             "Teacher-There are opportunities to build our relationship"),
+                              "new" = c("a", "b", "c", "d", "e", "f")
+                              )
+      
+      
+     colnames(modifiedNodesTS) <- dplyr::recode(
+       colnames(modifiedNodesTS),
+       !!!setNames(as.character(IDKeyMNTS$new), IDKeyMNTS$original)
+     )
 
+     if("a" %in% colnames(modifiedNodesTS)){
       modifiedNodesTS <- modifiedNodesTS %>%
         left_join(nodesKeyStudentTeacherCategorical, by = c("a" = "answers"))
       names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[1], "(stratified)", sep = ".")
-
+     }
+   
+     if("b" %in% colnames(modifiedNodesTS)){  
       modifiedNodesTS <- modifiedNodesTS %>%
         left_join(nodesKeyStudentTeacherCategorical, by = c("b" = "answers"))
       names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[2], "(stratified)", sep = ".")
-
+     }
+     
+     if("c" %in% colnames(modifiedNodesTS)){
       modifiedNodesTS <- modifiedNodesTS %>%
         left_join(nodesKeyStudentTeacherCategorical, by = c("c" = "answers"))
       names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[3], "(stratified)", sep = ".")
-
+     }
+      
+     if("d" %in% colnames(modifiedNodesTS)){
       modifiedNodesTS <- modifiedNodesTS %>%
         left_join(nodesKeyStudentTeacherCategorical, by = c("d" = "answers"))
       names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[4], "(stratified)", sep = ".")
-
+     }
+     
+     if("e" %in% colnames(modifiedNodesTS)){
       modifiedNodesTS <- modifiedNodesTS %>%
         left_join(nodesKeyStudentTeacherCategorical, by = c("e" = "answers"))
       names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[5], "(stratified)", sep = ".")
-
+     }
+     
+     if("f" %in% colnames(modifiedNodesTS)){
       modifiedNodesTS <- modifiedNodesTS %>%
         left_join(nodesKeyStudentTeacherCategorical, by = c("f" = "answers"))
       names(modifiedNodesTS)[names(modifiedNodesTS) == 'newAnswers'] <-  paste(originalNamesTS[6], "(stratified)", sep = ".")
+     }
+     
       stratifiedAnswers <- modifiedNodesTS[,7:ncol(modifiedNodesTS)]
       teacherAnswersFrame1 <- cbind(teacherAnswersFrame, numericAnswers)
       teacherAnswersFrame1 <- cbind(teacherAnswersFrame1, stratifiedAnswers)
       Name <- teacherDataNames
       teacherAnswersFrame1 <- cbind(Name, teacherAnswersFrame1)
     }
-  }
+  
    #nb this gets added to the nodes frame later in the script
  
 #convert data to numeric where necessary
@@ -182,10 +217,17 @@ SSDashAnalysis <- function (studentDataInput,
     "inspires and motivates me",
     "recognises and rewards my efforts"
   )
+  
+  #Test for missing questions
+  if(identical(grep(studentTeacherRegExQuestionText[i], colnames(nodes)), integer(0))) {
+  warning(paste("no student - teacher questions have been found.  Did the class named", className, "complete the survey?", sep = " "))
+  }
+    
   studentTeacherResponseColumnIndices <- vector()
   for(i in 1:length(studentTeacherRegExQuestionText)) {
    studentTeacherResponseColumnIndices[[length(studentTeacherResponseColumnIndices)+1]] <- grep(studentTeacherRegExQuestionText[i], colnames(nodes))
   }
+  
   if(length(studentTeacherResponseColumnIndices)>7) {
     warning("more student - teacher questions have been matched than there should be.  Consider checking the studentTeacherRegExQuestionText for unwanted matches")
   }
@@ -251,6 +293,7 @@ SSDashAnalysis <- function (studentDataInput,
   belongingnessResponseColumnIndices <- sort(belongingnessResponseColumnIndices)
 
 #make stratified columns for belongingness (low, medium, high)  
+  #belongingnessResponseColumnIndices <- c(1, belongingnessResponseColumnIndices)
   modifiedNodes <- nodes[,belongingnessResponseColumnIndices]
   originalNames <- names(modifiedNodes)
   names(modifiedNodes) <- c("a", "b", "c", "d", "e", "f")
@@ -887,9 +930,9 @@ SSDashAnalysis <- function (studentDataInput,
                               "Understanding S-T",
                               "Inspiration S-T",
                               "Recognition S-T")
-  if(!nrow(modifiedNodesST) == nrow(belongingnessDF)) {
-    modifiedNodesST<- modifiedNodesST %>% filter(if_any(everything(), ~ !is.na(.)))
-  }
+  # if(!nrow(modifiedNodesST) == nrow(belongingnessDF)) {
+  #   modifiedNodesST<- modifiedNodesST %>% filter(if_any(everything(), ~ !is.na(.)))
+  # }
   belongingnessDF <- cbind(belongingnessDF, modifiedNodesST)
 
   #Add peer to peer network characteristics to belongingnessDF
