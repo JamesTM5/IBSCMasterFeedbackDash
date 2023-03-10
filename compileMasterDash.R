@@ -15,7 +15,7 @@ compileMasterDash <- function(templateDirectoryName,
                               outputFilename,
                               runForChecking = TRUE) {
   
-  schoolName <- "St. Christopher's"
+  schoolName <- "Scots"
   
   packages = c("rmarkdown", "readr", "stringr", "dplyr")
   
@@ -85,9 +85,13 @@ compileMasterDash <- function(templateDirectoryName,
     "I feel lonely at"
   )
   belongingnessIndices <- vector()
-  for(i in 1:length(belongingnessText)){
-    belongingnessIndices[[length(belongingnessIndices)+1]] <- grep(belongingnessText[i], colnames(fileList[[1]]$nodes))
-  }  
+  if(identical(grep(belongingnessText[i], colnames(fileList[[1]]$nodes)), integer(0))) {
+    belongingnessPresent <- FALSE
+  } else {
+    for(i in 1:length(belongingnessText)){
+      belongingnessIndices[[length(belongingnessIndices)+1]] <- grep(belongingnessText[i], colnames(fileList[[1]]$nodes))
+    }
+  }
   if(length(belongingnessIndices)>6) {
     warning("more belongingness question columns have been matched than there should be.")
     belongingnessPresent <- TRUE
@@ -96,8 +100,6 @@ compileMasterDash <- function(templateDirectoryName,
   } else if (length(belongingnessIndices) > 0) {
     warning("fewer belongingness question columns have been matched than there should be.  Check the belongingness pages for errors")
     belongingnessPresent <- TRUE
-  } else {
-    belongingnessPresent <- FALSE
   }
       
 #Template Modification  

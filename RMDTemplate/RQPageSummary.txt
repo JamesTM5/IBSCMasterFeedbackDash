@@ -60,10 +60,14 @@ and/or `r fileList[[fileListNumberPlaceholderrmwkpgtffs]]$clientName`.
 
 <center>
 ```{r, results = 'asis'}
-if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[1]] > 0)) {
-  cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[1]])
-} else {
+if(length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList) == 0) {
   cat("None")
+  } else {
+  if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[1]] > 0)) {
+    cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[1]])
+  } else {
+    cat("None")
+  }
 }
 ```
 </center>
@@ -74,10 +78,14 @@ if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length
 
 <center>
 ```{r, results = 'asis'}
-if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[3]] > 0)) {
-  cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[3]])
-} else {
+if(length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList) == 0) {
   cat("None")
+} else {
+  if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[3]] > 0)) {
+    cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[3]])
+  } else {
+    cat("None")
+  }
 }
 ```
 </center>
@@ -88,10 +96,14 @@ if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length
 
 <center>
 ```{r, results = 'asis'}
-if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[2]] > 0)) {
-  cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[2]])
-} else {
+if(length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList) == 0) {
   cat("None")
+} else {
+  if (length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[2]] > 0)) {
+    cat(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$homophylyList[[length(fileList[[fileListNumberPlaceholderrmwkpgtffs]]$overallHealth)]][[2]])
+  } else {
+    cat("None")
+  }
 }
 ```
 </center>
